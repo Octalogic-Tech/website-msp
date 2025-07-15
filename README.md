@@ -4,98 +4,252 @@ construction machinery website
 =======
 # Construction Machinery E-Commerce Platform
 
-A modern, high-converting shopping website for construction machinery and spare parts with a clean, rugged yet professional UI/UX.
+A modern, high-converting shopping website for construction machinery and spare parts with a clean, rugged yet professional UI/UX that balances e-commerce functionality with B2B trust.
 
-## 🏗️ Tech Stack
+## 🎯 **Current Focus: Backend Development**
 
-### Frontend
-- **Framework**: Next.js 14+ with React 18
-- **Styling**: Tailwind CSS
-- **UI Components**: Custom component library
-- **State Management**: Zustand
-- **Authentication**: Firebase Auth
-- **E-commerce**: Shopify SDK integration
-- **Search**: Algolia/ElasticSearch
-- **Code Quality**: ESLint + Prettier
+This repository showcases a robust Node.js/Express backend API built with TypeScript, PostgreSQL, and Prisma ORM.
 
-### Backend
-- **Runtime**: Node.js with Express.js
-- **Database**: PostgreSQL
-- **CMS**: Strapi (Headless)
-- **Authentication**: Firebase Admin SDK
-- **Payment**: Stripe integration
-- **File Storage**: Firebase Storage/AWS S3
-- **API Documentation**: Swagger/OpenAPI
+## 🚀 Features
 
-### Infrastructure
-- **Hosting**: Vercel (Frontend) + Railway/AWS (Backend)
-- **Database**: PostgreSQL (Railway/AWS RDS)
-- **CDN**: Cloudflare
-- **Monitoring**: Sentry
+### ✅ **Implemented**
+- **RESTful API** with Express.js and TypeScript
+- **PostgreSQL Database** with Prisma ORM
+- **Product Catalog** with advanced filtering and search
+- **Shopping Cart** with session-based persistence
+- **Quote Request System** (RFQ) for B2B customers
+- **Spare Parts Finder** - Find compatible parts by machine make/model
+- **Input Validation** with Zod schemas
+- **Error Handling** and structured logging
+- **Security Middleware** (CORS, Helmet)
+- **Database Seeding** with sample construction machinery data
 
-## 📁 Project Structure
+### 🔧 **Tech Stack**
+- **Runtime**: Node.js 22+
+- **Framework**: Express.js with TypeScript
+- **Database**: PostgreSQL 17+ with Prisma ORM
+- **Validation**: Zod schemas
+- **Security**: Helmet, CORS
+- **Development**: Nodemon, ESLint, Prettier
 
-```
-/
-├── frontend/          # Next.js application
-├── backend/           # Express.js API server
-├── docs/             # Documentation and specifications
-└── README.md         # This file
-```
+## 📋 Quick Start
 
-## 🚀 Quick Start
+**Note**: This repository contains the full project structure, but current development focuses on the backend API.
 
 ### Prerequisites
-- Node.js 18+ 
-- PostgreSQL
-- Firebase account
-- Shopify Partner account
-- Strapi Cloud account (or local setup)
+- Node.js 22+ and npm
+- PostgreSQL 17+ 
+- Git
 
-### Frontend Setup
-```bash
-cd frontend
-npm install
-npm run dev
-```
+### Installation
 
-### Backend Setup
 ```bash
+# Clone repository
+git clone <repository-url>
+cd Ecom
+
+# Install backend dependencies
 cd backend
 npm install
+
+# Set up environment variables
+cp .env.example .env
+# Edit .env with your PostgreSQL credentials
+
+# Set up database
+createdb construction_machinery_db
+npm run db:migrate
+npm run seed
+
+# Start development server
 npm run dev
 ```
 
-## 📋 Development Tasks
+### Available Scripts
 
-See `/docs/task-breakdown.md` for detailed frontend and backend task lists.
+```bash
+# Development with hot reload
+npm run dev
 
-## 🎨 Design System
+# Build TypeScript
+npm run build
 
-- **Theme**: Industrial, Rugged, Clean lines
-- **Colors**: Steel grey, orange/yellow accents, dark neutrals
-- **Typography**: Montserrat (headers) + Open Sans (body)
-- **Icons**: Line icons for categories & specs
+# Start production server
+npm start
 
-## 📱 Key Features
+# Database operations
+npm run db:generate  # Generate Prisma client
+npm run db:migrate   # Run migrations
+npm run seed         # Seed sample data
 
-- Product catalog with advanced filtering
-- Spare parts finder tool
-- Bulk quote requests (RFQ)
-- B2B customer accounts
-- Mobile-optimized experience
-- Multi-currency support
-- Technical documentation downloads
+# Code quality
+npm run lint         # ESLint
+```
 
-## 🔗 Integration Points
+## 🌐 API Endpoints
 
-- **Shopify**: Product catalog, inventory, orders
-- **Strapi**: Content management, blog, pages
-- **Firebase**: Authentication, user profiles
-- **Stripe**: Payment processing
-- **Search**: Product search and filtering
+### Health Check
+```bash
+GET /health
+```
+
+### Products
+```bash
+# Get all products with optional filters
+GET /api/products?category=excavators&minPrice=50000&maxPrice=200000
+
+# Get single product by slug
+GET /api/products/:slug
+
+# Find spare parts by machine make/model
+GET /api/products/parts-finder?make=caterpillar&model=320D
+```
+
+### Shopping Cart
+```bash
+# Get current cart
+GET /api/cart
+
+# Add item to cart
+POST /api/cart/items
+{
+  "productId": "product_id",
+  "quantity": 2
+}
+
+# Update cart item
+PUT /api/cart/items/:id
+{
+  "quantity": 3
+}
+
+# Remove item from cart
+DELETE /api/cart/items/:id
+
+# Clear entire cart
+DELETE /api/cart
+```
+
+### Quote Requests (RFQ)
+```bash
+# Create quote request
+POST /api/quote
+{
+  "customerInfo": {
+    "name": "John Doe",
+    "email": "john@company.com",
+    "phone": "+1234567890",
+    "company": "Construction Co"
+  },
+  "items": [
+    {
+      "productId": "product_id",
+      "quantity": 1
+    }
+  ],
+  "notes": "Urgent requirement"
+}
+
+# Get quote requests (admin)
+GET /api/quote
+
+# Get specific quote request
+GET /api/quote/:id
+```
+
+## �️ Database Schema
+
+### Core Tables
+- **Products** - Construction machinery and spare parts
+- **Categories** - Product categorization (Excavators, Loaders, etc.)
+- **Brands** - Manufacturer information (Caterpillar, Komatsu, etc.)
+- **Cart Items** - Session-based shopping cart
+- **Quote Requests** - B2B quote management
+
+### Sample Data
+The database is seeded with:
+- 10 construction machinery products
+- Categories: Excavators, Loaders, Spare Parts
+- Brands: Caterpillar, Komatsu, JCB, Hitachi
+- Realistic product specifications and pricing
+
+## 🔧 Project Structure
+
+```
+backend/
+├── src/
+│   ├── config/          # Database and app configuration
+│   ├── controllers/     # Request handlers
+│   ├── middleware/      # Custom middleware
+│   ├── models/          # Zod validation schemas
+│   ├── routes/          # API route definitions
+│   ├── services/        # Business logic
+│   └── index.ts         # App entry point
+├── prisma/
+│   ├── schema.prisma    # Database schema
+│   ├── migrations/      # Database migrations
+│   └── seed.ts          # Sample data
+├── docs/                # Documentation
+└── dist/                # Compiled JavaScript (generated)
+```
+
+## 🧪 Testing the API
+
+### Using cURL
+```bash
+# Test health endpoint
+curl http://localhost:5000/health
+
+# Get products with filters
+curl "http://localhost:5000/api/products?category=excavators&limit=5"
+
+# Search spare parts
+curl "http://localhost:5000/api/products/parts-finder?make=caterpillar"
+
+# Add to cart
+curl -X POST http://localhost:5000/api/cart/items \
+  -H "Content-Type: application/json" \
+  -d '{"productId":"cmd44gytd000not9a7j88h5kl","quantity":1}'
+```
+
+### Using Browser
+- Health: http://localhost:5000/health
+- Products: http://localhost:5000/api/products
+- Spare Parts: http://localhost:5000/api/products/parts-finder?make=caterpillar
+
+## 📚 Additional Documentation
+
+- [Windows Setup Guide](./docs/BACKEND_SETUP_WINDOWS.md) - Detailed Windows installation
+- [Backend Structure](./backend/README.md) - Detailed backend documentation
+
+## � Deployment Ready
+
+The backend includes:
+- ✅ Production build configuration
+- ✅ Environment variable management
+- ✅ Database migrations
+- ✅ Error handling and logging
+- ✅ Security middleware
+- ✅ Input validation
+- ✅ Session management
+
+## 🔮 Future Enhancements
+
+- User authentication (JWT/Firebase)
+- Payment integration (Stripe)
+- File upload for product images
+- Advanced search (Elasticsearch)
+- Email notifications
+- Order management system
+- Admin dashboard API
 
 ## 📄 License
 
 Private - All rights reserved
+<<<<<<< HEAD
 >>>>>>> d9e403c (Initial project setup: Next.js frontend + Express.js backend)
+=======
+
+---
+
+>>>>>>> a56c826 (feat: Complete backend API implementation for construction machinery e-commerce)

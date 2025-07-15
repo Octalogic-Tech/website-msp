@@ -1,0 +1,147 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Category {
+  id          String    @id @default(cuid())
+  name        String    @unique
+  slug        String    @unique
+  description String?
+  imageUrl    String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  
+  // Relations
+  products    Product[]
+
+  @@map("categories")
+}
+
+model Brand {
+  id          String    @id @default(cuid())
+  name        String    @unique
+  slug        String    @unique
+  description String?
+  logoUrl     String?
+  website     String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  
+  // Relations
+  products    Product[]
+
+  @@map("brands")
+}
+
+model Product {
+  id          String    @id @default(cuid())
+  name        String
+  slug        String    @unique
+  description String?
+  price       Decimal   @db.Decimal(10, 2)
+  stockQty    Int       @default(0)
+  images      String[]  // Array of image URLs
+  specs       Json?     // JSON field for specifications
+  isActive    Boolean   @default(true)
+  
+  // Foreign keys
+  categoryId  String
+  brandId     String
+  
+  // Timestamps
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  
+  // Relations
+  category    Category  @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  brand       Brand     @relation(fields: [brandId], references: [id], onDelete: Cascade)
+  cartItems   CartItem[]
+  quoteItems  QuoteItem[]
+
+  @@map("products")
+}
+
+model Cart {
+  id        String     @id @default(cuid())
+  sessionId String     @unique
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  
+  // Relations
+  items     CartItem[]
+
+  @@map("carts")
+}
+
+model CartItem {
+  id        String    @id @default(cuid())
+  cartId    String
+  productId String
+  quantity  Int       @default(1)
+  itemType  ItemType  @default(BUY_NOW) // BUY_NOW or REQUEST_QUOTE
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  
+  // Relations
+  cart      Cart      @relation(fields: [cartId], references: [id], onDelete: Cascade)
+  product   Product   @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([cartId, productId])
+  @@map("cart_items")
+}
+
+model QuoteRequest {
+  id          String      @id @default(cuid())
+  email       String
+  customerName String?
+  companyName String?
+  phoneNumber String?
+  message     String?
+  status      QuoteStatus @default(PENDING)
+  totalAmount Decimal?    @db.Decimal(10, 2)
+  
+  // Timestamps
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  
+  // Relations
+  items       QuoteItem[]
+
+  @@map("quote_requests")
+}
+
+model QuoteItem {
+  id            String       @id @default(cuid())
+  quoteRequestId String
+  productId     String
+  quantity      Int          @default(1)
+  unitPrice     Decimal      @db.Decimal(10, 2)
+  
+  // Relations
+  quoteRequest  QuoteRequest @relation(fields: [quoteRequestId], references: [id], onDelete: Cascade)
+  product       Product      @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([quoteRequestId, productId])
+  @@map("quote_items")
+}
+
+// Enums
+enum ItemType {
+  BUY_NOW
+  REQUEST_QUOTE
+}
+
+enum QuoteStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  EXPIRED
+}

@@ -1,11 +1,20 @@
 # Dependencies
 node_modules/
 */node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+.pnpm-debug.log*
 
 # Production builds
 frontend/.next/
 frontend/out/
+frontend/build/
 backend/dist/
+backend/build/
+admin/build/
+admin/dist/
 
 # Environment files
 .env
@@ -15,22 +24,23 @@ backend/dist/
 .env.production.local
 */.env
 */.env.local
+*/.env.development.local
+*/.env.test.local
+*/.env.production.local
 
 # Logs
 *.log
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-lerna-debug.log*
+logs/
 
 # Runtime data
-pids
+pids/
 *.pid
 *.seed
 *.pid.lock
 
 # Coverage directory used by tools like istanbul
 coverage/
+*/coverage/
 *.lcov
 
 # nyc test coverage
@@ -38,6 +48,7 @@ coverage/
 
 # ESLint cache
 .eslintcache
+*/.eslintcache
 
 # Optional npm cache directory
 .npm
@@ -57,6 +68,7 @@ coverage/
 
 # next.js build output
 .next
+frontend/.next/
 
 # nuxt.js build output
 .nuxt
@@ -76,26 +88,83 @@ coverage/
 # TernJS port file
 .tern-port
 
-# IDEs
+# IDEs and editors
 .vscode/
 .idea/
 *.swp
 *.swo
+*~
 
-# OS
+# OS generated files
 .DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
 Thumbs.db
 
-# Database
+# Database files
 *.db
 *.sqlite
+*.sqlite3
 
 # Firebase
 .firebase/
 
 # Strapi
 .strapi/
+admin/.strapi/
+admin/public/uploads/*
+!admin/public/uploads/.gitkeep
 
-# Temporary files
+# Prisma generated files
+backend/src/generated/
+backend/node_modules/.prisma/
+backend/prisma/generated/
+
+# Uploads and temporary files
+uploads/temp/
+uploads/cache/
+*/uploads/temp/
+*/uploads/cache/
+temp/
+tmp/
 *.tmp
 *.temp
+
+# SSL certificates
+*.pem
+*.key
+*.crt
+*.cert
+
+# PM2 ecosystem files
+ecosystem.config.js
+*/ecosystem.config.js
+
+# Docker
+.dockerignore
+
+# Backup files
+*.backup
+*.bak
+
+# Test results
+test-results/
+*/test-results/
+junit.xml
+
+# TypeScript build info
+*.tsbuildinfo
+*/*.tsbuildinfo
+
+# Session store files
+sessions/
+*/sessions/
+
+# Lock files (choose one strategy)
+package-lock.json
+*/package-lock.json
+yarn.lock
+*/yarn.lock

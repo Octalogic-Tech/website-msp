@@ -3,96 +3,119 @@
 ## Prerequisites
 
 Make sure you have the following installed:
-- Node.js 18+ and npm
-- PostgreSQL 14+
+- Node.js 22+ and npm (required for Strapi compatibility)
+- PostgreSQL 17+ (recommended for latest features)
 - Git
+
+
 
 ## Quick Setup
 
-### 1. Clone and Install Dependencies
+### 1. Backend Setup (Main Focus)
 
 ```bash
-# Install frontend dependencies
-cd frontend
-npm install
-cd ..
-
-# Install backend dependencies  
+# Navigate to backend directory
 cd backend
+
+# Install dependencies
 npm install
-cd ..
-```
 
-### 2. Environment Configuration
-
-#### Frontend Environment
-```bash
-cd frontend
-cp .env.example .env.local
-# Edit .env.local with your configuration
-```
-
-#### Backend Environment
-```bash
-cd backend
+# Set up environment variables
 cp .env.example .env
-# Edit .env with your configuration
+# Edit .env with your PostgreSQL credentials
 ```
 
-### 3. Database Setup
+### 2. Database Setup
 
 ```bash
 # Create PostgreSQL database
 createdb construction_machinery_db
 
 # Update DATABASE_URL in backend/.env
+# Example: DATABASE_URL="postgresql://username:password@localhost:5432/construction_machinery_db"
+
+# Run database migrations
+npm run db:migrate
+
+# Seed with sample data
+npm run seed
 ```
 
-### 4. Firebase Setup
+### 3. Start Development Server
 
-1. Create a Firebase project at https://console.firebase.google.com
-2. Enable Authentication and Firestore
-3. Generate service account credentials
-4. Update Firebase config in both frontend and backend .env files
+```bash
+# Start backend API server
+npm run dev
 
-### 5. Shopify Setup
+# Server will run on http://localhost:5000
+# Test endpoints:
+# - http://localhost:5000/health
+# - http://localhost:5000/api/products
+# - http://localhost:5000/api/cart
+```
 
-1. Create a Shopify Partner account
-2. Create a development store
-3. Generate Storefront Access Token
-4. Update Shopify config in .env files
+### 4. Optional: Strapi Admin Panel
 
-### 6. Stripe Setup
+```bash
+# Navigate to admin directory
+cd admin
 
-1. Create a Stripe account
-2. Get API keys from dashboard
-3. Update Stripe config in .env files
+# Install and start Strapi
+npm install
+npm run develop
+
+# Admin panel: http://localhost:1337/admin
+```
+
+## What's Implemented (Internship Demo)
+
+### ✅ **Backend API Features**
+- RESTful API with Express.js + TypeScript
+- PostgreSQL database with Prisma ORM
+- Product catalog with advanced filtering
+- Shopping cart with session management
+- Quote request system (RFQ)
+- Input validation with Zod schemas
+- Error handling and logging
+- CORS and security middleware
+
+### ✅ **Database Design**
+- Normalized schema for products, categories, brands
+- Cart and quote management tables
+- Proper indexing and relationships
+- Database migrations and seeding
+
+### ✅ **API Endpoints**
+- `GET /api/products` - Product listing with filters
+- `GET /api/products/:slug` - Product details
+- `GET /api/products/parts-finder` - Spare parts search
+- `POST/GET/PUT/DELETE /api/cart` - Cart management
+- `POST/GET /api/quote` - Quote requests
+
+### 🔄 **Ready for Extension**
+- Authentication system architecture
+- Payment integration endpoints
+- Order management system
+- File upload capabilities
 
 ## Development Commands
 
-### Frontend (Next.js)
-```bash
-cd frontend
+### Backend (Express.js) - Main Focus
 
-# Development server
-npm run dev
-
-# Build for production
-npm run build
-
-# Start production server
-npm start
-
-# Lint code
-npm run lint
-```
-
-### Backend (Express.js)
 ```bash
 cd backend
 
 # Development server with hot reload
 npm run dev
+
+# Generate Prisma client
+npm run db:generate
+
+# Run database migrations
+npm run db:migrate
+
+# Seed database with sample data
+npm run seed
 
 # Build TypeScript
 npm run build
@@ -102,6 +125,30 @@ npm start
 
 # Lint code
 npm run lint
+```
+
+### Testing API Endpoints
+
+```bash
+# Test health endpoint
+curl http://localhost:5000/health
+
+# Get all products
+curl http://localhost:5000/api/products
+
+# Get products with filters
+curl "http://localhost:5000/api/products?category=excavators&minPrice=50000"
+
+# Search spare parts
+curl "http://localhost:5000/api/products/parts-finder?make=caterpillar&model=320D"
+
+# Get cart
+curl http://localhost:5000/api/cart
+
+# Add to cart
+curl -X POST http://localhost:5000/api/cart/items \
+  -H "Content-Type: application/json" \
+  -d '{"productId":"product_id_here","quantity":1}'
 ```
 
 ## Project Structure
