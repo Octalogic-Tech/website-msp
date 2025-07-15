@@ -41,8 +41,8 @@ This repository showcases a robust Node.js/Express backend API built with TypeSc
 
 ```bash
 # Clone repository
-git clone <repository-url>
-cd Ecom
+git clone https://github.com/Octalogic-Tech/website-msp.git
+cd website-msp
 
 # Install backend dependencies
 cd backend
