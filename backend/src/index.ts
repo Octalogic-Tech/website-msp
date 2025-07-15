@@ -2,6 +2,15 @@ import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import dotenv from 'dotenv';
+import session from 'express-session';
+import connectPgSimple from 'connect-pg-simple';
+import { prisma } from './config/database';
+import { errorHandler } from './middleware/errorHandler';
+
+// Routes
+import productRoutes from './routes/products';
+import cartRoutes from './routes/cart';
+import quoteRoutes from './routes/quote';
 
 // Load environment variables
 dotenv.config();
@@ -9,11 +18,36 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 5000;
 
+// Session store
+const PgSession = connectPgSimple(session);
+
 // Middleware
 app.use(helmet()); // Security headers
-app.use(cors()); // Enable CORS
+app.use(cors({
+  origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+  credentials: true,
+})); // Enable CORS
 app.use(express.json()); // Parse JSON bodies
 app.use(express.urlencoded({ extended: true })); // Parse URL-encoded bodies
+
+// Session middleware
+app.use(session({
+  store: new PgSession({
+    conString: process.env.DATABASE_URL,
+    createTableIfMissing: true,
+  }),
+  secret: process.env.SESSION_SECRET || 'your-secret-key',
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    secure: process.env.NODE_ENV === 'production',
+    httpOnly: true,
+    maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
+  },
+}));
+
+// Serve static files (for uploads)
+app.use('/uploads', express.static('uploads'));
 
 // Health check endpoint
 app.get('/health', (req, res) => {
@@ -25,14 +59,25 @@ app.get('/health', (req, res) => {
   });
 });
 
-// API routes placeholder
+// API routes
+app.use('/api/products', productRoutes);
+app.use('/api/cart', cartRoutes);
+app.use('/api/quote', quoteRoutes);
+
+// Parts finder route (alternative path)
+app.use('/api/parts-finder', productRoutes);
+
+// Root API endpoint
 app.get('/api', (req, res) => {
   res.json({
     message: 'Construction Machinery E-commerce API',
     version: '1.0.0',
     endpoints: {
       health: '/health',
-      api: '/api'
+      products: '/api/products',
+      cart: '/api/cart',
+      quote: '/api/quote',
+      partsFinder: '/api/parts-finder',
     }
   });
 });
@@ -46,12 +91,13 @@ app.use((req, res) => {
 });
 
 // Error handling middleware
-app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
-  console.error('Error:', err);
-  res.status(500).json({
-    error: 'Internal Server Error',
-    message: process.env.NODE_ENV === 'production' ? 'Something went wrong' : err.message
-  });
+app.use(errorHandler);
+
+// Graceful shutdown
+process.on('SIGINT', async () => {
+  console.log('Shutting down server...');
+  await prisma.$disconnect();
+  process.exit(0);
 });
 
 // Start server
@@ -59,6 +105,9 @@ app.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);
   console.log(`📍 Health check: http://localhost:${PORT}/health`);
   console.log(`📍 API endpoint: http://localhost:${PORT}/api`);
+  console.log(`📍 Products: http://localhost:${PORT}/api/products`);
+  console.log(`📍 Cart: http://localhost:${PORT}/api/cart`);
+  console.log(`📍 Quote: http://localhost:${PORT}/api/quote`);
 });
 
 export default app;
