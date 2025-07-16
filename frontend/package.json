@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@elastic/elasticsearch": "^9.0.3",
     "@stripe/stripe-js": "^7.4.0",
     "autoprefixer": "^10.4.21",
     "axios": "^1.10.0",
