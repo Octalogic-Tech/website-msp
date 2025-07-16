@@ -159,6 +159,12 @@ junit.xml
 *.tsbuildinfo
 */*.tsbuildinfo
 
+# Compiled TypeScript files
+backend/src/**/*.js
+backend/src/**/*.js.map
+backend/prisma/*.js
+backend/prisma/*.js.map
+
 # Session store files
 sessions/
 */sessions/

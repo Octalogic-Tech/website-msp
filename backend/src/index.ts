@@ -101,13 +101,23 @@ process.on('SIGINT', async () => {
 });
 
 // Start server
-app.listen(PORT, () => {
-  console.log(`🚀 Server running on port ${PORT}`);
-  console.log(`📍 Health check: http://localhost:${PORT}/health`);
-  console.log(`📍 API endpoint: http://localhost:${PORT}/api`);
-  console.log(`📍 Products: http://localhost:${PORT}/api/products`);
-  console.log(`📍 Cart: http://localhost:${PORT}/api/cart`);
-  console.log(`📍 Quote: http://localhost:${PORT}/api/quote`);
-});
+async function startServer() {
+  try {
+    // Start listening for requests
+    app.listen(PORT, () => {
+      console.log(`🚀 Server running on port ${PORT}`);
+      console.log(`📍 Health check: http://localhost:${PORT}/health`);
+      console.log(`📍 API endpoint: http://localhost:${PORT}/api`);
+      console.log(`📍 Products: http://localhost:${PORT}/api/products`);
+      console.log(`📍 Cart: http://localhost:${PORT}/api/cart`);
+      console.log(`📍 Quote: http://localhost:${PORT}/api/quote`);
+    });
+  } catch (error) {
+    console.error('❌ Failed to start server:', error);
+    process.exit(1);
+  }
+}
+
+startServer();
 
 export default app;

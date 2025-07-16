@@ -23,7 +23,7 @@ export default function HomeComponent() {
       <div className={styles.hero}>
         <Image
           src={homebg}
-          alt="Hero Background"
+          alt="Construction Machinery in Action"
           fill
           style={{ objectFit: 'cover' }}
           className={styles.heroImage}
@@ -33,9 +33,20 @@ export default function HomeComponent() {
           <h1 className={styles.heroTitle}>
             Construction{'\n'}Machinery &{'\n'}Spare Parts
           </h1>
-          <Link href="/shop" className={styles.heroButton}>
-            Shop Now
-          </Link>
+          <p className={styles.heroSubtitle}>
+            Professional Equipment & Genuine Parts for Construction Industry
+          </p>
+          <div className={styles.heroCTAGroup}>
+            <Link href="/shop" className={styles.heroButton}>
+              Shop Now
+            </Link>
+            <Link href="/parts-finder" className={`${styles.heroButton} ${styles.heroButtonSecondary}`}>
+              Parts Finder
+            </Link>
+            <Link href="/contact-us" className={`${styles.heroButton} ${styles.heroButtonOutline}`}>
+              Request Quote
+            </Link>
+          </div>
         </div>
       </div>
 
@@ -46,23 +57,48 @@ export default function HomeComponent() {
         </h2>
         <div className={styles.categoryGrid}>
           {[
-            { img: excavator1, label: 'Excavators' },
-            { img: wheelLoader, label: 'Loaders' },
-            { img: backhoeloader, label: 'Dumptrucks' },
-            { img: hydraulics, label: 'Hydraulics' },
-            { img: filters, label: 'Filters' },
-            { img: undercarriage, label: 'Undercarriage' },
+            { img: excavator1, label: 'Excavators', link: '/shop/excavators' },
+            { img: wheelLoader, label: 'Loaders', link: '/shop/loaders' },
+            { img: backhoeloader, label: 'Dumptrucks', link: '/shop/dumptrucks' },
+            { img: hydraulics, label: 'Hydraulics', link: '/shop/hydraulics' },
+            { img: filters, label: 'Filters', link: '/shop/filters' },
+            { img: undercarriage, label: 'Undercarriage', link: '/shop/undercarriage' },
           ].map((cat, idx) => (
-            <div
+            <Link 
               key={idx}
+              href={cat.link}
               className={styles.categoryCard}
             >
-              <Image src={cat.img} alt={cat.label} width={160} height={100} />
+              <div className={styles.categoryImageContainer}>
+                <Image src={cat.img} alt={cat.label} width={160} height={100} className={styles.categoryImage} />
+              </div>
               <p className={styles.categoryLabel}>
                 {cat.label}
               </p>
-            </div>
+            </Link>
           ))}
+        </div>
+      </section>
+
+      {/* B2B Trust Section */}
+      <section className={styles.trustSection}>
+        <div className={styles.trustContainer}>
+          <div className={styles.trustItem}>
+            <div className={styles.trustNumber}>15+</div>
+            <div className={styles.trustLabel}>Years Experience</div>
+          </div>
+          <div className={styles.trustItem}>
+            <div className={styles.trustNumber}>500+</div>
+            <div className={styles.trustLabel}>Projects Completed</div>
+          </div>
+          <div className={styles.trustItem}>
+            <div className={styles.trustNumber}>24/7</div>
+            <div className={styles.trustLabel}>Expert Support</div>
+          </div>
+          <div className={styles.trustItem}>
+            <div className={styles.trustNumber}>ISO</div>
+            <div className={styles.trustLabel}>Certified</div>
+          </div>
         </div>
       </section>
 
@@ -90,13 +126,13 @@ export default function HomeComponent() {
               <p className={styles.whyChooseDescription}>Only genuine or verified parts</p>
             </div>
           </div>
-          <GrUserExpert className="text-gray-800 w-[50px] h-[50px]" />
           <div className={styles.whyChooseItem}>
+            <GrUserExpert className={styles.expertIcon} />
             <div className={styles.whyChooseText}>
               <h3 className={styles.whyChooseTitle}>
                 Expert Support
               </h3>
-              <p className={styles.whyChooseDescription}>Guidance for every need</p>
+              <p className={styles.whyChooseDescription}>Technical guidance for every need</p>
             </div>
           </div>
         </div>
@@ -109,34 +145,50 @@ export default function HomeComponent() {
         </h2>
         <div className={styles.productGrid}>
           {[
-            { img: excavator1, name: 'Excavator 1', price: 30000 },
-            { img: wheelLoader, name: 'Wheel Loader', price: 38000 },
-            { img: miniexcavator, name: 'Mini Excavator', price: 29000 },
-            { img: backhoeloader, name: 'Backhoe Loader', price: 45000 },
+            { img: excavator1, name: 'CAT 320 Excavator', price: 89000, condition: 'New', availability: 'In Stock' },
+            { img: wheelLoader, name: 'Komatsu WA200 Loader', price: 75000, condition: 'Used', availability: 'Low Stock' },
+            { img: miniexcavator, name: 'JCB 8025 Mini Excavator', price: 35000, condition: 'Refurbished', availability: 'In Stock' },
+            { img: backhoeloader, name: 'CAT 420F Backhoe', price: 125000, condition: 'New', availability: 'In Stock' },
           ].map((product, idx) => (
             <div key={idx} className={styles.productCard}>
-  <div className={styles.productImageContainer}>
-    <Image 
-      src={product.img} 
-      alt={product.name} 
-      width={200} 
-      height={140} 
-      className={styles.productImage} 
-    />
-  </div>
-  <div className={styles.productInfo}>
-    <h3 className={styles.productName}>
-      {product.name}
-    </h3>
-    <p className={styles.productPrice}>
-      ${product.price.toLocaleString()}
-    </p>
-    <button className={styles.productButton}>
-      Add to Cart
-    </button>
-  </div>
-</div>
+              <div className={styles.productImageContainer}>
+                <Image 
+                  src={product.img} 
+                  alt={product.name} 
+                  width={200} 
+                  height={140} 
+                  className={styles.productImage} 
+                />
+                <div className={`${styles.availabilityBadge} ${styles[product.availability.toLowerCase().replace(' ', '-')]}`}>
+                  {product.availability}
+                </div>
+              </div>
+              <div className={styles.productInfo}>
+                <h3 className={styles.productName}>
+                  {product.name}
+                </h3>
+                <div className={styles.productMeta}>
+                  <span className={styles.productCondition}>{product.condition}</span>
+                </div>
+                <p className={styles.productPrice}>
+                  ${product.price.toLocaleString()}
+                </p>
+                <div className={styles.productActions}>
+                  <button className={styles.productButton}>
+                    Add to Cart
+                  </button>
+                  <button className={styles.productButtonSecondary}>
+                    Add to Quote
+                  </button>
+                </div>
+              </div>
+            </div>
           ))}
+        </div>
+        <div className={styles.sectionCTA}>
+          <Link href="/shop" className={styles.viewAllButton}>
+            View All Products
+          </Link>
         </div>
       </section>
 
