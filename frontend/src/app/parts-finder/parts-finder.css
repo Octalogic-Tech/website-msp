@@ -279,19 +279,180 @@
 
 /* Mobile Responsive */
 @media (max-width: 768px) {
+  .parts-finder-container {
+    padding: 15px;
+  }
+
+  .parts-finder-header {
+    padding: 30px 15px;
+    margin-bottom: 30px;
+  }
+
   .parts-finder-header h1 {
     font-size: 32px;
+  }
+
+  .parts-finder-header p {
+    font-size: 16px;
+  }
+
+  .finder-content {
+    padding: 20px;
   }
   
   .form-grid {
     grid-template-columns: 1fr;
+    gap: 15px;
+    margin-bottom: 25px;
+  }
+
+  .form-group input,
+  .form-group select {
+    padding: 14px;
+    font-size: 16px; /* Prevents zoom on iOS */
+  }
+
+  .search-button {
+    padding: 14px 30px;
+    font-size: 14px;
+    width: 100%;
   }
   
   .results-grid {
     grid-template-columns: 1fr;
+    gap: 15px;
+  }
+
+  .part-card {
+    padding: 15px;
   }
   
   .part-actions {
     flex-direction: column;
+    gap: 10px;
+  }
+
+  .add-to-cart-btn,
+  .add-to-quote-btn {
+    height: 48px;
+    font-size: 13px;
+  }
+
+  .results-section h2 {
+    font-size: 24px;
+  }
+
+  .no-results {
+    padding: 30px 15px;
+  }
+}
+
+/* Tablet Responsive */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .parts-finder-container {
+    padding: 20px;
+  }
+
+  .form-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+  }
+
+  .results-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .parts-finder-header h1 {
+    font-size: 40px;
+  }
+}
+
+/* Small Mobile Responsive */
+@media (max-width: 480px) {
+  .parts-finder-container {
+    padding: 10px;
+  }
+
+  .parts-finder-header {
+    padding: 25px 10px;
+    margin-bottom: 25px;
+  }
+
+  .parts-finder-header h1 {
+    font-size: 28px;
+  }
+
+  .parts-finder-header p {
+    font-size: 15px;
+  }
+
+  .finder-content {
+    padding: 15px;
+  }
+
+  .form-grid {
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+
+  .form-group label {
+    font-size: 13px;
+  }
+
+  .form-group input,
+  .form-group select {
+    padding: 12px;
+    font-size: 16px;
+  }
+
+  .search-button {
+    padding: 12px 25px;
+    font-size: 13px;
+  }
+
+  .results-grid {
+    gap: 12px;
+  }
+
+  .part-card {
+    padding: 12px;
+  }
+
+  .part-name {
+    font-size: 16px;
+  }
+
+  .part-number,
+  .part-compatibility {
+    font-size: 13px;
+  }
+
+  .part-price {
+    font-size: 18px;
+  }
+
+  .availability-badge {
+    font-size: 9px;
+    padding: 3px 6px;
+  }
+
+  .add-to-cart-btn,
+  .add-to-quote-btn {
+    height: 44px;
+    font-size: 12px;
+    padding: 10px 12px;
+  }
+
+  .results-section h2 {
+    font-size: 20px;
+  }
+
+  .no-results {
+    padding: 25px 10px;
+  }
+
+  .contact-support-btn {
+    padding: 10px 20px;
+    font-size: 13px;
   }
 }
