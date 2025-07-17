@@ -17,6 +17,7 @@ export const metadata: Metadata = {
   title: "ConstructPro - Construction Machinery & Spare Parts",
   description: "Professional construction equipment and genuine spare parts for the construction industry. Find excavators, loaders, hydraulics, filters, and more.",
   keywords: ["construction machinery", "spare parts", "excavators", "loaders", "hydraulics", "construction equipment"],
+  viewport: "width=device-width, initial-scale=1",
 };
 
 export default function RootLayout({
@@ -28,6 +29,7 @@ export default function RootLayout({
     <html lang="en">
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        suppressHydrationWarning={true}
       >
         <Navigation />
         {children}
