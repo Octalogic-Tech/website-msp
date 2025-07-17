@@ -37,6 +37,47 @@ async function main() {
         imageUrl: '/uploads/categories/spare-parts.jpg',
       },
     }),
+    // New categories
+    prisma.category.upsert({
+      where: { slug: 'dumptrucks' },
+      update: {},
+      create: {
+        name: 'Dump Trucks',
+        slug: 'dumptrucks',
+        description: 'Heavy-duty dump trucks for material transportation',
+        imageUrl: '/uploads/categories/dumptrucks.jpg',
+      },
+    }),
+    prisma.category.upsert({
+      where: { slug: 'hydraulics' },
+      update: {},
+      create: {
+        name: 'Hydraulics',
+        slug: 'hydraulics',
+        description: 'Hydraulic components and systems for heavy equipment',
+        imageUrl: '/uploads/categories/hydraulics.jpg',
+      },
+    }),
+    prisma.category.upsert({
+      where: { slug: 'filters' },
+      update: {},
+      create: {
+        name: 'Filters',
+        slug: 'filters',
+        description: 'Air, oil, fuel and hydraulic filters for construction equipment',
+        imageUrl: '/uploads/categories/filters.jpg',
+      },
+    }),
+    prisma.category.upsert({
+      where: { slug: 'undercarriage' },
+      update: {},
+      create: {
+        name: 'Undercarriage',
+        slug: 'undercarriage',
+        description: 'Track chains, rollers, idlers and other undercarriage components',
+        imageUrl: '/uploads/categories/undercarriage.jpg',
+      },
+    }),
   ]);
 
   console.log('✅ Categories created');
@@ -63,6 +104,40 @@ async function main() {
         description: 'Japanese multinational corporation that manufactures construction equipment',
         logoUrl: '/uploads/brands/komatsu.jpg',
         website: 'https://www.komatsu.com',
+      },
+    }),
+    // Additional brands
+    prisma.brand.upsert({
+      where: { slug: 'volvo' },
+      update: {},
+      create: {
+        name: 'Volvo',
+        slug: 'volvo',
+        description: 'Swedish manufacturer of construction equipment and trucks',
+        logoUrl: '/uploads/brands/volvo.jpg',
+        website: 'https://www.volvoce.com',
+      },
+    }),
+    prisma.brand.upsert({
+      where: { slug: 'hitachi' },
+      update: {},
+      create: {
+        name: 'Hitachi',
+        slug: 'hitachi',
+        description: 'Japanese manufacturer of construction and mining equipment',
+        logoUrl: '/uploads/brands/hitachi.jpg',
+        website: 'https://www.hitachicm.com',
+      },
+    }),
+    prisma.brand.upsert({
+      where: { slug: 'john-deere' },
+      update: {},
+      create: {
+        name: 'John Deere',
+        slug: 'john-deere',
+        description: 'American corporation that manufactures agricultural and construction equipment',
+        logoUrl: '/uploads/brands/john-deere.jpg',
+        website: 'https://www.deere.com',
       },
     }),
   ]);
@@ -92,6 +167,8 @@ async function main() {
         fuelTankCapacity: '410 L',
         compatibleMakes: ['Caterpillar'],
         modelYear: 2024,
+        condition: 'New',
+        availability: 'In stock'
       },
       categoryId: categories[0].id, // Excavators
       brandId: brands[0].id, // Caterpillar
@@ -115,9 +192,36 @@ async function main() {
         fuelTankCapacity: '400 L',
         compatibleMakes: ['Komatsu'],
         modelYear: 2024,
+        condition: 'New',
+        availability: 'In stock'
       },
       categoryId: categories[0].id, // Excavators
       brandId: brands[1].id, // Komatsu
+    },
+    {
+      name: 'Volvo EC220E Excavator',
+      slug: 'volvo-ec220e-excavator',
+      description: 'Volvo EC220E delivers high performance with excellent fuel efficiency and operator comfort.',
+      price: 290000,
+      stockQty: 2,
+      images: [
+        '/uploads/products/volvo-ec220e-1.jpg',
+        '/uploads/products/volvo-ec220e-2.jpg'
+      ],
+      specs: {
+        enginePower: '128 kW (172 hp)',
+        operatingWeight: '22500 kg',
+        bucketCapacity: '0.7-1.3 m³',
+        maxDigDepth: '6.7 m',
+        maxReach: '10.1 m',
+        fuelTankCapacity: '420 L',
+        compatibleMakes: ['Volvo'],
+        modelYear: 2023,
+        condition: 'New',
+        availability: 'In stock'
+      },
+      categoryId: categories[0].id, // Excavators
+      brandId: brands[2].id, // Volvo
     },
     // Loaders
     {
@@ -139,6 +243,8 @@ async function main() {
         fuelTankCapacity: '325 L',
         compatibleMakes: ['Caterpillar'],
         modelYear: 2024,
+        condition: 'New',
+        availability: 'In stock'
       },
       categoryId: categories[1].id, // Loaders
       brandId: brands[0].id, // Caterpillar
@@ -161,8 +267,200 @@ async function main() {
         fuelTankCapacity: '310 L',
         compatibleMakes: ['Komatsu'],
         modelYear: 2024,
+        condition: 'New',
+        availability: 'In stock'
       },
       categoryId: categories[1].id, // Loaders
+      brandId: brands[1].id, // Komatsu
+    },
+    // Dump Trucks
+    {
+      name: 'CAT 740 Articulated Dump Truck',
+      slug: 'cat-740-articulated-dump-truck',
+      description: 'The Cat 740 ADT delivers exceptional performance in the most demanding off-road hauling applications.',
+      price: 450000,
+      stockQty: 3,
+      images: [
+        '/uploads/products/cat-740-1.jpg',
+        '/uploads/products/cat-740-2.jpg'
+      ],
+      specs: {
+        enginePower: '276 kW (370 hp)',
+        operatingWeight: '22300 kg',
+        payloadCapacity: '23.5 metric tons',
+        heapedCapacity: '14.3 m³',
+        fuelTankCapacity: '450 L',
+        compatibleMakes: ['Caterpillar'],
+        modelYear: 2023,
+        condition: 'New',
+        availability: 'In stock'
+      },
+      categoryId: categories[3].id, // Dump Trucks
+      brandId: brands[0].id, // Caterpillar
+    },
+    {
+      name: 'Volvo A30G Articulated Hauler',
+      slug: 'volvo-a30g-articulated-hauler',
+      description: 'Volvo A30G offers high productivity, fuel efficiency and operator comfort for demanding hauling applications.',
+      price: 435000,
+      stockQty: 2,
+      images: [
+        '/uploads/products/volvo-a30g-1.jpg',
+        '/uploads/products/volvo-a30g-2.jpg'
+      ],
+      specs: {
+        enginePower: '261 kW (350 hp)',
+        operatingWeight: '21500 kg',
+        payloadCapacity: '28 metric tons',
+        heapedCapacity: '16.7 m³',
+        fuelTankCapacity: '430 L',
+        compatibleMakes: ['Volvo'],
+        modelYear: 2023,
+        condition: 'New',
+        availability: 'In stock'
+      },
+      categoryId: categories[3].id, // Dump Trucks
+      brandId: brands[2].id, // Volvo
+    },
+    // Hydraulics
+    {
+      name: 'CAT Hydraulic Cylinder Kit',
+      slug: 'cat-hydraulic-cylinder-kit',
+      description: 'Complete hydraulic cylinder kit for CAT excavators, including seals and mounting hardware.',
+      price: 3850,
+      stockQty: 8,
+      images: [
+        '/uploads/products/cat-hydraulic-cylinder-1.jpg'
+      ],
+      specs: {
+        partNumber: 'CAT-HYD-CYL-001',
+        weight: '85 kg',
+        warranty: '12 months',
+        compatibleMakes: ['Caterpillar'],
+        compatibleModels: ['320', '325', '330'],
+        pressureRating: '350 bar',
+        genuine: true,
+        condition: 'New',
+        availability: 'In stock'
+      },
+      categoryId: categories[4].id, // Hydraulics
+      brandId: brands[0].id, // Caterpillar
+    },
+    {
+      name: 'Komatsu Hydraulic Pump Rebuild Kit',
+      slug: 'komatsu-hydraulic-pump-rebuild-kit',
+      description: 'Complete rebuild kit for Komatsu hydraulic pumps, includes all necessary seals and components.',
+      price: 1250,
+      stockQty: 12,
+      images: [
+        '/uploads/products/komatsu-pump-kit-1.jpg'
+      ],
+      specs: {
+        partNumber: 'KOM-HYD-PUMP-KIT-001',
+        weight: '5.5 kg',
+        warranty: '6 months',
+        compatibleMakes: ['Komatsu'],
+        compatibleModels: ['PC200', 'PC210', 'PC220'],
+        pressureRating: '320 bar',
+        genuine: true,
+        condition: 'New',
+        availability: 'In stock'
+      },
+      categoryId: categories[4].id, // Hydraulics
+      brandId: brands[1].id, // Komatsu
+    },
+    // Filters
+    {
+      name: 'CAT Engine Oil Filter Kit',
+      slug: 'cat-engine-oil-filter-kit',
+      description: 'Complete engine oil filter kit for CAT equipment, includes all necessary gaskets and seals.',
+      price: 145,
+      stockQty: 25,
+      images: [
+        '/uploads/products/cat-oil-filter-1.jpg'
+      ],
+      specs: {
+        partNumber: 'CAT-OIL-FILTER-001',
+        weight: '3.2 kg',
+        warranty: '12 months',
+        compatibleMakes: ['Caterpillar'],
+        compatibleModels: ['320', '950', '740'],
+        micronRating: '10 microns',
+        genuine: true,
+        condition: 'New',
+        availability: 'In stock'
+      },
+      categoryId: categories[5].id, // Filters
+      brandId: brands[0].id, // Caterpillar
+    },
+    {
+      name: 'Komatsu Air Filter Assembly',
+      slug: 'komatsu-air-filter-assembly',
+      description: 'Complete air filter assembly for Komatsu equipment, includes pre-cleaner and mounting hardware.',
+      price: 225,
+      stockQty: 15,
+      images: [
+        '/uploads/products/komatsu-air-filter-1.jpg'
+      ],
+      specs: {
+        partNumber: 'KOM-AIR-FILTER-001',
+        weight: '4.8 kg',
+        warranty: '12 months',
+        compatibleMakes: ['Komatsu'],
+        compatibleModels: ['PC200', 'WA380', 'HD785'],
+        filtrationEfficiency: '99.9%',
+        genuine: true,
+        condition: 'New',
+        availability: 'In stock'
+      },
+      categoryId: categories[5].id, // Filters
+      brandId: brands[1].id, // Komatsu
+    },
+    // Undercarriage
+    {
+      name: 'CAT Track Roller Assembly',
+      slug: 'cat-track-roller-assembly',
+      description: 'Complete track roller assembly for CAT excavators, built for durability in tough conditions.',
+      price: 2850,
+      stockQty: 6,
+      images: [
+        '/uploads/products/cat-track-roller-1.jpg'
+      ],
+      specs: {
+        partNumber: 'CAT-TRACK-ROLLER-001',
+        weight: '125 kg',
+        warranty: '12 months',
+        compatibleMakes: ['Caterpillar'],
+        compatibleModels: ['320', '325', '330'],
+        material: 'Forged steel',
+        genuine: true,
+        condition: 'New',
+        availability: 'In stock'
+      },
+      categoryId: categories[6].id, // Undercarriage
+      brandId: brands[0].id, // Caterpillar
+    },
+    {
+      name: 'Komatsu Track Link Assembly',
+      slug: 'komatsu-track-link-assembly',
+      description: 'Heavy-duty track link assembly for Komatsu excavators, designed for extended service life.',
+      price: 3200,
+      stockQty: 4,
+      images: [
+        '/uploads/products/komatsu-track-link-1.jpg'
+      ],
+      specs: {
+        partNumber: 'KOM-TRACK-LINK-001',
+        weight: '180 kg',
+        warranty: '12 months',
+        compatibleMakes: ['Komatsu'],
+        compatibleModels: ['PC200', 'PC210', 'PC220'],
+        material: 'Heat-treated alloy steel',
+        genuine: true,
+        condition: 'New',
+        availability: 'In stock'
+      },
+      categoryId: categories[6].id, // Undercarriage
       brandId: brands[1].id, // Komatsu
     },
     // Spare Parts
@@ -182,6 +480,8 @@ async function main() {
         compatibleMakes: ['Caterpillar'],
         compatibleModels: ['320', '320D', '320E', '320F'],
         genuine: true,
+        condition: 'New',
+        availability: 'In stock'
       },
       categoryId: categories[2].id, // Spare Parts
       brandId: brands[0].id, // Caterpillar
@@ -202,10 +502,87 @@ async function main() {
         compatibleMakes: ['Komatsu'],
         compatibleModels: ['PC200', 'PC210', 'PC220'],
         genuine: true,
-        kitContents: ['Oil Filter', 'Fuel Filter', 'Air Filter', 'Installation Instructions'],
+        condition: 'New',
+        availability: 'In stock'
       },
       categoryId: categories[2].id, // Spare Parts
       brandId: brands[1].id, // Komatsu
+    },
+    // Additional products
+    {
+      name: 'Hitachi ZX350LC-6 Excavator',
+      slug: 'hitachi-zx350lc-6-excavator',
+      description: 'Hitachi ZX350LC-6 offers superior digging power and fuel efficiency with advanced hydraulic system.',
+      price: 345000,
+      stockQty: 2,
+      images: [
+        '/uploads/products/hitachi-zx350-1.jpg',
+        '/uploads/products/hitachi-zx350-2.jpg'
+      ],
+      specs: {
+        enginePower: '194 kW (260 hp)',
+        operatingWeight: '34900 kg',
+        bucketCapacity: '1.4-2.1 m³',
+        maxDigDepth: '7.8 m',
+        maxReach: '11.4 m',
+        fuelTankCapacity: '600 L',
+        compatibleMakes: ['Hitachi'],
+        modelYear: 2023,
+        condition: 'New',
+        availability: 'In stock'
+      },
+      categoryId: categories[0].id, // Excavators
+      brandId: brands[3].id, // Hitachi
+    },
+    {
+      name: 'John Deere 644K Wheel Loader',
+      slug: 'john-deere-644k-wheel-loader',
+      description: 'John Deere 644K offers excellent visibility, comfort and productivity for material handling applications.',
+      price: 335000,
+      stockQty: 3,
+      images: [
+        '/uploads/products/john-deere-644k-1.jpg',
+        '/uploads/products/john-deere-644k-2.jpg'
+      ],
+      specs: {
+        enginePower: '174 kW (233 hp)',
+        operatingWeight: '17300 kg',
+        bucketCapacity: '3.1-4.2 m³',
+        maxDumpHeight: '3.0 m',
+        maxReach: '1.3 m',
+        fuelTankCapacity: '350 L',
+        compatibleMakes: ['John Deere'],
+        modelYear: 2023,
+        condition: 'New',
+        availability: 'In stock'
+      },
+      categoryId: categories[1].id, // Loaders
+      brandId: brands[4].id, // John Deere
+    },
+    {
+      name: 'Volvo L90H Wheel Loader',
+      slug: 'volvo-l90h-wheel-loader',
+      description: 'Volvo L90H delivers high performance with excellent fuel efficiency and operator comfort.',
+      price: 325000,
+      stockQty: 2,
+      images: [
+        '/uploads/products/volvo-l90h-1.jpg',
+        '/uploads/products/volvo-l90h-2.jpg'
+      ],
+      specs: {
+        enginePower: '168 kW (225 hp)',
+        operatingWeight: '16700 kg',
+        bucketCapacity: '2.9-4.0 m³',
+        maxDumpHeight: '2.9 m',
+        maxReach: '1.2 m',
+        fuelTankCapacity: '340 L',
+        compatibleMakes: ['Volvo'],
+        modelYear: 2023,
+        condition: 'New',
+        availability: 'In stock'
+      },
+      categoryId: categories[1].id, // Loaders
+      brandId: brands[2].id, // Volvo
     },
     {
       name: 'Universal Hydraulic Hose Set',
@@ -225,8 +602,10 @@ async function main() {
         temperature: '-40°C to +100°C',
         genuine: false,
         aftermarket: true,
+        condition: 'New',
+        availability: 'In stock'
       },
-      categoryId: categories[2].id, // Spare Parts
+      categoryId: categories[4].id, // Hydraulics
       brandId: brands[0].id, // Caterpillar (using as default)
     },
     {
@@ -247,8 +626,10 @@ async function main() {
         compatibleModels: ['320', '325', '330'],
         material: 'Heat-treated steel',
         genuine: true,
+        condition: 'New',
+        availability: 'In stock'
       },
-      categoryId: categories[2].id, // Spare Parts
+      categoryId: categories[6].id, // Undercarriage
       brandId: brands[0].id, // Caterpillar
     },
     {
@@ -269,8 +650,10 @@ async function main() {
         setSize: '5 teeth + pins',
         genuine: false,
         aftermarket: true,
+        condition: 'New',
+        availability: 'In stock'
       },
-      categoryId: categories[2].id, // Spare Parts
+      categoryId: categories[6].id, // Undercarriage
       brandId: brands[0].id, // Caterpillar (using as default)
     },
     {
@@ -291,6 +674,8 @@ async function main() {
         material: 'Tempered safety glass',
         setContents: ['Front windshield', 'Rear window', '2x Side windows', 'Door glass'],
         genuine: true,
+        condition: 'New',
+        availability: 'In stock'
       },
       categoryId: categories[2].id, // Spare Parts
       brandId: brands[1].id, // Komatsu

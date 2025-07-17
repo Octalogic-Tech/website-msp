@@ -6,13 +6,21 @@ import './shop.css';
 type Product = {
   id: string;
   name: string;
+  slug: string;
   description: string;
-  price: string;
+  price: number;
+  stockQty: number;
   images: string[];
-  category: { id: string; name: string };
-  brand: { id: string; name: string };
-  condition?: string; // Added for filtering
-  availability?: 'in-stock' | 'out-of-stock' | 'low-stock'; // Added for filtering
+  category: { id: string; name: string; slug: string };
+  brand: { id: string; name: string; slug: string };
+  condition: string;
+  specs: {
+    modelYear?: number;
+    compatibleMakes?: string[];
+    warranty?: string;
+    genuine?: boolean;
+    [key: string]: any;
+  };
 };
 
 type Filters = {
@@ -24,7 +32,7 @@ type Filters = {
 };
 
 async function fetchProducts(): Promise<Product[]> {
-  const res = await fetch('http://localhost:5000/api/products', {
+  const res = await fetch('http://localhost:3000/api/products', {
     cache: 'no-store',
   });
 
@@ -33,7 +41,7 @@ async function fetchProducts(): Promise<Product[]> {
   }
 
   const data = await res.json();
-  return data.data;
+  return data;
 }
 
 export default function ShopPage() {
@@ -77,16 +85,17 @@ export default function ShopPage() {
 
     if (filters.priceRange) {
       filtered = filtered.filter(product => {
-        const price = parseFloat(product.price);
         switch (filters.priceRange) {
-          case 'under-25':
-            return price < 25;
-          case '25-50':
-            return price >= 25 && price <= 50;
-          case '50-100':
-            return price >= 50 && price <= 100;
-          case 'over-100':
-            return price > 100;
+          case 'under-25k':
+            return product.price < 25000;
+          case '25k-50k':
+            return product.price >= 25000 && product.price <= 50000;
+          case '50k-100k':
+            return product.price >= 50000 && product.price <= 100000;
+          case '100k-250k':
+            return product.price >= 100000 && product.price <= 250000;
+          case 'over-250k':
+            return product.price > 250000;
           default:
             return true;
         }
@@ -98,7 +107,12 @@ export default function ShopPage() {
     }
 
     if (filters.availability) {
-      filtered = filtered.filter(product => product.availability === filters.availability);
+      filtered = filtered.filter(product => {
+        if (filters.availability === 'in-stock') return product.stockQty > 5;
+        if (filters.availability === 'low-stock') return product.stockQty > 0 && product.stockQty <= 5;
+        if (filters.availability === 'out-of-stock') return product.stockQty === 0;
+        return true;
+      });
     }
 
     setFilteredProducts(filtered);
@@ -121,7 +135,7 @@ export default function ShopPage() {
     });
   };
 
-  const getUniqueValues = (key: 'category' | 'brand' | 'condition' | 'availability'): string[] => {
+  const getUniqueValues = (key: 'category' | 'brand' | 'condition'): string[] => {
     const values = products.map(product => {
       if (key === 'category' || key === 'brand') {
         return product[key].name;
@@ -129,6 +143,20 @@ export default function ShopPage() {
       return product[key];
     });
     return [...new Set(values)].filter(Boolean) as string[];
+  };
+
+  const getAvailabilityStatus = (stockQty: number): string => {
+    if (stockQty === 0) return 'out-of-stock';
+    if (stockQty <= 5) return 'low-stock';
+    return 'in-stock';
+  };
+
+  const formatPrice = (price: number): string => {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD',
+      maximumFractionDigits: 0,
+    }).format(price);
   };
 
   if (loading) {
@@ -142,7 +170,7 @@ export default function ShopPage() {
   return (
     <div className="shop-container">
       <header className="shop-header">
-        <h1>SHOP</h1>
+        <h1>Heavy Equipment Marketplace</h1>
       </header>
 
       <div className="filters-section">
@@ -181,10 +209,11 @@ export default function ShopPage() {
               onChange={(e) => handleFilterChange('priceRange', e.target.value)}
             >
               <option value="">All Prices</option>
-              <option value="under-25">Under $25</option>
-              <option value="25-50">$25 - $50</option>
-              <option value="50-100">$50 - $100</option>
-              <option value="over-100">Over $100</option>
+              <option value="under-25k">Under $25K</option>
+              <option value="25k-50k">$25K - $50K</option>
+              <option value="50k-100k">$50K - $100K</option>
+              <option value="100k-250k">$100K - $250K</option>
+              <option value="over-250k">Over $250K</option>
             </select>
           </div>
 
@@ -195,9 +224,11 @@ export default function ShopPage() {
               onChange={(e) => handleFilterChange('condition', e.target.value)}
             >
               <option value="">All Conditions</option>
-              <option value="new">New</option>
-              <option value="used">Used</option>
-              <option value="refurbished">Refurbished</option>
+              {getUniqueValues('condition').map((condition, index) => (
+                <option key={`condition-${index}`} value={condition.toLowerCase()}>
+                  {condition}
+                </option>
+              ))}
             </select>
           </div>
 
@@ -231,34 +262,44 @@ export default function ShopPage() {
           </div>
         ) : (
           <div className="products-grid">
-            {filteredProducts.map((product) => (
-              <div key={product.id} className="product-card">
-                <div className="product-image">
-                  <img
-                    src={`http://localhost:5000${product.images[0]}`}
-                    alt={product.name}
-                    onError={(e) => {
-                      e.currentTarget.src = '/placeholder-image.jpg';
-                    }}
-                  />
-                </div>
-                <div className="product-info">
-                  <h3 className="product-name">{product.name}</h3>
-                  <p className="product-brand">{product.brand.name}</p>
-                  <p className="product-category">{product.category.name}</p>
-                  <p className="product-description">{product.description}</p>
-                  <div className="product-footer">
-                    <span className="product-price">${product.price}</span>
-                    {product.availability && (
-                      <span className={`availability-badge ${product.availability}`}>
-                        {product.availability.replace('-', ' ')}
-                      </span>
-                    )}
+            {filteredProducts.map((product) => {
+              const availability = getAvailabilityStatus(product.stockQty);
+              return (
+                <div key={product.id} className="product-card">
+                  <div className="product-image">
+                    <img
+                      src={product.images[0] || '/placeholder-image.jpg'}
+                      alt={product.name}
+                      onError={(e) => {
+                        e.currentTarget.src = '/placeholder-image.jpg';
+                      }}
+                    />
                   </div>
-                  <button className="add-to-cart-btn">Add to Cart</button>
+                  <div className="product-info">
+                    <h3 className="product-name">{product.name}</h3>
+                    <div className="product-meta">
+                      <span className="product-brand">{product.brand.name}</span>
+                      <span className="product-category">{product.category.name}</span>
+                      {product.specs.modelYear && (
+                        <span className="product-year">Year: {product.specs.modelYear}</span>
+                      )}
+                    </div>
+                    <p className="product-description">
+                      {product.description.length > 100 
+                        ? `${product.description.substring(0, 100)}...` 
+                        : product.description}
+                    </p>
+                    <div className="product-footer">
+                      <span className="product-price">{formatPrice(product.price)}</span>
+                      <span className={`availability-badge ${availability}`}>
+                        {availability.replace('-', ' ')}
+                      </span>
+                    </div>
+                    <button className="add-to-cart-btn">Request Quote</button>
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
       </div>
