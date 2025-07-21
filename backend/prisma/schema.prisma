@@ -50,6 +50,7 @@ model Product {
   stockQty    Int       @default(0)
   images      String[]  // Array of image URLs
   specs       Json?     // JSON field for specifications
+  documents   Json?     // Array of document objects: { name: string, url: string }
   isActive    Boolean   @default(true)
   
   // Foreign keys

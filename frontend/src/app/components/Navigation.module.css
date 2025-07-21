@@ -35,37 +35,49 @@
 /* Search Form */
 .searchForm {
   display: flex;
+  align-items: center;
   flex: 1;
-  max-width: 400px;
+  max-width: 600px;
+  margin: 0 2rem;
   position: relative;
 }
 
 .searchInput {
-  flex: 1;
+  width: 100%;
   padding: 0.75rem 1rem;
-  border: none;
-  border-radius: 0.375rem 0 0 0.375rem;
-  font-family: 'Open Sans', sans-serif;
-  font-size: 14px;
-  outline: none;
+  padding-right: 3rem;
+  border: 2px solid #e5e7eb;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  transition: all 0.3s ease;
 }
 
-.searchInput::placeholder {
-  color: #666;
+.searchInput:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(249, 168, 37, 0.1);
 }
 
 .searchButton {
-  background-color: #f9a825;
-  color: white;
+  position: absolute;
+  right: 0.5rem;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
   border: none;
-  padding: 0.75rem 1rem;
-  border-radius: 0 0.375rem 0.375rem 0;
+  color: #6b7280;
+  padding: 0.5rem;
   cursor: pointer;
-  transition: background-color 0.3s ease;
+  transition: color 0.2s ease;
 }
 
-.searchButton:hover {
-  background-color: #ffb800;
+.searchButton:hover:not(:disabled) {
+  color: var(--primary-color);
+}
+
+.searchButton:disabled {
+  color: #d1d5db;
+  cursor: not-allowed;
 }
 
 /* Navigation Links */
@@ -109,6 +121,7 @@
   transition: all 0.3s ease;
   text-transform: uppercase;
   letter-spacing: 0.5px;
+  position: relative;
 }
 
 .actionButton:hover {
@@ -128,6 +141,23 @@
 
 .actionText {
   font-size: 12px;
+}
+
+.itemCount {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  background-color: #f9a825;
+  color: white;
+  font-size: 10px;
+  font-weight: 700;
+  min-width: 16px;
+  height: 16px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 4px;
 }
 
 /* Mobile Menu Toggle */
@@ -183,10 +213,85 @@
   border-radius: 0.375rem;
   text-transform: uppercase;
   letter-spacing: 0.5px;
+  position: relative;
 }
 
 .mobileActionButton:hover {
   background-color: #f9a825;
+}
+
+.mobileItemCount {
+  position: absolute;
+  top: 50%;
+  right: 12px;
+  transform: translateY(-50%);
+  background-color: #f9a825;
+  color: white;
+  font-size: 10px;
+  font-weight: 700;
+  min-width: 16px;
+  height: 16px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 4px;
+}
+
+/* Mobile Search */
+.mobileSearchForm {
+  display: none;
+  margin: 1rem;
+  position: relative;
+}
+
+@media (max-width: 1023px) {
+  .mobileSearchForm {
+    display: flex;
+    align-items: center;
+  }
+
+  .searchForm {
+    display: none;
+  }
+}
+
+.mobileSearchInput {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  padding-right: 3rem;
+  border: 2px solid #e5e7eb;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  background-color: white;
+}
+
+.mobileSearchInput:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(249, 168, 37, 0.1);
+}
+
+.mobileSearchButton {
+  position: absolute;
+  right: 0.5rem;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: #6b7280;
+  padding: 0.5rem;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.mobileSearchButton:hover:not(:disabled) {
+  color: var(--primary-color);
+}
+
+.mobileSearchButton:disabled {
+  color: #d1d5db;
+  cursor: not-allowed;
 }
 
 /* Responsive Design */

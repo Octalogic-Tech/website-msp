@@ -275,6 +275,19 @@
   color: black;
 }
 
+.buttonDisabled {
+  background-color: #ccc !important;
+  color: #666 !important;
+  cursor: not-allowed !important;
+}
+
+.buttonDisabled:hover {
+  background-color: #ccc !important;
+  color: #666 !important;
+  transform: none !important;
+  box-shadow: none !important;
+}
+
 /* Footer */
 .footer {
   background-color: #212121;
