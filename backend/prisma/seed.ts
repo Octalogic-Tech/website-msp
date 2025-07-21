@@ -154,9 +154,9 @@ async function main() {
       price: 285000,
       stockQty: 5,
       images: [
-        '/uploads/products/cat-320-1.jpg',
-        '/uploads/products/cat-320-2.jpg',
-        '/uploads/products/cat-320-3.jpg'
+        '/uploads/products/cat-320-excavator-1.jpg',
+        '/uploads/products/cat-320-excavator-2.jpg',
+        '/uploads/products/cat-320-excavator-3.jpg'
       ],
       specs: {
         enginePower: '122 kW (164 hp)',
@@ -170,6 +170,10 @@ async function main() {
         condition: 'New',
         availability: 'In stock'
       },
+      documents: [
+        { name: 'CAT 320 Brochure', url: '/uploads/docs/cat-320-brochure.pdf' },
+        { name: 'CAT 320 Spec Sheet', url: '/uploads/docs/cat-320-spec-sheet.pdf' }
+      ],
       categoryId: categories[0].id, // Excavators
       brandId: brands[0].id, // Caterpillar
     },
@@ -195,6 +199,9 @@ async function main() {
         condition: 'New',
         availability: 'In stock'
       },
+      documents: [
+        { name: 'Komatsu PC200 Brochure', url: '/uploads/docs/pc200-brochure.pdf' }
+      ],
       categoryId: categories[0].id, // Excavators
       brandId: brands[1].id, // Komatsu
     },
@@ -353,7 +360,7 @@ async function main() {
       price: 1250,
       stockQty: 12,
       images: [
-        '/uploads/products/komatsu-pump-kit-1.jpg'
+        '/uploads/products/komatsu-hydraulic-pump-1.jpg'
       ],
       specs: {
         partNumber: 'KOM-HYD-PUMP-KIT-001',
@@ -591,7 +598,7 @@ async function main() {
       price: 425,
       stockQty: 18,
       images: [
-        '/uploads/products/hydraulic-hose-set-1.jpg'
+        '/uploads/products/hydraulic-hose-1.jpg'
       ],
       specs: {
         partNumber: 'UNIV-HOSE-SET-001',
@@ -663,7 +670,7 @@ async function main() {
       price: 1250,
       stockQty: 8,
       images: [
-        '/uploads/products/komatsu-glass-set-1.jpg'
+        '/uploads/products/komatsu-cab-glass-1.jpg'
       ],
       specs: {
         partNumber: 'KOM-GLASS-SET-001',
@@ -689,6 +696,7 @@ async function main() {
       update: {},
       create: productData,
     });
+
   }
 
   console.log('✅ Products created');

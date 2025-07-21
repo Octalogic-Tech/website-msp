@@ -1,307 +1,164 @@
-// app/shop/page.tsx
-'use client';
-import React, { useState, useEffect } from 'react';
-import './shop.css';
+"use client";
+
+import React, { useEffect, useState } from "react";
+import ProductList from "../components/shop/ProductList";
+import FilterSidebar from "../components/shop/FilterSidebar";
+import SortSelect from "../components/shop/SortSelect";
+import "./shop.css";
+
+const API_BASE = "http://localhost:5000/api";
+
+type Filters = {
+  category?: string;
+  brand?: string;
+  priceRange?: string;
+  condition?: string;
+  availability?: string;
+};
+
+type SortBy = "newest" | "price_asc" | "price_desc" | "name" | "popularity";
 
 type Product = {
   id: string;
   name: string;
   slug: string;
-  description: string;
-  price: number;
-  stockQty: number;
-  images: string[];
-  category: { id: string; name: string; slug: string };
-  brand: { id: string; name: string; slug: string };
-  condition: string;
-  specs: {
-    modelYear?: number;
-    compatibleMakes?: string[];
-    warranty?: string;
-    genuine?: boolean;
-    [key: string]: any;
-  };
+  price: string;
+  images?: string[];
+  description?: string;
+  category?: { name: string; slug: string };
+  brand?: { name: string; slug: string };
+  condition?: string;
+  stockQty?: number;
 };
 
-type Filters = {
-  category: string;
-  brand: string;
-  priceRange: string;
-  condition: string;
-  availability: string;
-};
-
-async function fetchProducts(): Promise<Product[]> {
-  const res = await fetch('http://localhost:3000/api/products', {
-    cache: 'no-store',
+const getUnique = (products: Product[], key: 'category' | 'brand') => {
+  const values = products
+    .map(product => {
+      if (key === 'category' && product.category) return { name: product.category.name, slug: product.category.slug };
+      if (key === 'brand' && product.brand) return { name: product.brand.name, slug: product.brand.slug };
+      return undefined;
+    })
+    .filter(Boolean) as { name: string; slug: string }[];
+  const seen = new Set();
+  return values.filter(opt => {
+    if (seen.has(opt.slug)) return false;
+    seen.add(opt.slug);
+    return true;
   });
+};
 
-  if (!res.ok) {
-    throw new Error('Failed to fetch products');
-  }
+const getUniqueConditions = (products: Product[]): { name: string; slug: string }[] => {
+  const values = products
+    .map(product => product.condition ? { name: product.condition, slug: product.condition.toLowerCase() } : undefined)
+    .filter(Boolean) as { name: string; slug: string }[];
+  const seen = new Set();
+  return values.filter(opt => {
+    if (seen.has(opt.slug)) return false;
+    seen.add(opt.slug);
+    return true;
+  });
+};
 
-  const data = await res.json();
-  return data;
-}
+const availabilities = [
+  { value: 'in-stock', label: 'In Stock' },
+  { value: 'low-stock', label: 'Low Stock' },
+  { value: 'out-of-stock', label: 'Out of Stock' },
+];
 
 export default function ShopPage() {
   const [products, setProducts] = useState<Product[]>([]);
-  const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
-  const [filters, setFilters] = useState<Filters>({
-    category: '',
-    brand: '',
-    priceRange: '',
-    condition: '',
-    availability: '',
-  });
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [filters, setFilters] = useState<Filters>({});
+  const [sortBy, setSortBy] = useState<SortBy>("newest");
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
 
   useEffect(() => {
-    const loadProducts = async () => {
+    const fetchProducts = async () => {
+      setLoading(true);
+      setError(null);
       try {
-        const productsData = await fetchProducts();
-        setProducts(productsData);
-        setFilteredProducts(productsData);
-      } catch (error) {
-        console.error('Error loading products:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    loadProducts();
-  }, []);
-
-  useEffect(() => {
-    let filtered = [...products];
-
-    if (filters.category) {
-      filtered = filtered.filter(product => product.category.name === filters.category);
-    }
-
-    if (filters.brand) {
-      filtered = filtered.filter(product => product.brand.name === filters.brand);
-    }
-
-    if (filters.priceRange) {
-      filtered = filtered.filter(product => {
-        switch (filters.priceRange) {
-          case 'under-25k':
-            return product.price < 25000;
-          case '25k-50k':
-            return product.price >= 25000 && product.price <= 50000;
-          case '50k-100k':
-            return product.price >= 50000 && product.price <= 100000;
-          case '100k-250k':
-            return product.price >= 100000 && product.price <= 250000;
-          case 'over-250k':
-            return product.price > 250000;
-          default:
-            return true;
+        let minPrice = undefined;
+        let maxPrice = undefined;
+        if (filters.priceRange) {
+          switch (filters.priceRange) {
+            case 'under-25k': maxPrice = '25000'; break;
+            case '25k-50k': minPrice = '25000'; maxPrice = '50000'; break;
+            case '50k-100k': minPrice = '50000'; maxPrice = '100000'; break;
+            case '100k-250k': minPrice = '100000'; maxPrice = '250000'; break;
+            case 'over-250k': minPrice = '250000'; break;
+            default: break;
+          }
         }
-      });
-    }
+        const params = new URLSearchParams({
+          ...filters,
+          ...(minPrice && { minPrice }),
+          ...(maxPrice && { maxPrice }),
+          sortBy,
+          page: "1",
+          limit: "24", // Show more products on the main page
+        });
+        params.delete('priceRange');
+        
+        const res = await fetch(`${API_BASE}/products?${params.toString()}`, { credentials: "include" });
+        const data = await res.json();
 
-    if (filters.condition) {
-      filtered = filtered.filter(product => product.condition === filters.condition);
-    }
-
-    if (filters.availability) {
-      filtered = filtered.filter(product => {
-        if (filters.availability === 'in-stock') return product.stockQty > 5;
-        if (filters.availability === 'low-stock') return product.stockQty > 0 && product.stockQty <= 5;
-        if (filters.availability === 'out-of-stock') return product.stockQty === 0;
-        return true;
-      });
-    }
-
-    setFilteredProducts(filtered);
-  }, [filters, products]);
-
-  const handleFilterChange = (filterType: keyof Filters, value: string) => {
-    setFilters(prev => ({
-      ...prev,
-      [filterType]: value,
-    }));
-  };
-
-  const clearFilters = () => {
-    setFilters({
-      category: '',
-      brand: '',
-      priceRange: '',
-      condition: '',
-      availability: '',
-    });
-  };
-
-  const getUniqueValues = (key: 'category' | 'brand' | 'condition'): string[] => {
-    const values = products.map(product => {
-      if (key === 'category' || key === 'brand') {
-        return product[key].name;
+        if (data.success) {
+          setProducts(data.data);
+        } else {
+          setError(data.error || "Failed to fetch products.");
+        }
+      } catch {
+        setError("Network error. Please try again later.");
       }
-      return product[key];
-    });
-    return [...new Set(values)].filter(Boolean) as string[];
-  };
+      setLoading(false);
+    };
+    fetchProducts();
+  }, [filters, sortBy]);
 
-  const getAvailabilityStatus = (stockQty: number): string => {
-    if (stockQty === 0) return 'out-of-stock';
-    if (stockQty <= 5) return 'low-stock';
-    return 'in-stock';
-  };
+  const categories = getUnique(products, 'category');
+  const brands = getUnique(products, 'brand');
+  const conditions = getUniqueConditions(products);
 
-  const formatPrice = (price: number): string => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-      maximumFractionDigits: 0,
-    }).format(price);
+  const toggleFilters = () => {
+    setIsFilterOpen(!isFilterOpen);
   };
-
-  if (loading) {
-    return (
-      <div className="shop-container">
-        <div className="loading">Loading products...</div>
-      </div>
-    );
-  }
 
   return (
     <div className="shop-container">
       <header className="shop-header">
-        <h1>Heavy Equipment Marketplace</h1>
+        <h1>All Products</h1>
       </header>
 
-      <div className="filters-section">
-        <h2>Filter Products</h2>
-        <div className="filters-grid">
-          <div className="filter-group">
-            <label>Category</label>
-            <select
-              value={filters.category}
-              onChange={(e) => handleFilterChange('category', e.target.value)}
-            >
-              <option value="">All Categories</option>
-              {getUniqueValues('category').map((category, index) => (
-                <option key={`category-${index}`} value={category}>{category}</option>
-              ))}
-            </select>
-          </div>
+      <button className="filters-toggle" onClick={toggleFilters}>
+        {isFilterOpen ? 'Close Filters' : 'Show Filters'}
+      </button>
 
-          <div className="filter-group">
-            <label>Brand</label>
-            <select
-              value={filters.brand}
-              onChange={(e) => handleFilterChange('brand', e.target.value)}
-            >
-              <option value="">All Brands</option>
-              {getUniqueValues('brand').map((brand, index) => (
-                <option key={`brand-${index}`} value={brand}>{brand}</option>
-              ))}
-            </select>
-          </div>
+      <div className="shop-content">
+        <aside className={`filters-section ${isFilterOpen ? 'active' : ''}`}>
+          {isFilterOpen && (
+            <button className="filters-close" onClick={toggleFilters}>×</button>
+          )}
+          <FilterSidebar
+            setFilters={setFilters}
+            categories={categories}
+            brands={brands}
+            conditions={conditions}
+            availabilities={availabilities}
+          />
+        </aside>
 
-          <div className="filter-group">
-            <label>Price Range</label>
-            <select
-              value={filters.priceRange}
-              onChange={(e) => handleFilterChange('priceRange', e.target.value)}
-            >
-              <option value="">All Prices</option>
-              <option value="under-25k">Under $25K</option>
-              <option value="25k-50k">$25K - $50K</option>
-              <option value="50k-100k">$50K - $100K</option>
-              <option value="100k-250k">$100K - $250K</option>
-              <option value="over-250k">Over $250K</option>
-            </select>
+        <main>
+          <div className="products-header">
+            <div className="products-count">
+              <span>{products.length}</span> products found
+            </div>
+            <SortSelect onChange={setSortBy} />
           </div>
-
-          <div className="filter-group">
-            <label>Condition</label>
-            <select
-              value={filters.condition}
-              onChange={(e) => handleFilterChange('condition', e.target.value)}
-            >
-              <option value="">All Conditions</option>
-              {getUniqueValues('condition').map((condition, index) => (
-                <option key={`condition-${index}`} value={condition.toLowerCase()}>
-                  {condition}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div className="filter-group">
-            <label>Availability</label>
-            <select
-              value={filters.availability}
-              onChange={(e) => handleFilterChange('availability', e.target.value)}
-            >
-              <option value="">All Availability</option>
-              <option value="in-stock">In Stock</option>
-              <option value="low-stock">Low Stock</option>
-              <option value="out-of-stock">Out of Stock</option>
-            </select>
-          </div>
-
-          <button className="clear-filters-btn" onClick={clearFilters}>
-            Clear All Filters
-          </button>
-        </div>
-      </div>
-
-      <div className="products-section">
-        <div className="products-header">
-          <h2>Products ({filteredProducts.length})</h2>
-        </div>
-        
-        {filteredProducts.length === 0 ? (
-          <div className="no-products">
-            <p>No products found matching your filters.</p>
-          </div>
-        ) : (
-          <div className="products-grid">
-            {filteredProducts.map((product) => {
-              const availability = getAvailabilityStatus(product.stockQty);
-              return (
-                <div key={product.id} className="product-card">
-                  <div className="product-image">
-                    <img
-                      src={product.images[0] || '/placeholder-image.jpg'}
-                      alt={product.name}
-                      onError={(e) => {
-                        e.currentTarget.src = '/placeholder-image.jpg';
-                      }}
-                    />
-                  </div>
-                  <div className="product-info">
-                    <h3 className="product-name">{product.name}</h3>
-                    <div className="product-meta">
-                      <span className="product-brand">{product.brand.name}</span>
-                      <span className="product-category">{product.category.name}</span>
-                      {product.specs.modelYear && (
-                        <span className="product-year">Year: {product.specs.modelYear}</span>
-                      )}
-                    </div>
-                    <p className="product-description">
-                      {product.description.length > 100 
-                        ? `${product.description.substring(0, 100)}...` 
-                        : product.description}
-                    </p>
-                    <div className="product-footer">
-                      <span className="product-price">{formatPrice(product.price)}</span>
-                      <span className={`availability-badge ${availability}`}>
-                        {availability.replace('-', ' ')}
-                      </span>
-                    </div>
-                    <button className="add-to-cart-btn">Request Quote</button>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        )}
+          {loading && <div className="loading">Loading products...</div>}
+          {error && <div className="text-red-600">{error}</div>}
+          {!loading && !error && <ProductList products={products} />}
+        </main>
       </div>
     </div>
   );

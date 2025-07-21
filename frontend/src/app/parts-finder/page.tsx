@@ -1,199 +1,272 @@
-'use client'
+'use client';
 
-import { useState } from 'react'
-import './parts-finder.css'
+import React, { useState, useEffect } from 'react';
+import Image from 'next/image';
+import Link from 'next/link';
+import { useCart } from '../components/shop/CartContext';
+import { useQuote } from '../components/shop/QuoteContext';
+import styles from './PartsFinderPage.module.css';
 
-interface PartFinderForm {
-  make: string
-  model: string
-  year: string
-  partCategory: string
-}
+type Product = {
+  id: string;
+  name: string;
+  slug: string;
+  price: string;
+  images?: string[];
+  description?: string;
+  category?: { name: string; slug: string };
+  brand?: { name: string; slug: string };
+  specs?: {
+    compatibleMakes?: string[];
+    compatibleModels?: string[];
+    [key: string]: any;
+  };
+  stockQty?: number;
+};
 
-interface Part {
-  id: number
-  name: string
-  partNumber: string
-  price: number
-  availability: string
-  compatibility: string
-}
+const API_BASE = "http://localhost:5000/api";
 
 export default function PartsFinderPage() {
-  const [formData, setFormData] = useState<PartFinderForm>({
-    make: '',
-    model: '',
-    year: '',
-    partCategory: ''
-  })
+  const [makes, setMakes] = useState<string[]>([]);
+  const [models, setModels] = useState<string[]>([]);
+  const [selectedMake, setSelectedMake] = useState<string>('');
+  const [selectedModel, setSelectedModel] = useState<string>('');
+  const [results, setResults] = useState<Product[]>([]);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [hasSearched, setHasSearched] = useState<boolean>(false);
+  
+  const { addItem: addToCart } = useCart();
+  const { addItem: addToQuote } = useQuote();
 
-  const [results, setResults] = useState<Part[]>([])
-  const [loading, setLoading] = useState(false)
+  // Fetch available makes on component mount
+  useEffect(() => {
+    const fetchMakes = async () => {
+      try {
+        // In a real app, you'd have an endpoint for this
+        // For now, we'll use hardcoded values from our seed data
+        setMakes(['Caterpillar', 'Komatsu', 'Volvo', 'Hitachi', 'John Deere']);
+      } catch (error) {
+        console.error('Error fetching makes:', error);
+      }
+    };
 
-  const makes = ['Caterpillar', 'Komatsu', 'JCB', 'Volvo', 'John Deere', 'Case', 'Liebherr']
-  const partCategories = ['Hydraulics', 'Filters', 'Undercarriage', 'Engine Parts', 'Electrical', 'Cabin Parts']
+    fetchMakes();
+  }, []);
 
-  const handleInputChange = (field: keyof PartFinderForm, value: string) => {
-    setFormData(prev => ({
-      ...prev,
-      [field]: value
-    }))
-  }
+  // Update models when make changes
+  useEffect(() => {
+    const fetchModels = async () => {
+      if (!selectedMake) {
+        setModels([]);
+        return;
+      }
+      
+      try {
+        // In a real app, you'd have an endpoint for this
+        // For now, we'll use hardcoded values based on the selected make
+        switch(selectedMake) {
+          case 'Caterpillar':
+            setModels(['320', '325', '330', '950', '740']);
+            break;
+          case 'Komatsu':
+            setModels(['PC200', 'PC210', 'PC220', 'WA380']);
+            break;
+          case 'Volvo':
+            setModels(['EC220E', 'L90H', 'A30G']);
+            break;
+          case 'Hitachi':
+            setModels(['ZX350LC-6']);
+            break;
+          case 'John Deere':
+            setModels(['644K']);
+            break;
+          default:
+            setModels([]);
+        }
+      } catch (error) {
+        console.error('Error fetching models:', error);
+      }
+    };
+
+    fetchModels();
+  }, [selectedMake]);
+
+  const handleMakeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setSelectedMake(e.target.value);
+    setSelectedModel(''); // Reset model when make changes
+  };
+
+  const handleModelChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setSelectedModel(e.target.value);
+  };
 
   const handleSearch = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setLoading(true)
-
+    e.preventDefault();
+    
+    if (!selectedMake || !selectedModel) {
+      return;
+    }
+    
+    setLoading(true);
+    setHasSearched(true);
+    
     try {
-      // Use the existing product service for parts search
-      const queryParams = new URLSearchParams()
-      if (formData.make) queryParams.append('search', formData.make)
-      if (formData.model) queryParams.append('search', `${formData.make} ${formData.model}`)
-      if (formData.partCategory) queryParams.append('category', formData.partCategory)
-
-      const response = await fetch(`http://localhost:5000/api/products?${queryParams.toString()}`)
+      const res = await fetch(`${API_BASE}/parts-finder?make=${selectedMake}&model=${selectedModel}&includeDocuments=true`);
+      const data = await res.json();
       
-      if (response.ok) {
-        const data = await response.json()
-        // Transform products to parts format
-        const parts = data.products.map((product: { id: number; name: string; sku?: string; price: number; availability?: string }) => ({
-          id: product.id,
-          name: product.name,
-          partNumber: product.sku || `PART-${product.id}`,
-          price: product.price,
-          availability: product.availability || 'In Stock',
-          compatibility: `${formData.make} ${formData.model}`
-        }))
-        setResults(parts)
+      if (data.success) {
+        setResults(data.data);
+      } else {
+        setResults([]);
       }
     } catch (error) {
-      console.error('Error searching parts:', error)
-      // Mock results for demo
-      setResults([
-        {
-          id: 1,
-          name: 'Hydraulic Filter HF6555',
-          partNumber: 'HF6555',
-          price: 45.99,
-          availability: 'In Stock',
-          compatibility: 'CAT 320D, 325D, 330D'
-        },
-        {
-          id: 2,
-          name: 'Engine Oil Filter LF3000',
-          partNumber: 'LF3000',
-          price: 28.50,
-          availability: 'Low Stock',
-          compatibility: 'CAT 320D, 324D'
-        }
-      ])
+      console.error('Error searching parts:', error);
+      setResults([]);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
+
+  const handleAddToCart = (product: Product) => {
+    addToCart({
+      id: product.id,
+      name: product.name,
+      price: product.price,
+      quantity: 1,
+      image: product.images?.[0]
+    });
+  };
+
+  const handleAddToQuote = (product: Product) => {
+    addToQuote({
+      id: product.id,
+      name: product.name,
+      price: product.price,
+      quantity: 1,
+      image: product.images?.[0]
+    });
+  };
+
+  const formatPrice = (price: string) => {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD'
+    }).format(parseFloat(price));
+  };
 
   return (
-    <div className="parts-finder-container">
-      <header className="parts-finder-header">
-        <h1>Spare Parts Finder</h1>
-        <p>Find compatible parts for your construction machinery</p>
-      </header>
-
-      <div className="finder-content">
-        <form onSubmit={handleSearch} className="finder-form">
-          <div className="form-grid">
-            <div className="form-group">
-              <label htmlFor="make">Make</label>
-              <select
-                id="make"
-                value={formData.make}
-                onChange={(e) => handleInputChange('make', e.target.value)}
-                required
-              >
-                <option value="">Select Make</option>
-                {makes.map((make) => (
-                  <option key={make} value={make}>{make}</option>
-                ))}
-              </select>
-            </div>
-
-            <div className="form-group">
-              <label htmlFor="model">Model</label>
-              <input
-                type="text"
-                id="model"
-                placeholder="e.g. 320D, WA200"
-                value={formData.model}
-                onChange={(e) => handleInputChange('model', e.target.value)}
-                required
-              />
-            </div>
-
-            <div className="form-group">
-              <label htmlFor="year">Year</label>
-              <input
-                type="number"
-                id="year"
-                placeholder="e.g. 2015"
-                min="1990"
-                max="2025"
-                value={formData.year}
-                onChange={(e) => handleInputChange('year', e.target.value)}
-              />
-            </div>
-
-            <div className="form-group">
-              <label htmlFor="partCategory">Part Category</label>
-              <select
-                id="partCategory"
-                value={formData.partCategory}
-                onChange={(e) => handleInputChange('partCategory', e.target.value)}
-              >
-                <option value="">All Categories</option>
-                {partCategories.map((category) => (
-                  <option key={category} value={category}>{category}</option>
-                ))}
-              </select>
-            </div>
+    <div className={styles.container}>
+      <h1 className={styles.header}>Parts Finder</h1>
+      <p className={styles.subheader}>
+        Find compatible spare parts for your machinery by selecting the make and model below.
+      </p>
+      
+      <section className={styles.searchSection}>
+        <form onSubmit={handleSearch} className={styles.searchForm}>
+          <div className={styles.formGroup}>
+            <label htmlFor="make">Machinery Make</label>
+            <select 
+              id="make" 
+              value={selectedMake} 
+              onChange={handleMakeChange}
+              required
+            >
+              <option value="">Select Make</option>
+              {makes.map(make => (
+                <option key={make} value={make}>{make}</option>
+              ))}
+            </select>
           </div>
-
-          <button type="submit" className="search-button" disabled={loading}>
-            {loading ? 'Searching...' : 'Find Parts'}
+          
+          <div className={styles.formGroup}>
+            <label htmlFor="model">Machinery Model</label>
+            <select 
+              id="model" 
+              value={selectedModel} 
+              onChange={handleModelChange}
+              disabled={!selectedMake}
+              required
+            >
+              <option value="">Select Model</option>
+              {models.map(model => (
+                <option key={model} value={model}>{model}</option>
+              ))}
+            </select>
+          </div>
+          
+          <button type="submit" className={styles.searchButton} disabled={!selectedMake || !selectedModel}>
+            Find Parts
           </button>
         </form>
-
-        {results.length > 0 && (
-          <div className="results-section">
-            <h2>Compatible Parts ({results.length})</h2>
-            <div className="results-grid">
-              {results.map((part) => (
-                <div key={part.id} className="part-card">
-                  <h3 className="part-name">{part.name}</h3>
-                  <p className="part-number">Part #: {part.partNumber}</p>
-                  <p className="part-compatibility">Fits: {part.compatibility}</p>
-                  <div className="part-footer">
-                    <span className="part-price">${part.price}</span>
-                    <span className={`availability-badge ${part.availability.toLowerCase().replace(' ', '-')}`}>
-                      {part.availability}
-                    </span>
-                  </div>
-                  <div className="part-actions">
-                    <button className="add-to-cart-btn">Add to Cart</button>
-                    <button className="add-to-quote-btn">Add to Quote</button>
-                  </div>
+      </section>
+      
+      {loading ? (
+        <div className={styles.loading}>
+          <div className={styles.spinner}></div>
+        </div>
+      ) : hasSearched && (
+        <section className={styles.resultsSection}>
+          {results.length > 0 ? (
+            <>
+              <div className={styles.resultsHeader}>
+                <div className={styles.resultsCount}>
+                  {results.length} compatible part{results.length !== 1 ? 's' : ''} found
                 </div>
-              ))}
+              </div>
+              
+              <div className={styles.resultsGrid}>
+                {results.map(product => (
+                  <div key={product.id} className={styles.resultCard}>
+                    <div className={styles.cardImage}>
+                      <Link href={`/shop/${product.category?.slug}/${product.slug}`}>
+                        <Image
+                          src={`http://localhost:5000${product.images?.[0]}` || '/placeholder.png'}
+                          alt={product.name}
+                          fill
+                          style={{ objectFit: 'cover' }}
+                        />
+                      </Link>
+                    </div>
+                    <div className={styles.cardContent}>
+                      <h3 className={styles.cardTitle}>
+                        <Link href={`/shop/${product.category?.slug}/${product.slug}`}>
+                          {product.name}
+                        </Link>
+                      </h3>
+                      <div className={styles.cardPrice}>
+                        {formatPrice(product.price)}
+                      </div>
+                      <div className={styles.compatibleWith}>
+                        Compatible with: {selectedMake} {selectedModel}
+                      </div>
+                      <div className={styles.cardActions}>
+                        <button 
+                          className={`${styles.cardButton} ${styles.primary}`}
+                          onClick={() => handleAddToCart(product)}
+                          disabled={product.stockQty === 0}
+                        >
+                          Add to Cart
+                        </button>
+                        <button 
+                          className={`${styles.cardButton} ${styles.secondary}`}
+                          onClick={() => handleAddToQuote(product)}
+                        >
+                          Quote
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </>
+          ) : (
+            <div className={styles.noResults}>
+              <p>No compatible parts found for {selectedMake} {selectedModel}.</p>
+              <p>Please try a different make and model or contact our support team for assistance.</p>
             </div>
-          </div>
-        )}
-
-        {results.length === 0 && !loading && formData.make && (
-          <div className="no-results">
-            <p>No compatible parts found. Please try different search criteria or contact our technical support.</p>
-            <button className="contact-support-btn">Contact Technical Support</button>
-          </div>
-        )}
-      </div>
+          )}
+        </section>
+      )}
     </div>
-  )
+  );
 }

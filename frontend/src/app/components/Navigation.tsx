@@ -1,20 +1,34 @@
 'use client'
 
 import Link from 'next/link'
-import { useState } from 'react'
+import { useRouter } from 'next/navigation'
+import { useState, useCallback } from 'react'
 import { FaSearch, FaShoppingCart, FaQuoteLeft, FaPhone, FaBars, FaTimes } from 'react-icons/fa'
+import { useCart } from './shop/CartContext'
+import { useQuote } from './shop/QuoteContext'
 import styles from './Navigation.module.css'
 
 export default function Navigation() {
+  const router = useRouter()
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
+  const { itemCount: cartItemCount } = useCart()
+  const { itemCount: quoteItemCount } = useQuote()
 
-  const handleSearch = (e: React.FormEvent) => {
+  const handleSearch = useCallback((e: React.FormEvent) => {
     e.preventDefault()
-    if (searchQuery.trim()) {
-      window.location.href = `/shop?search=${encodeURIComponent(searchQuery)}`
+    const trimmedQuery = searchQuery.trim()
+    if (trimmedQuery) {
+      router.push(`/shop/search?q=${encodeURIComponent(trimmedQuery)}`)
+      setSearchQuery('') // Clear search after submission
     }
-  }
+  }, [searchQuery, router])
+
+  const handleKeyDown = useCallback((e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      handleSearch(e as unknown as React.FormEvent)
+    }
+  }, [handleSearch])
 
   return (
     <nav className={styles.navbar}>
@@ -25,18 +39,25 @@ export default function Navigation() {
         </Link>
 
         {/* Search Bar */}
-        <form onSubmit={handleSearch} className={styles.searchForm}>
+        <div className={styles.searchForm}>
           <input
             type="text"
             placeholder="Search parts, machinery, model numbers..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
+            onKeyDown={handleKeyDown}
             className={styles.searchInput}
+            aria-label="Search products"
           />
-          <button type="submit" className={styles.searchButton}>
+          <button 
+            onClick={handleSearch}
+            className={styles.searchButton} 
+            aria-label="Search"
+            disabled={!searchQuery.trim()}
+          >
             <FaSearch />
           </button>
-        </form>
+        </div>
 
         {/* Desktop Navigation */}
         <div className={styles.navLinks}>
@@ -51,10 +72,16 @@ export default function Navigation() {
           <Link href="/cart" className={styles.actionButton}>
             <FaShoppingCart />
             <span className={styles.actionText}>Cart</span>
+            {cartItemCount > 0 && (
+              <span className={styles.itemCount}>{cartItemCount}</span>
+            )}
           </Link>
-          <Link href="/quote-cart" className={styles.actionButton}>
+          <Link href="/quote" className={styles.actionButton}>
             <FaQuoteLeft />
             <span className={styles.actionText}>Quote</span>
+            {quoteItemCount > 0 && (
+              <span className={styles.itemCount}>{quoteItemCount}</span>
+            )}
           </Link>
           <a href="tel:+1234567890" className={`${styles.actionButton} ${styles.phoneButton}`}>
             <FaPhone />
@@ -66,6 +93,8 @@ export default function Navigation() {
         <button 
           className={styles.mobileMenuToggle}
           onClick={() => setIsMenuOpen(!isMenuOpen)}
+          aria-label={isMenuOpen ? 'Close menu' : 'Open menu'}
+          aria-expanded={isMenuOpen ? 'true' : 'false'}
         >
           {isMenuOpen ? <FaTimes /> : <FaBars />}
         </button>
@@ -74,6 +103,27 @@ export default function Navigation() {
       {/* Mobile Menu */}
       {isMenuOpen && (
         <div className={styles.mobileMenu}>
+          {/* Mobile Search */}
+          <div className={styles.mobileSearchForm}>
+            <input
+              type="text"
+              placeholder="Search products..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              onKeyDown={handleKeyDown}
+              className={styles.mobileSearchInput}
+              aria-label="Search products"
+            />
+            <button 
+              onClick={handleSearch}
+              className={styles.mobileSearchButton} 
+              aria-label="Search"
+              disabled={!searchQuery.trim()}
+            >
+              <FaSearch />
+            </button>
+          </div>
+
           <Link href="/shop" className={styles.mobileNavLink}>Shop</Link>
           <Link href="/parts-finder" className={styles.mobileNavLink}>Parts Finder</Link>
           <Link href="/about-us" className={styles.mobileNavLink}>About</Link>
@@ -81,9 +131,15 @@ export default function Navigation() {
           <div className={styles.mobileActions}>
             <Link href="/cart" className={styles.mobileActionButton}>
               <FaShoppingCart /> Cart
+              {cartItemCount > 0 && (
+                <span className={styles.mobileItemCount}>{cartItemCount}</span>
+              )}
             </Link>
-            <Link href="/quote-cart" className={styles.mobileActionButton}>
+            <Link href="/quote" className={styles.mobileActionButton}>
               <FaQuoteLeft /> Quote
+              {quoteItemCount > 0 && (
+                <span className={styles.mobileItemCount}>{quoteItemCount}</span>
+              )}
             </Link>
             <a href="tel:+1234567890" className={styles.mobileActionButton}>
               <FaPhone /> Call Now
