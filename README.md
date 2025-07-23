@@ -1,7 +1,4 @@
-<<<<<<< HEAD
-# construction_machinery_web
-construction machinery website
-=======
+
 # Construction Machinery E-Commerce Platform
 
 A modern, high-converting shopping website for construction machinery and spare parts with a clean, rugged yet professional UI/UX that balances e-commerce functionality with B2B trust.
