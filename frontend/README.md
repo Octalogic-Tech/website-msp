@@ -1,36 +1,110 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# ConstructPro Frontend
+
+This is the frontend codebase for the ConstructPro website, an industrial machinery and equipment supplier platform.
+
+## UI/UX Design System
+
+The website uses a comprehensive design system with an industrial, rugged aesthetic featuring clean lines and a consistent color palette. For detailed information about the UI/UX enhancements, see [UI_UX_ENHANCEMENTS.md](./UI_UX_ENHANCEMENTS.md).
+
+### Key Features
+
+- **Industrial Design System**: Consistent design tokens for colors, typography, spacing, and more
+- **Component Library**: Reusable UI components for faster development and consistent user experience
+- **Responsive Design**: Optimized for all screen sizes from mobile to desktop
+- **Accessibility**: Support for keyboard navigation, screen readers, and other assistive technologies
+
+## Project Structure
+
+```
+frontend/
+├── src/
+│   ├── app/
+│   │   ├── components/
+│   │   │   ├── home/       # Homepage components
+│   │   │   ├── shop/       # Shop-related components
+│   │   │   ├── ui/         # Reusable UI components
+│   │   │   ├── Footer.tsx  # Global footer component
+│   │   │   └── Navigation.tsx # Global navigation component
+│   │   ├── design-system/  # Design system showcase
+│   │   ├── shop/           # Shop pages
+│   │   ├── styles/         # Global styles and design system
+│   │   └── layout.tsx      # Root layout component
+│   └── ...
+└── ...
+```
+
+## Design System
+
+The design system is defined in `src/app/styles/design-system.css` and includes:
+
+- **Color Palette**: Primary, accent, neutral, and status colors
+- **Typography**: Font families, sizes, weights, and styles
+- **Spacing**: Consistent spacing scale
+- **Components**: Buttons, cards, forms, and more
+
+For detailed information about the design system, see [STYLE_GUIDE.md](./src/app/styles/STYLE_GUIDE.md).
+
+## Component Library
+
+The UI component library is located in `src/app/components/ui/` and includes:
+
+- **Layout Components**: Card, Modal
+- **Form Components**: Button, FormInput, FormSelect, FormTextarea, Dropdown
+- **Navigation Components**: Breadcrumb, Pagination, Tabs
+- **Feedback Components**: Alert, Badge, Toast, Loading, Skeleton
+- **Content Components**: Accordion
+
+For detailed information about the components, see [UI Components README](./src/app/components/ui/README.md).
 
 ## Getting Started
 
-First, run the development server:
+### Prerequisites
+
+- Node.js (v20 or later)
+- npm or yarn
+
+### Installation
 
 ```bash
+# Install dependencies
+npm install
+
+# Start development server
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### Building for Production
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+# Build the application
+npm run build
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+# Start production server
+npm run start
+```
 
-## Learn More
+## Design System Showcase
 
-To learn more about Next.js, take a look at the following resources:
+To explore the design system components, visit `/design-system` in the running application. This page showcases all available components with examples and usage information.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Accessibility
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+The website is built with accessibility in mind and follows WCAG 2.1 AA guidelines:
 
-## Deploy on Vercel
+- Semantic HTML
+- Proper ARIA attributes
+- Keyboard navigation
+- Focus management
+- Screen reader support
+- Reduced motion support
+- High contrast mode support
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Browser Support
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+The website supports the following browsers:
+
+- Chrome (latest)
+- Firefox (latest)
+- Safari (latest)
+- Edge (latest)
+- Mobile browsers (iOS Safari, Android Chrome)

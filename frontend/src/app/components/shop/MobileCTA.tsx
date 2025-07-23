@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useCart } from './CartContext';
 import { useQuote } from './QuoteContext';
+import './mobile-cta.css';
 
 interface MobileCTAProps {
     showOnPages?: string[];

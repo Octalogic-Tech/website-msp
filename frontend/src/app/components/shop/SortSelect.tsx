@@ -1,26 +1,39 @@
 import React from "react";
+import { FormSelect } from "../ui";
 import '../../shop/shop.css';
 
+type SortOption = "newest" | "price_asc" | "price_desc" | "name" | "popularity";
+
 interface SortSelectProps {
-  onChange: (sortBy: "newest" | "price_asc" | "price_desc" | "name" | "popularity") => void;
+  onChange: (sortBy: SortOption) => void;
+  value?: SortOption;
+  className?: string;
 }
 
-const SortSelect: React.FC<SortSelectProps> = ({ onChange }) => {
+const SortSelect: React.FC<SortSelectProps> = ({ onChange, value = "newest", className = "" }) => {
+  const sortOptions = [
+    { value: "newest", label: "Newest" },
+    { value: "price_asc", label: "Price (Low to High)" },
+    { value: "price_desc", label: "Price (High to Low)" },
+    { value: "name", label: "Name (A-Z)" },
+    { value: "popularity", label: "Popularity (Coming Soon)", disabled: true }
+  ];
+
+  const handleChange = (selectedValue: string) => {
+    onChange(selectedValue as SortOption);
+  };
+
   return (
-    <div className="sort-select">
-      <label htmlFor="sort">Sort By:</label>
-      <select
-        id="sort"
-        onChange={e => onChange(e.target.value as "newest" | "price_asc" | "price_desc" | "name" | "popularity")}
-      >
-        <option value="newest">Newest</option>
-        <option value="price_asc">Price (Low to High)</option>
-        <option value="price_desc">Price (High to Low)</option>
-        <option value="name">Name (A-Z)</option>
-        <option value="popularity" disabled>Popularity (Coming Soon)</option>
-      </select>
+    <div className={`sort-select ${className}`}>
+      <FormSelect
+        label="Sort By:"
+        options={sortOptions}
+        value={value}
+        onChange={handleChange}
+        aria-label="Sort products"
+      />
     </div>
   );
 };
 
-export default SortSelect; 
+export default SortSelect;

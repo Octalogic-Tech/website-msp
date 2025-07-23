@@ -1,209 +1,161 @@
-'use client';
-
-import React from "react";
-import { useRouter } from 'next/navigation';
-import { useCart } from './CartContext';
-import { useQuote } from './QuoteContext';
-import { useToast } from './ToastContext';
+import React from 'react';
 import Image from 'next/image';
-import '../../shop/shop.css';
-
-interface Product {
-  id: string;
-  name: string;
-  slug: string;
-  price: string;
-  images?: string[];
-  description?: string;
-  category?: { name: string; slug: string };
-  brand?: { name: string; slug: string };
-  stockQty?: number;
-  documents?: { name: string; url: string }[];
-  specs?: Record<string, string | number | string[]>;
-}
+import Link from 'next/link';
+import Button from '../ui/Button';
+import Badge from '../ui/Badge';
 
 interface ProductCardProps {
-  product: Product;
-  viewMode?: 'grid' | 'list';
-  isInCompare?: boolean;
-  onAddToCompare?: (product: Product) => void;
-  onRemoveFromCompare?: (productId: string) => void;
-  showCompareButton?: boolean;
+  product: {
+    id: string;
+    name: string;
+    slug: string;
+    description?: string | null;
+    price: number | string;
+    stockQty: number;
+    images?: string[];
+    category?: {
+      name: string;
+      slug: string;
+    };
+    brand?: {
+      name: string;
+      slug: string;
+    };
+  };
+  onAddToCart?: (productId: string) => void;
+  onAddToQuote?: (productId: string) => void;
+  className?: string;
 }
 
 const ProductCard: React.FC<ProductCardProps> = ({
   product,
-  viewMode = 'grid',
-  isInCompare = false,
-  onAddToCompare,
-  onRemoveFromCompare,
-  showCompareButton = true
+  onAddToCart,
+  onAddToQuote,
+  className = ''
 }) => {
-  const router = useRouter();
-  const { addItem: addToCart, isLoading: isCartLoading } = useCart();
-  const { addItem: addToQuote, isLoading: isQuoteLoading } = useQuote();
-  const { showToast } = useToast();
+  const {
+    id,
+    name,
+    slug,
+    description,
+    price,
+    stockQty,
+    images,
+    category,
+    brand
+  } = product;
 
-  const handleAddToCart = async (e: React.MouseEvent) => {
+  const isInStock = stockQty > 0;
+  const isLowStock = stockQty > 0 && stockQty <= 5;
+  const formattedPrice = typeof price === 'number'
+    ? price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+    : price;
+
+  const handleAddToCart = (e: React.MouseEvent) => {
+    e.preventDefault();
     e.stopPropagation();
-    try {
-      const success = await addToCart({
-        id: product.id,
-        name: product.name,
-        price: product.price,
-        quantity: 1,
-        image: product.images?.[0],
-      });
-
-      if (success) {
-        showToast(`✅ ${product.name} added to cart`, 'success');
-      } else {
-        showToast("❌ Failed to add item to cart", 'error');
-      }
-    } catch (error) {
-      console.error("Error adding to cart:", error);
-      showToast("❌ Failed to add item to cart", 'error');
+    if (onAddToCart && isInStock) {
+      onAddToCart(id);
     }
   };
 
-  const handleAddToQuote = async (e: React.MouseEvent) => {
+  const handleAddToQuote = (e: React.MouseEvent) => {
+    e.preventDefault();
     e.stopPropagation();
-    try {
-      const success = await addToQuote({
-        id: product.id,
-        name: product.name,
-        price: product.price,
-        quantity: 1,
-        image: product.images?.[0],
-      });
-
-      if (success) {
-        showToast(`${product.name} added to quote`, 'success');
-      }
-    } catch (error) {
-      console.error("Error adding to quote:", error);
-      showToast("Failed to add item to quote", 'error');
+    if (onAddToQuote) {
+      onAddToQuote(id);
     }
   };
 
-  const handleDocumentClick = (e: React.MouseEvent, url: string) => {
-    e.stopPropagation();
-    window.open(url.startsWith('http') ? url : `http://localhost:5000${url}`, '_blank');
-  };
-
-  const handleClick = () => {
-    const categorySlug = product.category?.slug || 'uncategorized';
-    router.push(`/shop/${categorySlug}/${product.slug}`);
-  };
-
-  const handleCompareToggle = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    if (isInCompare) {
-      onRemoveFromCompare?.(product.id);
-    } else {
-      onAddToCompare?.(product);
-    }
-  };
-
-  const isOutOfStock = product.stockQty !== undefined && product.stockQty <= 0;
-  const formattedPrice = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(parseInt(product.price));
+  const productUrl = category
+    ? `/shop/${category.slug}/${slug}`
+    : `/shop/uncategorized/${slug}`;
 
   return (
-    <div className={`product-card ${viewMode}-view ${isInCompare ? 'in-compare' : ''}`} onClick={handleClick}>
+    <Link href={productUrl} className={`product-card ${className}`}>
       <div className="product-image">
-        {product.images && product.images.length > 0 ? (
+        {images && images.length > 0 ? (
           <Image
-            src={product.images[0].startsWith('http') ? product.images[0] : `http://localhost:5000${product.images[0]}`}
-            alt={product.name}
+            src={images[0]}
+            alt={name}
             fill
-            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-            style={{ objectFit: "cover" }}
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+            style={{ objectFit: 'cover' }}
             priority={false}
           />
         ) : (
-          <div className="product-image-placeholder">No Image</div>
+          <div className="no-image-placeholder">
+            <div className="no-image-icon">
+              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+                <circle cx="8.5" cy="8.5" r="1.5" />
+                <polyline points="21 15 16 10 5 21" />
+              </svg>
+            </div>
+            <p>No Image Available</p>
+          </div>
         )}
-        {isOutOfStock && (
+
+        {!isInStock && (
           <div className="out-of-stock-badge">Out of Stock</div>
         )}
-        {showCompareButton && onAddToCompare && (
-          <button
-            className={`compare-toggle ${isInCompare ? 'active' : ''}`}
-            onClick={handleCompareToggle}
-            title={isInCompare ? 'Remove from comparison' : 'Add to comparison'}
-          >
-            {isInCompare ? '✓' : '+'}
-          </button>
+
+        {isLowStock && (
+          <Badge variant="warning" className="low-stock-badge">
+            Low Stock: {stockQty} left
+          </Badge>
         )}
       </div>
 
       <div className="product-info">
-        {product.brand && (
-          <div className="product-brand">{product.brand.name}</div>
-        )}
-        <h3 className="product-name">{product.name}</h3>
-        {product.description && (
-          <div className="product-description">
-            {product.description.slice(0, 100)}{product.description.length > 100 ? "..." : ""}
-          </div>
+        {brand && <div className="product-brand">{brand.name}</div>}
+        <h3 className="product-name">{name}</h3>
+        {category && <div className="product-category">{category.name}</div>}
+
+        {description && (
+          <div className="product-description">{description}</div>
         )}
 
         <div className="product-footer">
-          <div className="product-price">{formattedPrice}</div>
-
-          {viewMode === 'list' && product.specs && (
-            <div className="product-specs-preview">
-              {Object.entries(product.specs).slice(0, 3).map(([key, value]) => (
-                <div key={key} className="spec-item">
-                  <span className="spec-label">{key}:</span>
-                  <span className="spec-value">{Array.isArray(value) ? value.join(', ') : String(value)}</span>
-                </div>
-              ))}
-            </div>
-          )}
+          <div className="product-price">
+            <span className="currency">$</span>
+            {formattedPrice}
+            <span className="unit">/unit</span>
+          </div>
 
           <div className="product-actions">
             <button
-              className={`add-to-cart-btn ${isOutOfStock ? 'disabled' : ''}`}
+              className={`add-to-cart-btn ${!isInStock ? 'disabled' : ''}`}
               onClick={handleAddToCart}
-              disabled={isOutOfStock || isCartLoading}
-              aria-label={isOutOfStock ? 'Out of Stock' : isCartLoading ? 'Adding to Cart' : 'Add to Cart'}
+              disabled={!isInStock}
+              aria-label={isInStock ? `Add ${name} to cart` : `${name} is out of stock`}
             >
-              {isOutOfStock ? 'Out of Stock' : isCartLoading ? 'Adding...' : 'Add to Cart'}
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="9" cy="21" r="1" />
+                <circle cx="20" cy="21" r="1" />
+                <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" />
+              </svg>
+              {isInStock ? 'Add to Cart' : 'Out of Stock'}
             </button>
+
             <button
               className="add-to-quote-btn"
               onClick={handleAddToQuote}
-              disabled={isQuoteLoading}
-              aria-label={isQuoteLoading ? 'Adding to Quote' : 'Add to Quote'}
+              aria-label={`Request quote for ${name}`}
             >
-              {isQuoteLoading ? 'Adding...' : 'Add to Quote'}
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                <polyline points="14 2 14 8 20 8" />
+                <line x1="16" y1="13" x2="8" y2="13" />
+                <line x1="16" y1="17" x2="8" y2="17" />
+                <polyline points="10 9 9 9 8 9" />
+              </svg>
+              Request Quote
             </button>
           </div>
-
-          {product.documents && product.documents.length > 0 && (
-            <div className="product-documents">
-              {product.documents.slice(0, 1).map((doc, index) => (
-                <button
-                  key={index}
-                  className="document-button"
-                  onClick={(e) => handleDocumentClick(e, doc.url)}
-                  aria-label={`Download ${doc.name || 'Spec Sheet'}`}
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" width="16" height="16">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
-                  </svg>
-                  {doc.name || "Download Spec Sheet"}
-                </button>
-              ))}
-              {product.documents.length > 1 && (
-                <div className="more-documents">+{product.documents.length - 1} more</div>
-              )}
-            </div>
-          )}
         </div>
       </div>
-    </div>
+    </Link>
   );
 };
 

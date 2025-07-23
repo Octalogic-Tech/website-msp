@@ -1,45 +1,56 @@
-/* Product Detail Page Styles */
+/* Product Detail Page - Industrial Design System */
+@import '../../../styles/design-system.css';
 
 /* Main Container */
 .product-detail-container {
-    background-color: var(--light-gray);
+    background-color: var(--light-color);
     min-height: 100vh;
-    font-family: "Open Sans", sans-serif;
+    font-family: var(--font-secondary);
 }
 
-/* Breadcrumb */
+/* Breadcrumb - Enhanced */
 .breadcrumb-container {
-    background-color: var(--white);
-    border-bottom: 1px solid #e0e0e0;
+    background-color: var(--white-color);
+    border-bottom: 2px solid var(--gray-200);
+    box-shadow: var(--shadow-sm);
 }
 
 .breadcrumb-wrapper {
-    max-width: 1200px;
+    max-width: var(--container-xl);
     margin: 0 auto;
-    padding: 0.75rem 1rem;
+    padding: var(--space-4) var(--space-4);
 }
 
 .breadcrumb-nav {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
-    font-size: 0.875rem;
-    color: #666;
+    gap: var(--space-2);
+    font-family: var(--font-secondary);
+    font-size: var(--font-size-sm);
+    color: var(--gray-600);
 }
 
 .breadcrumb-nav a {
-    color: #666;
+    color: var(--gray-600);
     text-decoration: none;
-    transition: color 0.2s ease;
+    transition: color var(--transition-normal);
+    padding: var(--space-1) var(--space-2);
+    border-radius: var(--radius-sm);
 }
 
 .breadcrumb-nav a:hover {
-    color: var(--blue-color);
+    color: var(--primary-color);
+    background-color: rgba(249, 168, 37, 0.1);
+}
+
+.breadcrumb-separator {
+    color: var(--gray-400);
+    font-weight: var(--font-weight-bold);
 }
 
 .breadcrumb-current {
-    color: var(--dark-gray);
-    font-weight: 500;
+    color: var(--dark-color);
+    font-weight: var(--font-weight-semibold);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -48,17 +59,30 @@
 
 /* Main Content */
 .product-main-wrapper {
-    max-width: 1200px;
+    max-width: var(--container-xl);
     margin: 0 auto;
-    padding: 1.5rem 1rem;
+    padding: var(--space-8) var(--space-4);
 }
 
-/* Product Card */
+/* Product Card - Industrial Design */
 .product-main-card {
-    background-color: var(--white);
-    border-radius: var(--border-radius);
-    box-shadow: var(--shadow);
+    background-color: var(--white-color);
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-xl);
     overflow: hidden;
+    border: 2px solid var(--gray-200);
+    position: relative;
+}
+
+.product-main-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 6px;
+    background: linear-gradient(90deg, var(--primary-color), var(--accent-color));
+    z-index: 1;
 }
 
 .product-main-grid {

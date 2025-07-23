@@ -1,0 +1,21 @@
+/* Zoom Component Styles */
+@import 'react-medium-image-zoom/dist/styles.css';
+
+/* Custom Zoom Styles */
+[data-rmiz-modal-overlay] {
+    background-color: rgba(0, 0, 0, 0.8);
+}
+
+[data-rmiz-modal-img] {
+    max-width: 90vw;
+    max-height: 90vh;
+}
+
+[data-rmiz-btn-unzoom] {
+    background-color: var(--primary-color);
+    color: var(--white-color);
+}
+
+[data-rmiz-content="found"] img {
+    cursor: zoom-in;
+}

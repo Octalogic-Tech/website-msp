@@ -6,7 +6,7 @@ import { useState, useCallback } from 'react'
 import { FaSearch, FaShoppingCart, FaQuoteLeft, FaPhone, FaBars, FaTimes } from 'react-icons/fa'
 import { useCart } from './shop/CartContext'
 import { useQuote } from './shop/QuoteContext'
-import styles from './Navigation.module.css'
+import './navigation.css'
 
 export default function Navigation() {
   const router = useRouter()
@@ -31,27 +31,27 @@ export default function Navigation() {
   }, [handleSearch])
 
   return (
-    <nav className={styles.navbar}>
-      <div className={styles.navContainer}>
+    <nav className="navbar">
+      <div className="navContainer">
         {/* Logo */}
-        <Link href="/" className={styles.logo}>
-          <span className={styles.logoText}>ConstructPro</span>
+        <Link href="/" className="logo">
+          <span className="logoText">ConstructPro</span>
         </Link>
 
         {/* Search Bar */}
-        <div className={styles.searchForm}>
+        <div className="searchForm">
           <input
             type="text"
             placeholder="Search parts, machinery, model numbers..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             onKeyDown={handleKeyDown}
-            className={styles.searchInput}
+            className="searchInput"
             aria-label="Search products"
           />
-          <button 
+          <button
             onClick={handleSearch}
-            className={styles.searchButton} 
+            className="searchButton"
             aria-label="Search"
             disabled={!searchQuery.trim()}
           >
@@ -60,38 +60,38 @@ export default function Navigation() {
         </div>
 
         {/* Desktop Navigation */}
-        <div className={styles.navLinks}>
-          <Link href="/shop" className={styles.navLink}>Shop</Link>
-          <Link href="/parts-finder" className={styles.navLink}>Parts Finder</Link>
-          <Link href="/about-us" className={styles.navLink}>About</Link>
-          <Link href="/contact-us" className={styles.navLink}>Contact</Link>
+        <div className="navLinks">
+          <Link href="/shop" className="navLink">Shop</Link>
+          <Link href="/parts-finder" className="navLink">Parts Finder</Link>
+          <Link href="/about-us" className="navLink">About</Link>
+          <Link href="/contact-us" className="navLink">Contact</Link>
         </div>
 
         {/* Action Buttons */}
-        <div className={styles.navActions}>
-          <Link href="/cart" className={styles.actionButton}>
+        <div className="navActions">
+          <Link href="/cart" className="actionButton">
             <FaShoppingCart />
-            <span className={styles.actionText}>Cart</span>
+            <span className="actionText">Cart</span>
             {cartItemCount > 0 && (
-              <span className={styles.itemCount}>{cartItemCount}</span>
+              <span className="itemCount">{cartItemCount}</span>
             )}
           </Link>
-          <Link href="/quote" className={styles.actionButton}>
+          <Link href="/quote" className="actionButton">
             <FaQuoteLeft />
-            <span className={styles.actionText}>Quote</span>
+            <span className="actionText">Quote</span>
             {quoteItemCount > 0 && (
-              <span className={styles.itemCount}>{quoteItemCount}</span>
+              <span className="itemCount">{quoteItemCount}</span>
             )}
           </Link>
-          <a href="tel:+1234567890" className={`${styles.actionButton} ${styles.phoneButton}`}>
+          <a href="tel:+1234567890" className="actionButton phoneButton">
             <FaPhone />
-            <span className={styles.actionText}>Call Now</span>
+            <span className="actionText">Call Now</span>
           </a>
         </div>
 
         {/* Mobile Menu Toggle */}
-        <button 
-          className={styles.mobileMenuToggle}
+        <button
+          className="mobileMenuToggle"
           onClick={() => setIsMenuOpen(!isMenuOpen)}
           aria-label={isMenuOpen ? 'Close menu' : 'Open menu'}
           aria-expanded={isMenuOpen ? 'true' : 'false'}
@@ -102,21 +102,21 @@ export default function Navigation() {
 
       {/* Mobile Menu */}
       {isMenuOpen && (
-        <div className={styles.mobileMenu}>
+        <div className="mobileMenu">
           {/* Mobile Search */}
-          <div className={styles.mobileSearchForm}>
+          <div className="mobileSearchForm">
             <input
               type="text"
               placeholder="Search products..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               onKeyDown={handleKeyDown}
-              className={styles.mobileSearchInput}
+              className="mobileSearchInput"
               aria-label="Search products"
             />
-            <button 
+            <button
               onClick={handleSearch}
-              className={styles.mobileSearchButton} 
+              className="mobileSearchButton"
               aria-label="Search"
               disabled={!searchQuery.trim()}
             >
@@ -124,24 +124,24 @@ export default function Navigation() {
             </button>
           </div>
 
-          <Link href="/shop" className={styles.mobileNavLink}>Shop</Link>
-          <Link href="/parts-finder" className={styles.mobileNavLink}>Parts Finder</Link>
-          <Link href="/about-us" className={styles.mobileNavLink}>About</Link>
-          <Link href="/contact-us" className={styles.mobileNavLink}>Contact</Link>
-          <div className={styles.mobileActions}>
-            <Link href="/cart" className={styles.mobileActionButton}>
+          <Link href="/shop" className="mobileNavLink">Shop</Link>
+          <Link href="/parts-finder" className="mobileNavLink">Parts Finder</Link>
+          <Link href="/about-us" className="mobileNavLink">About</Link>
+          <Link href="/contact-us" className="mobileNavLink">Contact</Link>
+          <div className="mobileActions">
+            <Link href="/cart" className="mobileActionButton">
               <FaShoppingCart /> Cart
               {cartItemCount > 0 && (
-                <span className={styles.mobileItemCount}>{cartItemCount}</span>
+                <span className="mobileItemCount">{cartItemCount}</span>
               )}
             </Link>
-            <Link href="/quote" className={styles.mobileActionButton}>
+            <Link href="/quote" className="mobileActionButton">
               <FaQuoteLeft /> Quote
               {quoteItemCount > 0 && (
-                <span className={styles.mobileItemCount}>{quoteItemCount}</span>
+                <span className="mobileItemCount">{quoteItemCount}</span>
               )}
             </Link>
-            <a href="tel:+1234567890" className={styles.mobileActionButton}>
+            <a href="tel:+1234567890" className="mobileActionButton">
               <FaPhone /> Call Now
             </a>
           </div>

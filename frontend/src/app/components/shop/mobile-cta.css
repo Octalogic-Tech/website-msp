@@ -1,0 +1,354 @@
+/* Mobile CTA Component Styles */
+/* Industrial Design System Implementation */
+
+.mobile-cta-container {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: var(--z-fixed);
+    background-color: var(--white-color);
+    border-top: 2px solid var(--gray-200);
+    box-shadow: 0 -4px 6px -1px rgba(0, 0, 0, 0.1);
+    padding: var(--space-3) var(--space-4);
+    animation: slideUp 0.3s ease-out;
+}
+
+@keyframes slideUp {
+    from {
+        transform: translateY(100%);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+/* CTA Buttons Container */
+.mobile-cta-buttons {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: var(--space-2);
+    max-width: 500px;
+    margin: 0 auto;
+}
+
+/* Individual CTA Button */
+.mobile-cta-btn {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-1);
+    padding: var(--space-3) var(--space-2);
+    font-family: var(--font-secondary);
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-semibold);
+    color: var(--gray-600);
+    background-color: transparent;
+    border: 2px solid transparent;
+    border-radius: var(--radius-lg);
+    cursor: pointer;
+    transition: all var(--transition-normal);
+    min-height: 60px;
+    text-align: center;
+}
+
+.mobile-cta-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+
+.mobile-cta-btn:active {
+    transform: translateY(0);
+    box-shadow: var(--shadow-sm);
+}
+
+/* Button Variants */
+.call-btn {
+    color: var(--success-color);
+    border-color: rgba(40, 167, 69, 0.2);
+}
+
+.call-btn:hover {
+    background-color: rgba(40, 167, 69, 0.1);
+    border-color: var(--success-color);
+    color: var(--success-color);
+}
+
+.whatsapp-btn {
+    color: #25d366;
+    border-color: rgba(37, 211, 102, 0.2);
+}
+
+.whatsapp-btn:hover {
+    background-color: rgba(37, 211, 102, 0.1);
+    border-color: #25d366;
+    color: #25d366;
+}
+
+.quote-btn {
+    color: var(--primary-color);
+    border-color: rgba(249, 168, 37, 0.2);
+}
+
+.quote-btn:hover {
+    background-color: rgba(249, 168, 37, 0.1);
+    border-color: var(--primary-color);
+    color: var(--primary-color);
+}
+
+.cart-btn {
+    color: var(--accent-color);
+    border-color: rgba(255, 111, 0, 0.2);
+}
+
+.cart-btn:hover {
+    background-color: rgba(255, 111, 0, 0.1);
+    border-color: var(--accent-color);
+    color: var(--accent-color);
+}
+
+/* Button Icons */
+.mobile-cta-btn svg {
+    flex-shrink: 0;
+    transition: transform var(--transition-fast);
+}
+
+.mobile-cta-btn:hover svg {
+    transform: scale(1.1);
+}
+
+/* Button Text */
+.mobile-cta-btn span {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+}
+
+/* Badge for Cart/Quote Count */
+.cta-badge {
+    position: absolute;
+    top: var(--space-1);
+    right: var(--space-1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 18px;
+    height: 18px;
+    padding: 0 var(--space-1);
+    font-family: var(--font-primary);
+    font-size: 10px;
+    font-weight: var(--font-weight-bold);
+    color: var(--white-color);
+    background-color: var(--danger-color);
+    border: 2px solid var(--white-color);
+    border-radius: var(--radius-full);
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+
+    0%,
+    100% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.1);
+    }
+}
+
+/* Badge Variants */
+.quote-btn .cta-badge {
+    background-color: var(--primary-color);
+}
+
+.cart-btn .cta-badge {
+    background-color: var(--accent-color);
+}
+
+/* Responsive Design */
+@media (max-width: 480px) {
+    .mobile-cta-container {
+        padding: var(--space-2) var(--space-3);
+    }
+
+    .mobile-cta-buttons {
+        gap: var(--space-1);
+    }
+
+    .mobile-cta-btn {
+        padding: var(--space-2) var(--space-1);
+        min-height: 50px;
+        font-size: 10px;
+    }
+
+    .mobile-cta-btn svg {
+        width: 16px;
+        height: 16px;
+    }
+
+    .cta-badge {
+        min-width: 16px;
+        height: 16px;
+        font-size: 9px;
+        top: 0;
+        right: 0;
+    }
+}
+
+@media (max-width: 360px) {
+    .mobile-cta-btn span {
+        font-size: 9px;
+    }
+
+    .mobile-cta-btn {
+        gap: 2px;
+    }
+}
+
+/* Landscape Orientation */
+@media (orientation: landscape) and (max-height: 500px) {
+    .mobile-cta-container {
+        padding: var(--space-2) var(--space-4);
+    }
+
+    .mobile-cta-btn {
+        min-height: 45px;
+        padding: var(--space-2);
+    }
+}
+
+/* High Contrast Mode */
+@media (prefers-contrast: high) {
+    .mobile-cta-container {
+        border-top-width: 3px;
+        border-top-color: var(--dark-color);
+    }
+
+    .mobile-cta-btn {
+        border-width: 2px;
+    }
+
+    .mobile-cta-btn:hover {
+        border-width: 3px;
+    }
+}
+
+/* Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+    .mobile-cta-container {
+        animation: none;
+    }
+
+    .mobile-cta-btn {
+        transition: none;
+    }
+
+    .mobile-cta-btn:hover {
+        transform: none;
+    }
+
+    .cta-badge {
+        animation: none;
+    }
+}
+
+/* Focus States */
+.mobile-cta-btn:focus {
+    outline: 2px solid var(--primary-color);
+    outline-offset: 2px;
+}
+
+/* Active States */
+.mobile-cta-btn:active {
+    transform: scale(0.95);
+}
+
+/* Loading State */
+.mobile-cta-btn.loading {
+    pointer-events: none;
+    opacity: 0.6;
+}
+
+.mobile-cta-btn.loading::after {
+    content: '';
+    position: absolute;
+    width: 12px;
+    height: 12px;
+    border: 2px solid transparent;
+    border-top: 2px solid currentColor;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+/* Safe Area Support for iPhone X+ */
+@supports (padding-bottom: env(safe-area-inset-bottom)) {
+    .mobile-cta-container {
+        padding-bottom: calc(var(--space-3) + env(safe-area-inset-bottom));
+    }
+}
+
+/* Dark Mode Support (Future Enhancement) */
+@media (prefers-color-scheme: dark) {
+    .mobile-cta-container {
+        background-color: var(--gray-900);
+        border-top-color: var(--gray-700);
+    }
+
+    .mobile-cta-btn {
+        color: var(--gray-300);
+    }
+}
+
+/* Print Styles */
+@media print {
+    .mobile-cta-container {
+        display: none !important;
+    }
+}
+
+/* Accessibility Enhancements */
+.mobile-cta-btn[aria-pressed="true"] {
+    background-color: rgba(249, 168, 37, 0.2);
+    border-color: var(--primary-color);
+}
+
+/* Tooltip Support */
+.mobile-cta-btn[title]:hover::before {
+    content: attr(title);
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: var(--space-1) var(--space-2);
+    background-color: var(--dark-color);
+    color: var(--white-color);
+    font-size: var(--font-size-xs);
+    border-radius: var(--radius-sm);
+    white-space: nowrap;
+    z-index: var(--z-tooltip);
+    margin-bottom: var(--space-1);
+    opacity: 0;
+    animation: fadeIn 0.2s ease-in-out forwards;
+}
+
+/* Connection Status Indicators */
+.mobile-cta-btn.offline {
+    opacity: 0.5;
+    pointer-events: none;
+}
+
+.mobile-cta-btn.offline::after {
+    content: '⚠';
+    position: absolute;
+    top: 0;
+    right: 0;
+    font-size: 12px;
+    color: var(--warning-color);
+}

@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
+import './enhanced-search.css';
 
 interface SearchResult {
     id: string;
@@ -49,10 +50,10 @@ const EnhancedSearch: React.FC<EnhancedSearchProps> = ({ onClose, className = ''
     // Search suggestions and spell check
     const getSearchSuggestions = (searchTerm: string): string[] => {
         const commonTerms = [
-            'excavator', 'loader', 'bulldozer', 'crane', 'forklift',
+            'excavator', 'wheel loader', 'bulldozer', 'crane', 'forklift',
             'caterpillar', 'komatsu', 'volvo', 'john deere', 'case',
-            'hydraulic', 'engine', 'transmission', 'parts', 'spare parts',
-            'new', 'used', 'refurbished'
+            'hydraulic system', 'engine parts', 'transmission', 'undercarriage',
+            'new equipment', 'used machinery', 'refurbished parts'
         ];
 
         return commonTerms
@@ -274,21 +275,13 @@ const EnhancedSearch: React.FC<EnhancedSearchProps> = ({ onClose, className = ''
                                     className={`search-item product-result ${selectedIndex === index ? 'selected' : ''}`}
                                 >
                                     <div className="result-image">
-                                        {result.images?.[0] ? (
-                                            <Image
-                                                src={result.images[0].startsWith('http') ? result.images[0] : `http://localhost:5000${result.images[0]}`}
-                                                alt={result.name}
-                                                width={40}
-                                                height={40}
-                                                style={{ objectFit: 'cover' }}
-                                            />
-                                        ) : (
-                                            <div className="no-image">
-                                                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                                                    <path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z" />
-                                                </svg>
-                                            </div>
-                                        )}
+                                        <Image
+                                            src="/images/cat-320-excavator-1.jpg"
+                                            alt={result.name}
+                                            width={40}
+                                            height={40}
+                                            style={{ objectFit: 'cover' }}
+                                        />
                                     </div>
                                     <div className="result-info">
                                         <div className="result-name">{result.name}</div>
@@ -310,9 +303,9 @@ const EnhancedSearch: React.FC<EnhancedSearchProps> = ({ onClose, className = ''
                     {/* No Results */}
                     {query.length >= 2 && !isLoading && results.length === 0 && suggestions.length === 0 && (
                         <div className="no-results">
-                            <p>No results found for "{query}"</p>
+                            <p>No results found for "{query}&quot;</p>
                             <p className="suggestion-text">
-                                Try searching for: excavator, loader, caterpillar, parts
+                                Try searching for: excavator, wheel loader, caterpillar, komatsu, hydraulic system
                             </p>
                         </div>
                     )}

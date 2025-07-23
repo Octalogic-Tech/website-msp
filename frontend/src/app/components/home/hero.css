@@ -1,0 +1,328 @@
+/* Hero Component - Industrial Design System */
+@import '../../styles/design-system.css';
+
+.hero {
+    position: relative;
+    height: 600px;
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+}
+
+/* Hero Background */
+.hero-background {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: -1;
+}
+
+.hero-image {
+    object-position: center 30%;
+}
+
+.hero-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, rgba(33, 33, 33, 0.85) 0%, rgba(33, 33, 33, 0.7) 100%);
+    z-index: 1;
+}
+
+/* Hero Content */
+.hero-container {
+    width: 100%;
+    max-width: var(--container-xl);
+    margin: 0 auto;
+    padding: 0 var(--space-4);
+    position: relative;
+    z-index: 2;
+}
+
+.hero-content {
+    max-width: 700px;
+    animation: fadeInUp 1s ease-out;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.hero-title {
+    font-family: var(--font-primary);
+    font-size: var(--font-size-4xl);
+    font-weight: var(--font-weight-bold);
+    color: var(--white-color);
+    margin-bottom: var(--space-4);
+    line-height: 1.1;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+    position: relative;
+}
+
+.hero-title::after {
+    content: '';
+    position: absolute;
+    bottom: -10px;
+    left: 0;
+    width: 80px;
+    height: 4px;
+    background: linear-gradient(90deg, var(--primary-color), var(--accent-color));
+}
+
+.hero-subtitle {
+    font-family: var(--font-secondary);
+    font-size: var(--font-size-xl);
+    font-weight: var(--font-weight-light);
+    color: var(--gray-200);
+    margin-bottom: var(--space-8);
+    max-width: 600px;
+    line-height: 1.5;
+}
+
+/* Hero Actions */
+.hero-actions {
+    display: flex;
+    gap: var(--space-4);
+    margin-bottom: var(--space-10);
+}
+
+.hero-cta {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-4) var(--space-8);
+    font-family: var(--font-primary);
+    font-size: var(--font-size-base);
+    font-weight: var(--font-weight-semibold);
+    text-decoration: none;
+    border-radius: var(--radius-md);
+    transition: all var(--transition-normal);
+    position: relative;
+    overflow: hidden;
+}
+
+.hero-cta::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: left 0.5s;
+}
+
+.hero-cta:hover::before {
+    left: 100%;
+}
+
+.hero-cta.primary {
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--accent-color) 100%);
+    color: var(--white-color);
+    border: none;
+    box-shadow: var(--shadow-lg);
+}
+
+.hero-cta.primary:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-xl);
+}
+
+.hero-cta.secondary {
+    background-color: transparent;
+    color: var(--white-color);
+    border: 2px solid var(--white-color);
+}
+
+.hero-cta.secondary:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-lg);
+}
+
+/* Hero Features */
+.hero-features {
+    display: flex;
+    gap: var(--space-6);
+    flex-wrap: wrap;
+}
+
+.hero-feature {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+}
+
+.feature-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    background-color: rgba(249, 168, 37, 0.2);
+    border-radius: var(--radius-full);
+    color: var(--primary-color);
+}
+
+.feature-text {
+    font-family: var(--font-primary);
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-semibold);
+    color: var(--white-color);
+}
+
+/* Responsive Styles */
+@media (max-width: 1024px) {
+    .hero {
+        height: 500px;
+    }
+
+    .hero-title {
+        font-size: var(--font-size-3xl);
+    }
+
+    .hero-subtitle {
+        font-size: var(--font-size-lg);
+    }
+}
+
+@media (max-width: 768px) {
+    .hero {
+        height: 450px;
+    }
+
+    .hero-title {
+        font-size: var(--font-size-2xl);
+    }
+
+    .hero-subtitle {
+        font-size: var(--font-size-base);
+        margin-bottom: var(--space-6);
+    }
+
+    .hero-actions {
+        flex-direction: column;
+        gap: var(--space-3);
+        margin-bottom: var(--space-6);
+    }
+
+    .hero-features {
+        gap: var(--space-4);
+    }
+
+    .hero-feature {
+        width: calc(50% - var(--space-2));
+    }
+}
+
+@media (max-width: 480px) {
+    .hero {
+        height: 500px;
+    }
+
+    .hero-title {
+        font-size: var(--font-size-xl);
+    }
+
+    .hero-subtitle {
+        font-size: var(--font-size-sm);
+    }
+
+    .hero-cta {
+        width: 100%;
+        justify-content: center;
+        padding: var(--space-3) var(--space-4);
+    }
+
+    .hero-features {
+        flex-direction: column;
+        gap: var(--space-3);
+    }
+
+    .hero-feature {
+        width: 100%;
+    }
+}
+
+/* High Contrast Mode */
+@media (prefers-contrast: high) {
+    .hero-overlay {
+        background: rgba(0, 0, 0, 0.8);
+    }
+
+    .hero-title::after {
+        background: var(--white-color);
+        height: 3px;
+    }
+
+    .hero-cta.primary {
+        background: var(--primary-color);
+        border: 2px solid var(--white-color);
+    }
+
+    .hero-cta.secondary {
+        border-width: 3px;
+    }
+
+    .feature-icon {
+        background-color: var(--primary-color);
+        color: var(--white-color);
+        border: 2px solid var(--white-color);
+    }
+}
+
+/* Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+    .hero-content {
+        animation: none;
+    }
+
+    .hero-cta:hover {
+        transform: none;
+    }
+
+    .hero-cta::before {
+        display: none;
+    }
+}
+
+/* Focus States */
+.hero-cta:focus {
+    outline: 3px solid var(--primary-color);
+    outline-offset: 2px;
+}
+
+/* Print Styles */
+@media print {
+    .hero {
+        height: auto;
+        padding: var(--space-6) 0;
+    }
+
+    .hero-background {
+        display: none;
+    }
+
+    .hero-title,
+    .hero-subtitle,
+    .feature-text {
+        color: var(--dark-color);
+    }
+
+    .hero-cta {
+        border: 1px solid var(--dark-color);
+        color: var(--dark-color);
+    }
+}
