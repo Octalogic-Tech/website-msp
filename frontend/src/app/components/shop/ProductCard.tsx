@@ -19,13 +19,26 @@ interface Product {
   brand?: { name: string; slug: string };
   stockQty?: number;
   documents?: { name: string; url: string }[];
+  specs?: Record<string, string | number | string[]>;
 }
 
 interface ProductCardProps {
   product: Product;
+  viewMode?: 'grid' | 'list';
+  isInCompare?: boolean;
+  onAddToCompare?: (product: Product) => void;
+  onRemoveFromCompare?: (productId: string) => void;
+  showCompareButton?: boolean;
 }
 
-const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
+const ProductCard: React.FC<ProductCardProps> = ({
+  product,
+  viewMode = 'grid',
+  isInCompare = false,
+  onAddToCompare,
+  onRemoveFromCompare,
+  showCompareButton = true
+}) => {
   const router = useRouter();
   const { addItem: addToCart, isLoading: isCartLoading } = useCart();
   const { addItem: addToQuote, isLoading: isQuoteLoading } = useQuote();
@@ -41,13 +54,15 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
         quantity: 1,
         image: product.images?.[0],
       });
-      
+
       if (success) {
-        showToast(`${product.name} added to cart`, 'success');
+        showToast(`✅ ${product.name} added to cart`, 'success');
+      } else {
+        showToast("❌ Failed to add item to cart", 'error');
       }
     } catch (error) {
       console.error("Error adding to cart:", error);
-      showToast("Failed to add item to cart", 'error');
+      showToast("❌ Failed to add item to cart", 'error');
     }
   };
 
@@ -61,7 +76,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
         quantity: 1,
         image: product.images?.[0],
       });
-      
+
       if (success) {
         showToast(`${product.name} added to quote`, 'success');
       }
@@ -81,11 +96,20 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
     router.push(`/shop/${categorySlug}/${product.slug}`);
   };
 
+  const handleCompareToggle = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (isInCompare) {
+      onRemoveFromCompare?.(product.id);
+    } else {
+      onAddToCompare?.(product);
+    }
+  };
+
   const isOutOfStock = product.stockQty !== undefined && product.stockQty <= 0;
   const formattedPrice = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(parseInt(product.price));
 
   return (
-    <div className="product-card" onClick={handleClick}>
+    <div className={`product-card ${viewMode}-view ${isInCompare ? 'in-compare' : ''}`} onClick={handleClick}>
       <div className="product-image">
         {product.images && product.images.length > 0 ? (
           <Image
@@ -102,6 +126,15 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
         {isOutOfStock && (
           <div className="out-of-stock-badge">Out of Stock</div>
         )}
+        {showCompareButton && onAddToCompare && (
+          <button
+            className={`compare-toggle ${isInCompare ? 'active' : ''}`}
+            onClick={handleCompareToggle}
+            title={isInCompare ? 'Remove from comparison' : 'Add to comparison'}
+          >
+            {isInCompare ? '✓' : '+'}
+          </button>
+        )}
       </div>
 
       <div className="product-info">
@@ -114,10 +147,21 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
             {product.description.slice(0, 100)}{product.description.length > 100 ? "..." : ""}
           </div>
         )}
-        
+
         <div className="product-footer">
           <div className="product-price">{formattedPrice}</div>
-          
+
+          {viewMode === 'list' && product.specs && (
+            <div className="product-specs-preview">
+              {Object.entries(product.specs).slice(0, 3).map(([key, value]) => (
+                <div key={key} className="spec-item">
+                  <span className="spec-label">{key}:</span>
+                  <span className="spec-value">{Array.isArray(value) ? value.join(', ') : String(value)}</span>
+                </div>
+              ))}
+            </div>
+          )}
+
           <div className="product-actions">
             <button
               className={`add-to-cart-btn ${isOutOfStock ? 'disabled' : ''}`}
@@ -136,11 +180,11 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
               {isQuoteLoading ? 'Adding...' : 'Add to Quote'}
             </button>
           </div>
-          
+
           {product.documents && product.documents.length > 0 && (
             <div className="product-documents">
               {product.documents.slice(0, 1).map((doc, index) => (
-                <button 
+                <button
                   key={index}
                   className="document-button"
                   onClick={(e) => handleDocumentClick(e, doc.url)}

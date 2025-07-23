@@ -29,6 +29,22 @@
   overflow: hidden;
   margin-bottom: 1rem;
   position: relative; /* for magnifier */
+  background: #f9fafb;
+}
+
+/* Image magnify styles */
+.mainImageContainer :global(.react-image-magnify__image) {
+  width: 100% !important;
+  height: auto !important;
+  max-height: 500px;
+  object-fit: contain;
+}
+
+.mainImageContainer :global(.react-image-magnify__enlarged-image-container) {
+  z-index: 1000;
+  border: 2px solid #e5e7eb;
+  border-radius: 8px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
 }
 
 .thumbnails {

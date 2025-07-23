@@ -1,9 +1,11 @@
 'use client';
 
 import React, { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import ProductList from "./ProductList";
 import FilterSidebar from "./FilterSidebar";
 import SortSelect from "./SortSelect";
+import { useCart } from "./CartContext";
 import '../../shop/shop.css';
 
 const API_BASE = "http://localhost:5000/api";
@@ -30,6 +32,7 @@ type Product = {
   condition?: string;
   stockQty?: number;
   documents?: { name: string; url: string }[];
+  specs?: Record<string, string | number | string[]>;
 };
 
 const getUnique = (products: Product[], key: 'category' | 'brand') => {
@@ -78,6 +81,12 @@ const ShopCategoryPage: React.FC<ShopCategoryPageProps> = ({ categorySlug, categ
   const [filters, setFilters] = useState<Filters>({});
   const [sortBy, setSortBy] = useState<SortBy>("newest");
   const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
+  const [compareList, setCompareList] = useState<Product[]>([]);
+  const [showCompare, setShowCompare] = useState(false);
+
+  const router = useRouter();
+  const { addItem: addToCart } = useCart();
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -104,10 +113,11 @@ const ShopCategoryPage: React.FC<ShopCategoryPageProps> = ({ categorySlug, categ
           sortBy,
           page: "1",
           limit: "12",
-          includeDocuments: "true"
+          includeDocuments: "true",
+          includeSpecs: "true"
         });
         params.delete('priceRange');
-        
+
         const res = await fetch(`${API_BASE}/products?${params}`, { credentials: "include" });
         const data = await res.json();
         if (data.success) {
@@ -129,6 +139,25 @@ const ShopCategoryPage: React.FC<ShopCategoryPageProps> = ({ categorySlug, categ
 
   const toggleFilters = () => {
     setIsFilterOpen(!isFilterOpen);
+  };
+
+  const addToCompare = (product: Product) => {
+    if (compareList.length < 4 && !compareList.find(p => p.id === product.id)) {
+      setCompareList([...compareList, product]);
+    }
+  };
+
+  const removeFromCompare = (productId: string) => {
+    setCompareList(compareList.filter(p => p.id !== productId));
+  };
+
+  const clearCompare = () => {
+    setCompareList([]);
+    setShowCompare(false);
+  };
+
+  const toggleViewMode = () => {
+    setViewMode(viewMode === "grid" ? "list" : "grid");
   };
 
   return (
@@ -160,13 +189,163 @@ const ShopCategoryPage: React.FC<ShopCategoryPageProps> = ({ categorySlug, categ
             <div className="products-count">
               <span>{products.length}</span> products found
             </div>
-            <SortSelect onChange={setSortBy} />
+            <div className="products-controls">
+              <div className="view-toggle">
+                <button
+                  className={`view-btn ${viewMode === "grid" ? "active" : ""}`}
+                  onClick={() => setViewMode("grid")}
+                  title="Grid View"
+                >
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M3 3h7v7H3V3zm11 0h7v7h-7V3zm0 11h7v7h-7v-7zm-11 0h7v7H3v-7z" />
+                  </svg>
+                </button>
+                <button
+                  className={`view-btn ${viewMode === "list" ? "active" : ""}`}
+                  onClick={() => setViewMode("list")}
+                  title="List View"
+                >
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M3 13h2v-2H3v2zm0 4h2v-2H3v2zm0-8h2V7H3v2zm4 4h14v-2H7v2zm0 4h14v-2H7v2zM7 7v2h14V7H7z" />
+                  </svg>
+                </button>
+              </div>
+              <SortSelect onChange={setSortBy} />
+              {compareList.length > 0 && (
+                <button
+                  className="compare-btn"
+                  onClick={() => setShowCompare(true)}
+                >
+                  Compare ({compareList.length})
+                </button>
+              )}
+            </div>
           </div>
           {loading && <div className="loading">Loading products...</div>}
           {error && <div className="text-red-600">{error}</div>}
-          {!loading && !error && <ProductList products={products} />}
+          {!loading && !error && (
+            <ProductList
+              products={products}
+              viewMode={viewMode}
+              compareList={compareList}
+              onAddToCompare={addToCompare}
+              onRemoveFromCompare={removeFromCompare}
+            />
+          )}
         </main>
       </div>
+
+      {/* Comparison Modal */}
+      {showCompare && compareList.length > 0 && (
+        <div className="compare-modal-overlay" onClick={() => setShowCompare(false)}>
+          <div className="compare-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="compare-header">
+              <h2>Product Comparison</h2>
+              <button className="close-btn" onClick={() => setShowCompare(false)}>×</button>
+            </div>
+            <div className="compare-content">
+              <div className="compare-table-scroll-hint">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16" style={{ marginRight: '4px', verticalAlign: 'middle' }}>
+                  <path fillRule="evenodd" d="M10.854 8.354a.5.5 0 0 0 0-.708l-3-3a.5.5 0 0 0-.708.708L9.293 7.5H1.5a.5.5 0 0 0 0 1h7.793l-2.147 2.146a.5.5 0 0 0 .708.708l3-3z" />
+                  <path fillRule="evenodd" d="M10.854 8.354a.5.5 0 0 0 0-.708l-3-3a.5.5 0 0 0-.708.708L9.293 7.5H1.5a.5.5 0 0 0 0 1h7.793l-2.147 2.146a.5.5 0 0 0 .708.708l3-3z" transform="translate(3.5, 0)" />
+                </svg>
+                Scroll horizontally to see more products
+              </div>
+              <div className="compare-table-container">
+                <table className="compare-table">
+                  <thead>
+                    <tr>
+                      <th></th>
+                      {compareList.map((product) => (
+                        <th key={product.id}>
+                          <button
+                            className="remove-product-btn"
+                            onClick={() => removeFromCompare(product.id)}
+                            aria-label="Remove from comparison"
+                          >
+                            ×
+                          </button>
+                          <div className="product-image-cell">
+                            <div className="product-image-container">
+                              {product.images?.[0] && (
+                                <img
+                                  src={product.images[0].startsWith('http') ? product.images[0] : `http://localhost:5000${product.images[0]}`}
+                                  alt={product.name}
+                                />
+                              )}
+                            </div>
+                          </div>
+                          <div className="product-name">{product.name}</div>
+                          <div className="product-price">${parseInt(product.price).toLocaleString()}</div>
+                          <div className="product-actions">
+                            <button
+                              className="add-to-cart-btn small"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                const item = {
+                                  id: product.id,
+                                  name: product.name,
+                                  price: product.price,
+                                  quantity: 1,
+                                  image: product.images?.[0],
+                                };
+                                addToCart(item);
+                              }}
+                            >
+                              Add to Cart
+                            </button>
+                            <button
+                              className="view-details-btn small"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                const categorySlug = product.category?.slug || 'uncategorized';
+                                router.push(`/shop/${categorySlug}/${product.slug}`);
+                              }}
+                            >
+                              View Details
+                            </button>
+                          </div>
+                        </th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {/* Get all unique spec keys across all products */}
+                    {(() => {
+                      const allSpecs = new Set<string>();
+                      compareList.forEach(product => {
+                        if (product.specs) {
+                          Object.keys(product.specs).forEach(key => allSpecs.add(key));
+                        }
+                      });
+
+                      return Array.from(allSpecs).map(specKey => (
+                        <tr key={specKey}>
+                          <td className="spec-row-header">{specKey}</td>
+                          {compareList.map(product => (
+                            <td key={`${product.id}-${specKey}`}>
+                              {product.specs && product.specs[specKey] !== undefined ?
+                                (Array.isArray(product.specs[specKey])
+                                  ? (product.specs[specKey] as string[]).join(', ')
+                                  : String(product.specs[specKey]))
+                                : '—'}
+                            </td>
+                          ))}
+                        </tr>
+                      ));
+                    })()}
+                  </tbody>
+                </table>
+              </div>
+              <div className="compare-actions">
+                <button className="clear-compare-btn" onClick={clearCompare}>
+                  Clear All
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

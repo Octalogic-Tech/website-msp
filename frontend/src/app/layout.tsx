@@ -6,6 +6,7 @@ import Navigation from "./components/Navigation";
 import { CartProvider } from "./components/shop/CartContext";
 import { QuoteProvider } from "./components/shop/QuoteContext";
 import { ToastProvider } from "./components/shop/ToastContext";
+import MobileCTA from "./components/shop/MobileCTA";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -33,6 +34,7 @@ export default function RootLayout({
             <ToastProvider>
               <Navigation />
               {children}
+              <MobileCTA />
             </ToastProvider>
           </QuoteProvider>
         </CartProvider>
