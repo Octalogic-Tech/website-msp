@@ -24,7 +24,7 @@ type Product = {
   stockQty?: number;
 };
 
-const API_BASE = "http://localhost:5000/api";
+const API_BASE = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:5000/api";
 
 export default function PartsFinderPage() {
   const [makes, setMakes] = useState<string[]>([]);
@@ -34,7 +34,7 @@ export default function PartsFinderPage() {
   const [results, setResults] = useState<Product[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [hasSearched, setHasSearched] = useState<boolean>(false);
-  
+
   const { addItem: addToCart } = useCart();
   const { addItem: addToQuote } = useQuote();
 
@@ -42,11 +42,29 @@ export default function PartsFinderPage() {
   useEffect(() => {
     const fetchMakes = async () => {
       try {
-        // In a real app, you'd have an endpoint for this
-        // For now, we'll use hardcoded values from our seed data
-        setMakes(['Caterpillar', 'Komatsu', 'Volvo', 'Hitachi', 'John Deere']);
+        // Fetch makes from products with specs
+        const res = await fetch(`${API_BASE}/products?includeSpecs=true&limit=1000`);
+        const data = await res.json();
+
+        if (data.success && data.data) {
+          const uniqueMakes = new Set<string>();
+          data.data.forEach((product: Product) => {
+            if (product.specs?.compatibleMakes) {
+              product.specs.compatibleMakes.forEach((make: string) => uniqueMakes.add(make));
+            }
+            if (product.brand?.name) {
+              uniqueMakes.add(product.brand.name);
+            }
+          });
+          setMakes(Array.from(uniqueMakes).sort());
+        } else {
+          // Fallback to hardcoded values
+          setMakes(['Caterpillar', 'Komatsu', 'Volvo', 'Hitachi', 'John Deere']);
+        }
       } catch (error) {
         console.error('Error fetching makes:', error);
+        // Fallback to hardcoded values
+        setMakes(['Caterpillar', 'Komatsu', 'Volvo', 'Hitachi', 'John Deere']);
       }
     };
 
@@ -60,28 +78,49 @@ export default function PartsFinderPage() {
         setModels([]);
         return;
       }
-      
+
       try {
-        // In a real app, you'd have an endpoint for this
-        // For now, we'll use hardcoded values based on the selected make
-        switch(selectedMake) {
-          case 'Caterpillar':
-            setModels(['320', '325', '330', '950', '740']);
-            break;
-          case 'Komatsu':
-            setModels(['PC200', 'PC210', 'PC220', 'WA380']);
-            break;
-          case 'Volvo':
-            setModels(['EC220E', 'L90H', 'A30G']);
-            break;
-          case 'Hitachi':
-            setModels(['ZX350LC-6']);
-            break;
-          case 'John Deere':
-            setModels(['644K']);
-            break;
-          default:
-            setModels([]);
+        // Fetch models from products with specs for the selected make
+        const res = await fetch(`${API_BASE}/products?includeSpecs=true&limit=1000`);
+        const data = await res.json();
+
+        if (data.success && data.data) {
+          const uniqueModels = new Set<string>();
+          data.data.forEach((product: Product) => {
+            // Check if product is compatible with selected make
+            const isCompatible =
+              product.specs?.compatibleMakes?.includes(selectedMake) ||
+              product.brand?.name === selectedMake;
+
+            if (isCompatible && product.specs?.compatibleModels) {
+              product.specs.compatibleModels.forEach((model: string) => uniqueModels.add(model));
+            }
+          });
+
+          if (uniqueModels.size > 0) {
+            setModels(Array.from(uniqueModels).sort());
+          } else {
+            // Fallback to hardcoded values based on the selected make
+            switch (selectedMake) {
+              case 'Caterpillar':
+                setModels(['320', '325', '330', '950', '740']);
+                break;
+              case 'Komatsu':
+                setModels(['PC200', 'PC210', 'PC220', 'WA380']);
+                break;
+              case 'Volvo':
+                setModels(['EC220E', 'L90H', 'A30G']);
+                break;
+              case 'Hitachi':
+                setModels(['ZX350LC-6']);
+                break;
+              case 'John Deere':
+                setModels(['644K']);
+                break;
+              default:
+                setModels([]);
+            }
+          }
         }
       } catch (error) {
         console.error('Error fetching models:', error);
@@ -102,18 +141,18 @@ export default function PartsFinderPage() {
 
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!selectedMake || !selectedModel) {
       return;
     }
-    
+
     setLoading(true);
     setHasSearched(true);
-    
+
     try {
       const res = await fetch(`${API_BASE}/parts-finder?make=${selectedMake}&model=${selectedModel}&includeDocuments=true`);
       const data = await res.json();
-      
+
       if (data.success) {
         setResults(data.data);
       } else {
@@ -160,14 +199,14 @@ export default function PartsFinderPage() {
       <p className={styles.subheader}>
         Find compatible spare parts for your machinery by selecting the make and model below.
       </p>
-      
+
       <section className={styles.searchSection}>
         <form onSubmit={handleSearch} className={styles.searchForm}>
           <div className={styles.formGroup}>
             <label htmlFor="make">Machinery Make</label>
-            <select 
-              id="make" 
-              value={selectedMake} 
+            <select
+              id="make"
+              value={selectedMake}
               onChange={handleMakeChange}
               required
             >
@@ -177,12 +216,12 @@ export default function PartsFinderPage() {
               ))}
             </select>
           </div>
-          
+
           <div className={styles.formGroup}>
             <label htmlFor="model">Machinery Model</label>
-            <select 
-              id="model" 
-              value={selectedModel} 
+            <select
+              id="model"
+              value={selectedModel}
               onChange={handleModelChange}
               disabled={!selectedMake}
               required
@@ -193,13 +232,13 @@ export default function PartsFinderPage() {
               ))}
             </select>
           </div>
-          
+
           <button type="submit" className={styles.searchButton} disabled={!selectedMake || !selectedModel}>
             Find Parts
           </button>
         </form>
       </section>
-      
+
       {loading ? (
         <div className={styles.loading}>
           <div className={styles.spinner}></div>
@@ -213,7 +252,7 @@ export default function PartsFinderPage() {
                   {results.length} compatible part{results.length !== 1 ? 's' : ''} found
                 </div>
               </div>
-              
+
               <div className={styles.resultsGrid}>
                 {results.map(product => (
                   <div key={product.id} className={styles.resultCard}>
@@ -240,14 +279,14 @@ export default function PartsFinderPage() {
                         Compatible with: {selectedMake} {selectedModel}
                       </div>
                       <div className={styles.cardActions}>
-                        <button 
+                        <button
                           className={`${styles.cardButton} ${styles.primary}`}
                           onClick={() => handleAddToCart(product)}
                           disabled={product.stockQty === 0}
                         >
                           Add to Cart
                         </button>
-                        <button 
+                        <button
                           className={`${styles.cardButton} ${styles.secondary}`}
                           onClick={() => handleAddToQuote(product)}
                         >
