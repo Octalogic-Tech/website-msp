@@ -1,7 +1,7 @@
 'use client';
 
-import ShopCategoryPage from '../../components/shop/ShopCategoryPage';
+import ShopCategoryPageEnhanced from '../../components/shop/ShopCategoryPageEnhanced';
 
-export default function DumptrucksPage() {
-  return <ShopCategoryPage categorySlug="dumptrucks" categoryTitle="Dump Trucks" />;
+export default function DumpTrucksPage() {
+  return <ShopCategoryPageEnhanced categorySlug="dumptrucks" categoryTitle="Dump Trucks" />;
 }

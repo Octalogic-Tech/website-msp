@@ -38,7 +38,6 @@ export default function RootLayout({
         className={`${montserrat.variable} ${openSans.variable} antialiased`}
         suppressHydrationWarning={true}
       >
-        <a href="#main-content" className="skip-link">Skip to content</a>
         <CartProvider>
           <QuoteProvider>
             <ToastProvider>

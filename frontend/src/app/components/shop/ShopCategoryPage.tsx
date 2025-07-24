@@ -162,9 +162,13 @@ const ShopCategoryPage: React.FC<ShopCategoryPageProps> = ({ categorySlug, categ
 
   return (
     <div className="shop-container">
-      <header className="shop-header">
-        <h1>{categoryTitle}</h1>
-      </header>
+      <div className="shop-title-separator">
+        <div className="page-title-container">
+          <div className="page-title-wrapper">
+            <h1>{categoryTitle}</h1>
+          </div>
+        </div>
+      </div>
 
       <button className="filters-toggle" onClick={toggleFilters}>
         {isFilterOpen ? 'Close Filters' : 'Show Filters'}

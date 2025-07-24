@@ -1,7 +1,7 @@
 'use client';
 
-import ShopCategoryPage from '../../components/shop/ShopCategoryPage';
+import ShopCategoryPageEnhanced from '../../components/shop/ShopCategoryPageEnhanced';
 
 export default function UndercarriagePage() {
-  return <ShopCategoryPage categorySlug="undercarriage" categoryTitle="Undercarriage" />;
+  return <ShopCategoryPageEnhanced categorySlug="undercarriage" categoryTitle="Undercarriage" />;
 }

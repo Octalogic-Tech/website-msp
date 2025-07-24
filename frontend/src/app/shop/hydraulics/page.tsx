@@ -1,7 +1,7 @@
 'use client';
 
-import ShopCategoryPage from '../../components/shop/ShopCategoryPage';
+import ShopCategoryPageEnhanced from '../../components/shop/ShopCategoryPageEnhanced';
 
 export default function HydraulicsPage() {
-  return <ShopCategoryPage categorySlug="hydraulics" categoryTitle="Hydraulics" />;
+  return <ShopCategoryPageEnhanced categorySlug="hydraulics" categoryTitle="Hydraulics" />;
 }
