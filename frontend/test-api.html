@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>API Test</title>
+</head>
+<body>
+    <h1>API Test</h1>
+    <button onclick="testAPI()">Test API</button>
+    <div id="result"></div>
+
+    <script>
+        async function testAPI() {
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = 'Testing...';
+            
+            try {
+                console.log('Making request to: http://localhost:5000/api/products');
+                const response = await fetch('http://localhost:5000/api/products?sortBy=newest&page=1&limit=24', {
+                    credentials: 'include',
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                console.log('Response status:', response.status);
+                console.log('Response headers:', response.headers);
+                
+                const data = await response.json();
+                console.log('Response data:', data);
+                
+                if (data.success) {
+                    resultDiv.innerHTML = `<p style="color: green;">Success! Found ${data.data.length} products</p>`;
+                } else {
+                    resultDiv.innerHTML = `<p style="color: red;">API Error: ${data.error}</p>`;
+                }
+            } catch (error) {
+                console.error('Fetch error:', error);
+                resultDiv.innerHTML = `<p style="color: red;">Network Error: ${error.message}</p>`;
+            }
+        }
+    </script>
+</body>
+</html>

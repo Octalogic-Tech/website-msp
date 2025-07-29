@@ -1,0 +1,691 @@
+/* Policies Pages Styles */
+.policies-container {
+    font-family: "Open Sans", sans-serif;
+    line-height: 1.6;
+    color: var(--dark-gray);
+    min-height: 100vh;
+}
+
+/* Header */
+.policies-header {
+    background: linear-gradient(135deg, var(--dark-gray), #424242);
+    color: var(--white);
+    padding: 3rem 0;
+    text-align: center;
+}
+
+.header-content {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 0 1rem;
+}
+
+.header-content h1 {
+    font-family: "Montserrat", sans-serif;
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+}
+
+.header-content p {
+    font-size: 1.25rem;
+    opacity: 0.9;
+}
+
+/* Content Layout */
+.policies-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 250px 1fr;
+    gap: 2rem;
+    padding: 2rem 1rem;
+}
+
+/* Navigation */
+.policies-nav {
+    background-color: #f8f9fa;
+    border-radius: var(--border-radius);
+    padding: 1.5rem;
+    height: fit-content;
+    position: sticky;
+    top: 2rem;
+}
+
+.nav-link {
+    display: block;
+    padding: 0.75rem 1rem;
+    margin-bottom: 0.5rem;
+    text-decoration: none;
+    color: var(--dark-gray);
+    border-radius: 4px;
+    transition: all 0.2s ease;
+    font-weight: 500;
+}
+
+.nav-link:hover {
+    background-color: rgba(249, 168, 37, 0.1);
+    color: var(--primary-color);
+}
+
+.nav-link.active {
+    background-color: var(--primary-color);
+    color: var(--white);
+}
+
+/* Main Content */
+.policies-main {
+    background-color: var(--white);
+    border-radius: var(--border-radius);
+    padding: 2rem;
+    box-shadow: var(--shadow);
+}
+
+.policy-section {
+    margin-bottom: 3rem;
+    padding-bottom: 2rem;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.policy-section:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+}
+
+.policy-section h2 {
+    font-family: "Montserrat", sans-serif;
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--dark-gray);
+    margin-bottom: 1.5rem;
+}
+
+.policy-section p {
+    font-size: 1.125rem;
+    margin-bottom: 1.5rem;
+    color: #555;
+}
+
+/* Warranty Cards */
+.warranty-types {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+    margin-top: 2rem;
+}
+
+.warranty-card {
+    background-color: #f8f9fa;
+    border: 2px solid #e0e0e0;
+    border-radius: var(--border-radius);
+    padding: 2rem;
+    text-align: center;
+    transition: all 0.3s ease;
+}
+
+.warranty-card:hover {
+    border-color: var(--primary-color);
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-hover);
+}
+
+.warranty-card h3 {
+    font-family: "Montserrat", sans-serif;
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--dark-gray);
+    margin-bottom: 1rem;
+}
+
+.warranty-duration {
+    font-family: "Montserrat", sans-serif;
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--primary-color);
+    margin-bottom: 1.5rem;
+}
+
+.warranty-card ul {
+    list-style: none;
+    padding: 0;
+    text-align: left;
+}
+
+.warranty-card li {
+    padding: 0.5rem 0;
+    position: relative;
+    padding-left: 1.5rem;
+}
+
+.warranty-card li::before {
+    content: "✓";
+    position: absolute;
+    left: 0;
+    color: var(--success-color);
+    font-weight: bold;
+}
+
+/* Coverage Grid */
+.coverage-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1rem;
+    margin-top: 2rem;
+}
+
+.coverage-item {
+    padding: 1.5rem;
+    border-radius: var(--border-radius);
+    border: 2px solid;
+}
+
+.coverage-item.covered {
+    background-color: rgba(40, 167, 69, 0.05);
+    border-color: var(--success-color);
+}
+
+.coverage-item.not-covered {
+    background-color: rgba(220, 53, 69, 0.05);
+    border-color: var(--danger-color);
+}
+
+.coverage-item h4 {
+    font-family: "Montserrat", sans-serif;
+    font-size: 1.125rem;
+    font-weight: 600;
+    margin-bottom: 0.75rem;
+}
+
+.coverage-item.covered h4 {
+    color: var(--success-color);
+}
+
+.coverage-item.not-covered h4 {
+    color: var(--danger-color);
+}
+
+.coverage-item p {
+    font-size: 0.95rem;
+    margin: 0;
+    color: #666;
+}
+
+/* Process Steps */
+.process-steps {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    margin-top: 2rem;
+}
+
+.step {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    padding: 1.5rem;
+    background-color: #f8f9fa;
+    border-radius: var(--border-radius);
+    border-left: 4px solid var(--primary-color);
+}
+
+.step-number {
+    flex-shrink: 0;
+    width: 2.5rem;
+    height: 2.5rem;
+    background-color: var(--primary-color);
+    color: var(--white);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: "Montserrat", sans-serif;
+    font-weight: 700;
+    font-size: 1.125rem;
+}
+
+.step-content h4 {
+    font-family: "Montserrat", sans-serif;
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--dark-gray);
+    margin-bottom: 0.5rem;
+}
+
+.step-content p {
+    margin: 0;
+    color: #666;
+}
+
+/* Extended Warranty */
+.extended-warranty {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    gap: 2rem;
+    margin-top: 2rem;
+}
+
+.extended-option {
+    background-color: #f8f9fa;
+    padding: 2rem;
+    border-radius: var(--border-radius);
+    border: 1px solid #e0e0e0;
+}
+
+.extended-option h4 {
+    font-family: "Montserrat", sans-serif;
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--primary-color);
+    margin-bottom: 1rem;
+}
+
+.extended-option p {
+    margin-bottom: 1.5rem;
+    color: #666;
+}
+
+.extended-option ul {
+    list-style: none;
+    padding: 0;
+}
+
+.extended-option li {
+    padding: 0.5rem 0;
+    position: relative;
+    padding-left: 1.5rem;
+}
+
+.extended-option li::before {
+    content: "✓";
+    position: absolute;
+    left: 0;
+    color: var(--success-color);
+    font-weight: bold;
+}
+
+/* Terms List */
+.terms-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem;
+    margin-top: 2rem;
+}
+
+.term-item {
+    padding: 1.5rem;
+    background-color: #f8f9fa;
+    border-radius: var(--border-radius);
+    border-left: 4px solid var(--blue-color);
+}
+
+.term-item h4 {
+    font-family: "Montserrat", sans-serif;
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: var(--blue-color);
+    margin-bottom: 0.75rem;
+}
+
+.term-item p {
+    margin: 0;
+    color: #666;
+    font-size: 0.95rem;
+}
+
+/* Shipping Specific Styles */
+.shipping-options {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+    margin-top: 2rem;
+}
+
+.shipping-card {
+    background-color: #f8f9fa;
+    border: 2px solid #e0e0e0;
+    border-radius: var(--border-radius);
+    padding: 2rem;
+    text-align: center;
+    transition: all 0.3s ease;
+}
+
+.shipping-card:hover {
+    border-color: var(--blue-color);
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-hover);
+}
+
+.shipping-card h3 {
+    font-family: "Montserrat", sans-serif;
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--dark-gray);
+    margin-bottom: 1rem;
+}
+
+.shipping-time {
+    font-family: "Montserrat", sans-serif;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--blue-color);
+    margin-bottom: 0.5rem;
+}
+
+.shipping-cost {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: var(--success-color);
+    margin-bottom: 1.5rem;
+}
+
+/* Zones Grid */
+.zones-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+    margin-top: 2rem;
+}
+
+.zone-card {
+    background-color: #f8f9fa;
+    border: 1px solid #e0e0e0;
+    border-radius: var(--border-radius);
+    padding: 1.5rem;
+}
+
+.zone-card h4 {
+    font-family: "Montserrat", sans-serif;
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--primary-color);
+    margin-bottom: 0.5rem;
+}
+
+.zone-area {
+    color: #666;
+    margin-bottom: 1.5rem;
+    font-size: 0.95rem;
+}
+
+.zone-rates {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.rate-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid #e0e0e0;
+    font-size: 0.95rem;
+}
+
+.rate-item:last-child {
+    border-bottom: none;
+}
+
+.rate-item span:last-child {
+    font-weight: 600;
+    color: var(--dark-gray);
+}
+
+/* Handling Grid */
+.handling-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    gap: 2rem;
+    margin-top: 2rem;
+}
+
+.handling-item {
+    background-color: #f8f9fa;
+    padding: 2rem;
+    border-radius: var(--border-radius);
+    border-left: 4px solid var(--accent-color);
+}
+
+.handling-item h4 {
+    font-family: "Montserrat", sans-serif;
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--accent-color);
+    margin-bottom: 1rem;
+}
+
+.handling-item p {
+    margin-bottom: 1.5rem;
+    color: #666;
+}
+
+.handling-item ul {
+    list-style: none;
+    padding: 0;
+}
+
+.handling-item li {
+    padding: 0.25rem 0;
+    position: relative;
+    padding-left: 1.5rem;
+    font-size: 0.95rem;
+    color: #666;
+}
+
+.handling-item li::before {
+    content: "•";
+    position: absolute;
+    left: 0;
+    color: var(--accent-color);
+    font-weight: bold;
+}
+
+/* International Info */
+.international-info {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+    margin-top: 2rem;
+}
+
+.info-section {
+    background-color: #f8f9fa;
+    padding: 2rem;
+    border-radius: var(--border-radius);
+    border-top: 4px solid var(--blue-color);
+}
+
+.info-section h4 {
+    font-family: "Montserrat", sans-serif;
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--blue-color);
+    margin-bottom: 1rem;
+}
+
+.info-section ul {
+    list-style: none;
+    padding: 0;
+}
+
+.info-section li {
+    padding: 0.5rem 0;
+    position: relative;
+    padding-left: 1.5rem;
+    font-size: 0.95rem;
+    color: #666;
+}
+
+.info-section li::before {
+    content: "✓";
+    position: absolute;
+    left: 0;
+    color: var(--blue-color);
+    font-weight: bold;
+}
+
+/* Requirements List */
+.requirements-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem;
+    margin-top: 2rem;
+}
+
+.requirement-item {
+    padding: 1.5rem;
+    background-color: #f8f9fa;
+    border-radius: var(--border-radius);
+    border-left: 4px solid var(--danger-color);
+}
+
+.requirement-item h4 {
+    font-family: "Montserrat", sans-serif;
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: var(--danger-color);
+    margin-bottom: 0.75rem;
+}
+
+.requirement-item p {
+    margin: 0;
+    color: #666;
+    font-size: 0.95rem;
+}
+
+/* Contact Section */
+.contact-section {
+    background-color: #f8f9fa;
+    padding: 2rem;
+    border-radius: var(--border-radius);
+    border: none;
+}
+
+.contact-options {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+    margin-top: 2rem;
+}
+
+.contact-option {
+    background-color: var(--white);
+    padding: 1.5rem;
+    border-radius: var(--border-radius);
+    text-align: center;
+    border: 1px solid #e0e0e0;
+    transition: all 0.3s ease;
+}
+
+.contact-option:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow);
+}
+
+.contact-option h4 {
+    font-family: "Montserrat", sans-serif;
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: var(--primary-color);
+    margin-bottom: 0.5rem;
+}
+
+.contact-option p {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: var(--dark-gray);
+    margin-bottom: 0.5rem;
+}
+
+.contact-option span {
+    font-size: 0.875rem;
+    color: #666;
+}
+
+.claim-link {
+    display: inline-block;
+    background-color: var(--primary-color);
+    color: var(--white);
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.875rem;
+    margin-top: 0.5rem;
+    transition: all 0.2s ease;
+}
+
+.claim-link:hover {
+    background-color: #f57c00;
+    transform: translateY(-1px);
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+    .policies-content {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+        padding: 1rem;
+    }
+
+    .policies-nav {
+        position: static;
+        display: flex;
+        overflow-x: auto;
+        gap: 0.5rem;
+        padding: 1rem;
+    }
+
+    .nav-link {
+        white-space: nowrap;
+        margin-bottom: 0;
+    }
+
+    .policies-main {
+        padding: 1.5rem;
+    }
+
+    .header-content h1 {
+        font-size: 2rem;
+    }
+
+    .policy-section h2 {
+        font-size: 1.5rem;
+    }
+
+    .warranty-types,
+    .shipping-options,
+    .zones-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .process-steps .step {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .contact-options {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 480px) {
+    .header-content h1 {
+        font-size: 1.75rem;
+    }
+
+    .warranty-duration,
+    .shipping-time {
+        font-size: 1.5rem;
+    }
+
+    .policies-main {
+        padding: 1rem;
+    }
+
+    .step-number {
+        width: 2rem;
+        height: 2rem;
+        font-size: 1rem;
+    }
+}

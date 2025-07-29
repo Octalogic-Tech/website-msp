@@ -1,267 +1,344 @@
-// app/shop/page.tsx
-'use client';
-import React, { useState, useEffect } from 'react';
-import './shop.css';
+"use client";
+
+import React, { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import ProductList from "../components/shop/ProductList";
+import FilterSidebar from "../components/shop/FilterSidebar";
+import SortSelect from "../components/shop/SortSelect";
+import EnhancedSearch from "../components/shop/EnhancedSearch";
+import { useCart } from "../components/shop/CartContext";
+import "./shop.css";
+
+const API_BASE = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:5000/api";
+
+type Filters = {
+  category?: string;
+  brand?: string;
+  priceRange?: string;
+  condition?: string;
+  availability?: string;
+};
+
+type SortBy = "newest" | "price_asc" | "price_desc" | "name" | "popularity";
+type ViewMode = "grid" | "list";
 
 type Product = {
   id: string;
   name: string;
-  description: string;
+  slug: string;
   price: string;
-  images: string[];
-  category: { id: string; name: string };
-  brand: { id: string; name: string };
-  condition?: string; // Added for filtering
-  availability?: 'in-stock' | 'out-of-stock' | 'low-stock'; // Added for filtering
+  images?: string[];
+  description?: string;
+  category?: { name: string; slug: string };
+  brand?: { name: string; slug: string };
+  condition?: string;
+  stockQty?: number;
+  specs?: Record<string, string | number | string[]>;
 };
 
-type Filters = {
-  category: string;
-  brand: string;
-  priceRange: string;
-  condition: string;
-  availability: string;
-};
-
-async function fetchProducts(): Promise<Product[]> {
-  const res = await fetch('http://localhost:5000/api/products', {
-    cache: 'no-store',
+const getUnique = (products: Product[], key: 'category' | 'brand') => {
+  const values = products
+    .map(product => {
+      if (key === 'category' && product.category) return { name: product.category.name, slug: product.category.slug };
+      if (key === 'brand' && product.brand) return { name: product.brand.name, slug: product.brand.slug };
+      return undefined;
+    })
+    .filter(Boolean) as { name: string; slug: string }[];
+  const seen = new Set();
+  return values.filter(opt => {
+    if (seen.has(opt.slug)) return false;
+    seen.add(opt.slug);
+    return true;
   });
+};
 
-  if (!res.ok) {
-    throw new Error('Failed to fetch products');
-  }
+const getUniqueConditions = (products: Product[]): { name: string; slug: string }[] => {
+  const values = products
+    .map(product => product.condition ? { name: product.condition, slug: product.condition.toLowerCase() } : undefined)
+    .filter(Boolean) as { name: string; slug: string }[];
+  const seen = new Set();
+  return values.filter(opt => {
+    if (seen.has(opt.slug)) return false;
+    seen.add(opt.slug);
+    return true;
+  });
+};
 
-  const data = await res.json();
-  return data.data;
-}
+const availabilities = [
+  { value: 'in-stock', label: 'In Stock' },
+  { value: 'low-stock', label: 'Low Stock' },
+  { value: 'out-of-stock', label: 'Out of Stock' },
+];
 
 export default function ShopPage() {
   const [products, setProducts] = useState<Product[]>([]);
-  const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
-  const [filters, setFilters] = useState<Filters>({
-    category: '',
-    brand: '',
-    priceRange: '',
-    condition: '',
-    availability: '',
-  });
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [filters, setFilters] = useState<Filters>({});
+  const [sortBy, setSortBy] = useState<SortBy>("newest");
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [viewMode, setViewMode] = useState<ViewMode>("grid");
+  const [compareList, setCompareList] = useState<Product[]>([]);
+  const [showCompare, setShowCompare] = useState(false);
+
+  const router = useRouter();
+  const { addItem: addToCart } = useCart();
 
   useEffect(() => {
-    const loadProducts = async () => {
+    const fetchProducts = async () => {
+      setLoading(true);
+      setError(null);
       try {
-        const productsData = await fetchProducts();
-        setProducts(productsData);
-        setFilteredProducts(productsData);
-      } catch (error) {
-        console.error('Error loading products:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    loadProducts();
-  }, []);
-
-  useEffect(() => {
-    let filtered = [...products];
-
-    if (filters.category) {
-      filtered = filtered.filter(product => product.category.name === filters.category);
-    }
-
-    if (filters.brand) {
-      filtered = filtered.filter(product => product.brand.name === filters.brand);
-    }
-
-    if (filters.priceRange) {
-      filtered = filtered.filter(product => {
-        const price = parseFloat(product.price);
-        switch (filters.priceRange) {
-          case 'under-25':
-            return price < 25;
-          case '25-50':
-            return price >= 25 && price <= 50;
-          case '50-100':
-            return price >= 50 && price <= 100;
-          case 'over-100':
-            return price > 100;
-          default:
-            return true;
+        let minPrice = undefined;
+        let maxPrice = undefined;
+        if (filters.priceRange) {
+          switch (filters.priceRange) {
+            case 'under-25k': maxPrice = '25000'; break;
+            case '25k-50k': minPrice = '25000'; maxPrice = '50000'; break;
+            case '50k-100k': minPrice = '50000'; maxPrice = '100000'; break;
+            case '100k-250k': minPrice = '100000'; maxPrice = '250000'; break;
+            case 'over-250k': minPrice = '250000'; break;
+            default: break;
+          }
         }
-      });
-    }
+        const params = new URLSearchParams({
+          ...filters,
+          ...(minPrice && { minPrice }),
+          ...(maxPrice && { maxPrice }),
+          sortBy,
+          page: "1",
+          limit: "24", // Show more products on the main page
+        });
+        params.delete('priceRange');
 
-    if (filters.condition) {
-      filtered = filtered.filter(product => product.condition === filters.condition);
-    }
+        const res = await fetch(`${API_BASE}/products?${params.toString()}`, { credentials: "include" });
+        const data = await res.json();
 
-    if (filters.availability) {
-      filtered = filtered.filter(product => product.availability === filters.availability);
-    }
-
-    setFilteredProducts(filtered);
-  }, [filters, products]);
-
-  const handleFilterChange = (filterType: keyof Filters, value: string) => {
-    setFilters(prev => ({
-      ...prev,
-      [filterType]: value,
-    }));
-  };
-
-  const clearFilters = () => {
-    setFilters({
-      category: '',
-      brand: '',
-      priceRange: '',
-      condition: '',
-      availability: '',
-    });
-  };
-
-  const getUniqueValues = (key: 'category' | 'brand' | 'condition' | 'availability'): string[] => {
-    const values = products.map(product => {
-      if (key === 'category' || key === 'brand') {
-        return product[key].name;
+        if (data.success) {
+          setProducts(data.data);
+        } else {
+          setError(data.error || "Failed to fetch products.");
+        }
+      } catch {
+        setError("Network error. Please try again later.");
       }
-      return product[key];
-    });
-    return [...new Set(values)].filter(Boolean) as string[];
+      setLoading(false);
+    };
+    fetchProducts();
+  }, [filters, sortBy]);
+
+  const categories = getUnique(products, 'category');
+  const brands = getUnique(products, 'brand');
+  const conditions = getUniqueConditions(products);
+
+  const toggleFilters = () => {
+    setIsFilterOpen(!isFilterOpen);
   };
 
-  if (loading) {
-    return (
-      <div className="shop-container">
-        <div className="loading">Loading products...</div>
-      </div>
-    );
-  }
+  const addToCompare = (product: Product) => {
+    if (compareList.length < 4 && !compareList.find(p => p.id === product.id)) {
+      setCompareList([...compareList, product]);
+    }
+  };
+
+  const removeFromCompare = (productId: string) => {
+    setCompareList(compareList.filter(p => p.id !== productId));
+  };
+
+  const clearCompare = () => {
+    setCompareList([]);
+    setShowCompare(false);
+  };
 
   return (
     <div className="shop-container">
       <header className="shop-header">
-        <h1>SHOP</h1>
+        <h1>All Products</h1>
+        <div className="header-search">
+          <EnhancedSearch />
+        </div>
       </header>
 
-      <div className="filters-section">
-        <h2>Filter Products</h2>
-        <div className="filters-grid">
-          <div className="filter-group">
-            <label>Category</label>
-            <select
-              value={filters.category}
-              onChange={(e) => handleFilterChange('category', e.target.value)}
-            >
-              <option value="">All Categories</option>
-              {getUniqueValues('category').map((category, index) => (
-                <option key={`category-${index}`} value={category}>{category}</option>
-              ))}
-            </select>
-          </div>
+      <button className="filters-toggle" onClick={toggleFilters}>
+        {isFilterOpen ? 'Close Filters' : 'Show Filters'}
+      </button>
 
-          <div className="filter-group">
-            <label>Brand</label>
-            <select
-              value={filters.brand}
-              onChange={(e) => handleFilterChange('brand', e.target.value)}
-            >
-              <option value="">All Brands</option>
-              {getUniqueValues('brand').map((brand, index) => (
-                <option key={`brand-${index}`} value={brand}>{brand}</option>
-              ))}
-            </select>
-          </div>
+      <div className="shop-content">
+        <aside className={`filters-section ${isFilterOpen ? 'active' : ''}`}>
+          {isFilterOpen && (
+            <button className="filters-close" onClick={toggleFilters}>×</button>
+          )}
+          <FilterSidebar
+            setFilters={setFilters}
+            categories={categories}
+            brands={brands}
+            conditions={conditions}
+            availabilities={availabilities}
+          />
+        </aside>
 
-          <div className="filter-group">
-            <label>Price Range</label>
-            <select
-              value={filters.priceRange}
-              onChange={(e) => handleFilterChange('priceRange', e.target.value)}
-            >
-              <option value="">All Prices</option>
-              <option value="under-25">Under $25</option>
-              <option value="25-50">$25 - $50</option>
-              <option value="50-100">$50 - $100</option>
-              <option value="over-100">Over $100</option>
-            </select>
-          </div>
-
-          <div className="filter-group">
-            <label>Condition</label>
-            <select
-              value={filters.condition}
-              onChange={(e) => handleFilterChange('condition', e.target.value)}
-            >
-              <option value="">All Conditions</option>
-              <option value="new">New</option>
-              <option value="used">Used</option>
-              <option value="refurbished">Refurbished</option>
-            </select>
-          </div>
-
-          <div className="filter-group">
-            <label>Availability</label>
-            <select
-              value={filters.availability}
-              onChange={(e) => handleFilterChange('availability', e.target.value)}
-            >
-              <option value="">All Availability</option>
-              <option value="in-stock">In Stock</option>
-              <option value="low-stock">Low Stock</option>
-              <option value="out-of-stock">Out of Stock</option>
-            </select>
-          </div>
-
-          <button className="clear-filters-btn" onClick={clearFilters}>
-            Clear All Filters
-          </button>
-        </div>
-      </div>
-
-      <div className="products-section">
-        <div className="products-header">
-          <h2>Products ({filteredProducts.length})</h2>
-        </div>
-        
-        {filteredProducts.length === 0 ? (
-          <div className="no-products">
-            <p>No products found matching your filters.</p>
-          </div>
-        ) : (
-          <div className="products-grid">
-            {filteredProducts.map((product) => (
-              <div key={product.id} className="product-card">
-                <div className="product-image">
-                  <img
-                    src={`http://localhost:5000${product.images[0]}`}
-                    alt={product.name}
-                    onError={(e) => {
-                      e.currentTarget.src = '/placeholder-image.jpg';
-                    }}
-                  />
-                </div>
-                <div className="product-info">
-                  <h3 className="product-name">{product.name}</h3>
-                  <p className="product-brand">{product.brand.name}</p>
-                  <p className="product-category">{product.category.name}</p>
-                  <p className="product-description">{product.description}</p>
-                  <div className="product-footer">
-                    <span className="product-price">${product.price}</span>
-                    {product.availability && (
-                      <span className={`availability-badge ${product.availability}`}>
-                        {product.availability.replace('-', ' ')}
-                      </span>
-                    )}
-                  </div>
-                  <button className="add-to-cart-btn">Add to Cart</button>
-                </div>
+        <main>
+          <div className="products-header">
+            <div className="products-count">
+              <span>{products.length}</span> products found
+            </div>
+            <div className="products-controls">
+              <div className="view-toggle">
+                <button
+                  className={`view-btn ${viewMode === 'grid' ? 'active' : ''}`}
+                  onClick={() => setViewMode('grid')}
+                  title="Grid View"
+                >
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M3 3h7v7H3V3zm0 11h7v7H3v-7zm11-11h7v7h-7V3zm0 11h7v7h-7v-7z" />
+                  </svg>
+                </button>
+                <button
+                  className={`view-btn ${viewMode === 'list' ? 'active' : ''}`}
+                  onClick={() => setViewMode('list')}
+                  title="List View"
+                >
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M3 13h2v-2H3v2zm0 4h2v-2H3v2zm0-8h2V7H3v2zm4 4h14v-2H7v2zm0 4h14v-2H7v2zM7 7v2h14V7H7z" />
+                  </svg>
+                </button>
               </div>
-            ))}
+              {compareList.length > 0 && (
+                <button
+                  className="compare-btn"
+                  onClick={() => setShowCompare(true)}
+                >
+                  Compare ({compareList.length})
+                </button>
+              )}
+              <SortSelect onChange={setSortBy} />
+            </div>
           </div>
-        )}
+          {loading && <div className="loading">Loading products...</div>}
+          {error && <div className="text-red-600">{error}</div>}
+          {!loading && !error && (
+            <ProductList
+              products={products}
+              viewMode={viewMode}
+              compareList={compareList}
+              onAddToCompare={addToCompare}
+              onRemoveFromCompare={removeFromCompare}
+            />
+          )}
+        </main>
       </div>
+
+      {/* Comparison Modal */}
+      {showCompare && compareList.length > 0 && (
+        <div className="compare-modal-overlay" onClick={() => setShowCompare(false)}>
+          <div className="compare-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="compare-header">
+              <h2>Product Comparison</h2>
+              <button className="close-btn" onClick={() => setShowCompare(false)}>×</button>
+            </div>
+            <div className="compare-content">
+              <div className="compare-table-scroll-hint">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16" style={{ marginRight: '4px', verticalAlign: 'middle' }}>
+                  <path fillRule="evenodd" d="M10.854 8.354a.5.5 0 0 0 0-.708l-3-3a.5.5 0 0 0-.708.708L9.293 7.5H1.5a.5.5 0 0 0 0 1h7.793l-2.147 2.146a.5.5 0 0 0 .708.708l3-3z" />
+                  <path fillRule="evenodd" d="M10.854 8.354a.5.5 0 0 0 0-.708l-3-3a.5.5 0 0 0-.708.708L9.293 7.5H1.5a.5.5 0 0 0 0 1h7.793l-2.147 2.146a.5.5 0 0 0 .708.708l3-3z" transform="translate(3.5, 0)" />
+                </svg>
+                Scroll horizontally to see more products
+              </div>
+              <div className="compare-table-container">
+                <table className="compare-table">
+                  <thead>
+                    <tr>
+                      <th></th>
+                      {compareList.map((product) => (
+                        <th key={product.id}>
+                          <button
+                            className="remove-product-btn"
+                            onClick={() => removeFromCompare(product.id)}
+                            aria-label="Remove from comparison"
+                          >
+                            ×
+                          </button>
+                          <div className="product-image-cell">
+                            <div className="product-image-container">
+                              {product.images?.[0] && (
+                                <img
+                                  src={product.images[0].startsWith('http') ? product.images[0] : `http://localhost:5000${product.images[0]}`}
+                                  alt={product.name}
+                                />
+                              )}
+                            </div>
+                          </div>
+                          <div className="product-name">{product.name}</div>
+                          <div className="product-price">${parseInt(product.price).toLocaleString()}</div>
+                          <div className="product-actions">
+                            <button
+                              className="add-to-cart-btn small"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                const item = {
+                                  id: product.id,
+                                  name: product.name,
+                                  price: product.price,
+                                  quantity: 1,
+                                  image: product.images?.[0],
+                                };
+                                addToCart(item);
+                              }}
+                            >
+                              Add to Cart
+                            </button>
+                            <button
+                              className="view-details-btn small"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                const categorySlug = product.category?.slug || 'uncategorized';
+                                router.push(`/shop/${categorySlug}/${product.slug}`);
+                              }}
+                            >
+                              View Details
+                            </button>
+                          </div>
+                        </th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {/* Get all unique spec keys across all products */}
+                    {(() => {
+                      const allSpecs = new Set<string>();
+                      compareList.forEach(product => {
+                        if (product.specs) {
+                          Object.keys(product.specs).forEach(key => allSpecs.add(key));
+                        }
+                      });
+
+                      return Array.from(allSpecs).map(specKey => (
+                        <tr key={specKey}>
+                          <td className="spec-row-header">{specKey}</td>
+                          {compareList.map(product => (
+                            <td key={`${product.id}-${specKey}`}>
+                              {product.specs && product.specs[specKey] !== undefined ?
+                                (Array.isArray(product.specs[specKey])
+                                  ? (product.specs[specKey] as string[]).join(', ')
+                                  : String(product.specs[specKey]))
+                                : '—'}
+                            </td>
+                          ))}
+                        </tr>
+                      ));
+                    })()}
+                  </tbody>
+                </table>
+              </div>
+              <div className="compare-actions">
+                <button className="clear-compare-btn" onClick={clearCompare}>
+                  Clear All
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

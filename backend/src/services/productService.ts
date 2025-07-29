@@ -30,6 +30,29 @@ export class ProductService {
       ...(brand && {
         brand: { slug: brand },
       }),
+      ...(query.condition && {
+        specs: {
+          path: ['condition'],
+          equals: query.condition,
+          mode: 'insensitive',
+        },
+      }),
+      ...(query.availability && {
+        stockQty: {
+          ...(query.availability === 'in-stock' && { gt: 5 }),
+          ...(query.availability === 'low-stock' && { gt: 0, lte: 5 }),
+          ...(query.availability === 'out-of-stock' && { equals: 0 }),
+        },
+      }),
+      ...(query.priceRange && {
+        price: {
+          ...((query.priceRange === 'under-25k') && { lt: 25000 }),
+          ...((query.priceRange === '25k-50k') && { gte: 25000, lte: 50000 }),
+          ...((query.priceRange === '50k-100k') && { gte: 50000, lte: 100000 }),
+          ...((query.priceRange === '100k-250k') && { gte: 100000, lte: 250000 }),
+          ...((query.priceRange === 'over-250k') && { gt: 250000 }),
+        },
+      }),
       ...(minPrice || maxPrice) && {
         price: {
           ...(minPrice && { gte: minPrice }),
@@ -37,6 +60,10 @@ export class ProductService {
         },
       },
     };
+
+    // Debug log for troubleshooting
+    console.log('[ProductService.getProducts] Query:', query);
+    console.log('[ProductService.getProducts] Where clause:', JSON.stringify(where));
 
     // Build order by clause
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -71,6 +98,9 @@ export class ProductService {
       }),
       prisma.product.count({ where }),
     ]);
+
+    // Debug log for troubleshooting
+    console.log(`[ProductService.getProducts] Found ${products.length} products (total: ${total}) for category: ${category}`);
 
     return {
       products,
