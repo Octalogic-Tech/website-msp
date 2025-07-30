@@ -1,0 +1,7 @@
+/**
+ * machine-model service
+ */
+
+import { factories } from '@strapi/strapi';
+
+export default factories.createCoreService('api::machine-model.machine-model');

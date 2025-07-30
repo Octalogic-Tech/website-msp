@@ -17,13 +17,13 @@ export class CartController {
       const cart = await CartService.getCart(sessionId);
       console.log('🛒 Cart retrieved:', {
         id: cart.id,
-        sessionId: cart.sessionId,
-        itemCount: cart.items?.length || 0,
-        items: cart.items?.map(item => ({
-          id: item.id,
-          productId: item.product.id,
-          productName: item.product.name,
-          quantity: item.quantity
+        sessionId: cart.session_id,
+        itemCount: cart.cart_items?.length || 0,
+        items: cart.cart_items?.map((ci: { id: any; products: { id: any; name: any; }; quantity: any; }) => ({
+          id: ci.id,
+          productId: ci.products.id,
+          productName: ci.products.name,
+          quantity: ci.quantity
         }))
       });
 
@@ -48,8 +48,8 @@ export class CartController {
 
       console.log('🛒 Item added to cart:', {
         id: cartItem.id,
-        productId: cartItem.product.id,
-        productName: cartItem.product.name,
+        productId: cartItem.products.id,
+        productName: cartItem.products.name,
         quantity: cartItem.quantity
       });
 

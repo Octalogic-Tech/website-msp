@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from "react";
+import React from "react";
 import '../../shop/shop.css';
 
 interface CategoryOption { name: string; slug: string; }
@@ -15,7 +15,8 @@ type Filters = {
 };
 
 interface FilterSidebarProps {
-  setFilters: (filters: Filters) => void;
+  filters: Filters;
+  setFilters: (filters: Filters | ((prev: Filters) => Filters)) => void;
   categories: CategoryOption[];
   brands: BrandOption[];
   conditions: { name: string; slug: string }[];
@@ -31,29 +32,14 @@ const priceRanges = [
   { value: 'over-250k', label: 'Over $250K' },
 ];
 
-const FilterSidebar: React.FC<FilterSidebarProps> = ({ setFilters, categories, brands, conditions, availabilities }) => {
-  const [category, setCategory] = useState('');
-  const [brand, setBrand] = useState('');
-  const [priceRange, setPriceRange] = useState('');
-  const [condition, setCondition] = useState('');
-  const [availability, setAvailability] = useState('');
+const FilterSidebar: React.FC<FilterSidebarProps> = ({ filters, setFilters, categories, brands, conditions, availabilities }) => {
 
-  const handleApply = () => {
-    setFilters({
-      ...(category && { category }),
-      ...(brand && { brand }),
-      ...(priceRange && { priceRange }),
-      ...(condition && { condition }),
-      ...(availability && { availability }),
-    });
+  const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const { name, value } = e.target;
+    setFilters(prev => ({ ...prev, [name]: value || undefined }));
   };
 
   const handleClear = () => {
-    setCategory('');
-    setBrand('');
-    setPriceRange('');
-    setCondition('');
-    setAvailability('');
     setFilters({});
   };
 
@@ -65,8 +51,9 @@ const FilterSidebar: React.FC<FilterSidebarProps> = ({ setFilters, categories, b
         <label htmlFor="category">Category</label>
         <select
           id="category"
-          value={category}
-          onChange={e => setCategory(e.target.value)}
+          name="category"
+          value={filters.category || ''}
+          onChange={handleChange}
         >
           <option value="">All Categories</option>
           {categories.map((cat) => (
@@ -79,8 +66,9 @@ const FilterSidebar: React.FC<FilterSidebarProps> = ({ setFilters, categories, b
         <label htmlFor="brand">Brand</label>
         <select
           id="brand"
-          value={brand}
-          onChange={e => setBrand(e.target.value)}
+          name="brand"
+          value={filters.brand || ''}
+          onChange={handleChange}
         >
           <option value="">All Brands</option>
           {brands.map((b) => (
@@ -93,8 +81,9 @@ const FilterSidebar: React.FC<FilterSidebarProps> = ({ setFilters, categories, b
         <label htmlFor="priceRange">Price Range</label>
         <select
           id="priceRange"
-          value={priceRange}
-          onChange={e => setPriceRange(e.target.value)}
+          name="priceRange"
+          value={filters.priceRange || ''}
+          onChange={handleChange}
         >
           {priceRanges.map(pr => (
             <option key={pr.value} value={pr.value}>{pr.label}</option>
@@ -106,8 +95,9 @@ const FilterSidebar: React.FC<FilterSidebarProps> = ({ setFilters, categories, b
         <label htmlFor="condition">Condition</label>
         <select
           id="condition"
-          value={condition}
-          onChange={e => setCondition(e.target.value)}
+          name="condition"
+          value={filters.condition || ''}
+          onChange={handleChange}
         >
           <option value="">All Conditions</option>
           {conditions.map((c) => (
@@ -120,8 +110,9 @@ const FilterSidebar: React.FC<FilterSidebarProps> = ({ setFilters, categories, b
         <label htmlFor="availability">Availability</label>
         <select
           id="availability"
-          value={availability}
-          onChange={e => setAvailability(e.target.value)}
+          name="availability"
+          value={filters.availability || ''}
+          onChange={handleChange}
         >
           <option value="">All Availability</option>
           {availabilities.map(a => (
@@ -138,14 +129,6 @@ const FilterSidebar: React.FC<FilterSidebarProps> = ({ setFilters, categories, b
           aria-label="Clear all filters"
         >
           Clear All
-        </button>
-        <button
-          className="apply-filters-btn"
-          onClick={handleApply}
-          type="button"
-          aria-label="Apply filters"
-        >
-          Apply Filters
         </button>
       </div>
     </div>

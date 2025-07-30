@@ -12,7 +12,6 @@ import '../../shop.css';
 import './product-detail.css';
 import ProductCard from '@/app/components/shop/ProductCard';
 
-
 type Product = {
     id: string;
     name: string;
@@ -22,13 +21,45 @@ type Product = {
     description?: string;
     category?: { name: string; slug: string };
     brand?: { name: string; slug: string };
-    condition: number;
+    condition?: string;
     specs?: Record<string, string | number | string[]>;
     documents?: { name: string; url: string }[];
     stockQty?: number;
 };
 
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:5000/api";
+const API_BASE = "http://localhost:1337/api";
+const STRAPI_BASE_URL = "http://localhost:1337";
+
+function mapStrapiProduct(item: any): Product {
+  const attrs = item.attributes || item;
+  return {
+    id: String(item.id),
+    name: attrs.name,
+    slug: attrs.slug,
+    price: String(attrs.price || 0),
+    images: attrs.productImage?.data ? [attrs.productImage.data.attributes.url] : 
+            attrs.productImage ? [attrs.productImage.url] : [],
+    documents: attrs.pdf?.data ? [{ 
+      name: attrs.pdf.data.attributes.name, 
+      url: attrs.pdf.data.attributes.url 
+    }] : attrs.pdf ? [{ name: attrs.pdf.name, url: attrs.pdf.url }] : [],
+    description: attrs.description,
+    brand: attrs.brand ? { 
+      name: attrs.brand, 
+      slug: attrs.brand.toLowerCase().replace(/\s+/g, '-') 
+    } : undefined,
+    condition: attrs.condition,
+    specs: attrs.specs,
+    stockQty: attrs.stock_status === "In Stock" ? 10 : 0,
+    category: attrs.category?.data ? {
+      name: attrs.category.data.attributes.name,
+      slug: attrs.category.data.attributes.slug
+    } : attrs.category ? {
+      name: attrs.category.name,
+      slug: attrs.category.slug
+    } : undefined,
+  };
+}
 
 export default function ProductPage() {
     const params = useParams();
@@ -70,25 +101,13 @@ export default function ProductPage() {
             setLoading(true);
             setError(null);
             try {
-                const res = await fetch(`${API_BASE}/products/${params.slug}`);
+                // Strapi: fetch by slug (need to filter manually)
+                const res = await fetch(`${API_BASE}/products?populate=*&filters[slug][$eq]=${params.slug}`);
                 const data = await res.json();
-                if (data.success) {
-                    const fetchedProduct = data.data;
-                    setProduct(fetchedProduct);
-                    // Fetch related products
-                    if (fetchedProduct.category?.slug) {
-                        const relatedRes = await fetch(
-                            `${API_BASE}/products?category=${fetchedProduct.category.slug}&limit=5`
-                        );
-                        const relatedData = await relatedRes.json();
-                        if (relatedData.success) {
-                            setRelatedProducts(
-                                relatedData.data.filter((p: Product) => p.id !== fetchedProduct.id).slice(0, 4)
-                            );
-                        }
-                    }
+                if (data.data && data.data.length > 0) {
+                    setProduct(mapStrapiProduct(data.data[0]));
                 } else {
-                    setError(data.error || "Failed to fetch product.");
+                    setError("Product not found.");
                 }
             } catch (err) {
                 setError("Network error. Please try again later.");
@@ -180,7 +199,7 @@ export default function ProductPage() {
                     <nav className="breadcrumb-nav">
                         <a href="/shop">Shop</a>
                         <span>›</span>
-                        {product.category && (
+                        {product.category?.slug && product.category?.name && (
                             <>
                                 <a href={`/shop/${product.category.slug}`}>
                                     {product.category.name}
@@ -188,12 +207,12 @@ export default function ProductPage() {
                                 <span>›</span>
                             </>
                         )}
-                        <span className="breadcrumb-current">{product.name}</span>
+                        <span>{product.name}</span>
                     </nav>
                 </div>
             </div>
 
-            <div className="product-main-wrapper">
+            <div className="product-main-content">
                 {/* Main Product Section */}
                 <div className="product-main-card">
                     <div className="product-main-grid">
@@ -481,7 +500,7 @@ export default function ProductPage() {
                                     {product.documents.map((doc, index) => (
                                         <a
                                             key={index}
-                                            href={doc.url.startsWith('http') ? doc.url : `${API_BASE.replace('/api', '')}${doc.url}`}
+                                            href={doc.url.startsWith('http') ? doc.url : `${STRAPI_BASE_URL}${doc.url}`}
                                             target="_blank"
                                             rel="noopener noreferrer"
                                             className="document-card"

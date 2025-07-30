@@ -2,18 +2,21 @@ import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import dotenv from 'dotenv';
+
+// Load environment variables ASAP
+dotenv.config();
+
 import session from 'express-session';
 import connectPgSimple from 'connect-pg-simple';
 import { prisma } from './config/database';
 import { errorHandler } from './middleware/errorHandler';
+// Now that env variables are loaded, safely import services that rely on them
+import { createProductFromStrapi } from './services/shopifyService';
 
 // Routes
 import productRoutes from './routes/products';
 import cartRoutes from './routes/cart';
 import quoteRoutes from './routes/quote';
-
-// Load environment variables
-dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -57,6 +60,32 @@ app.use(session({
 
 // Serve static files (for uploads)
 app.use('/uploads', express.static('uploads'));
+
+app.post('/addproducts', async (req, res) => {
+  // ─── OPTIONAL AUTH CHECK ──────────────────────────────────────────────────
+  //  const authHeader = req.headers['authorization'] || '';
+  //  const token = authHeader.replace('Bearer ', '');
+  //  if (token !== EXPECTED_TOKEN) {
+  //    return res.status(401).json({ error: 'Unauthorized – bad token' });
+  //  }
+  try {
+    const strapiProduct = req.body;
+
+    // ─── LOG THE NEW PRODUCT ────────────────────────────────────────────────
+    console.log('✅ Product is created in Strapi:', strapiProduct);
+
+    // ─── SYNC TO SHOPIFY ────────────────────────────────────────────────────
+    const shopifyProduct = await createProductFromStrapi(strapiProduct);
+
+    return res.status(201).json({
+      message: 'Product received & synced to Shopify',
+      shopifyProduct,
+    });
+  } catch (error) {
+    console.error('❌ Failed to sync product to Shopify:', error);
+    return res.status(500).json({ error: 'Failed to sync product to Shopify' });
+  }
+});
 
 // Health check endpoint
 app.get('/health', (req, res) => {

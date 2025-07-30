@@ -1,0 +1,31 @@
+{
+  "kind": "collectionType",
+  "collectionName": "machine_models",
+  "info": {
+    "singularName": "machine-model",
+    "pluralName": "machine-models",
+    "displayName": "Machine Model"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "name": {
+      "type": "string",
+      "required": true
+    },
+    "machine_make": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::machine-make.machine-make",
+      "mappedBy": "machine_model"
+    },
+    "compatible_parts": {
+      "type": "relation",
+      "relation": "manyToMany",
+      "target": "api::product.product",
+      "inversedBy": "machine_models"
+    }
+  }
+}

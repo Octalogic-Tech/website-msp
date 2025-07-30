@@ -1,6 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -10,137 +7,917 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Category {
-  id          String    @id @default(cuid())
-  name        String    @unique
-  slug        String    @unique
-  description String?
-  imageUrl    String?
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-  
-  // Relations
-  products    Product[]
+model admin_permissions {
+  id                                                     Int                                       @id @default(autoincrement())
+  document_id                                            String?                                   @db.VarChar(255)
+  action                                                 String?                                   @db.VarChar(255)
+  action_parameters                                      Json?
+  subject                                                String?                                   @db.VarChar(255)
+  properties                                             Json?
+  conditions                                             Json?
+  created_at                                             DateTime?                                 @db.Timestamp(6)
+  updated_at                                             DateTime?                                 @db.Timestamp(6)
+  published_at                                           DateTime?                                 @db.Timestamp(6)
+  created_by_id                                          Int?
+  updated_by_id                                          Int?
+  locale                                                 String?                                   @db.VarChar(255)
+  createdBy                                              admin_users?                              @relation("admin_permissions_created_by", fields: [created_by_id], references: [id], onUpdate: NoAction, map: "admin_permissions_created_by_id_fk")
+  updatedBy                                              admin_users?                              @relation("admin_permissions_updated_by", fields: [updated_by_id], references: [id], onUpdate: NoAction, map: "admin_permissions_updated_by_id_fk")
+  admin_permissions_role_lnk                             admin_permissions_role_lnk[]
+  strapi_workflows_stages_permissions_lnk                strapi_workflows_stages_permissions_lnk[]
 
-  @@map("categories")
+  @@index([created_by_id])
+  @@index([updated_by_id])
+  @@index([document_id, locale, published_at], map: "admin_permissions_documents_idx")
 }
 
-model Brand {
-  id          String    @id @default(cuid())
-  name        String    @unique
-  slug        String    @unique
-  description String?
-  logoUrl     String?
-  website     String?
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-  
-  // Relations
-  products    Product[]
+model admin_permissions_role_lnk {
+  id                Int                @id @default(autoincrement())
+  permission_id     Int?
+  role_id           Int?
+  permission_ord    Float?
+  admin_permissions admin_permissions? @relation(fields: [permission_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "admin_permissions_role_lnk_fk")
+  admin_roles       admin_roles?       @relation(fields: [role_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "admin_permissions_role_lnk_ifk")
 
-  @@map("brands")
+  @@unique([permission_id, role_id], map: "admin_permissions_role_lnk_uq")
+  @@index([permission_id])
+  @@index([role_id])
+  @@index([permission_ord], map: "admin_permissions_role_lnk_oifk")
 }
 
-model Product {
-  id          String    @id @default(cuid())
-  name        String
-  slug        String    @unique
-  description String?
-  price       Decimal   @db.Decimal(10, 2)
-  stockQty    Int       @default(0)
-  images      String[]  // Array of image URLs
-  specs       Json?     // JSON field for specifications
-  documents   Json?     // Array of document objects: { name: string, url: string }
-  isActive    Boolean   @default(true)
-  
-  // Foreign keys
-  categoryId  String
-  brandId     String
-  
-  // Timestamps
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-  
-  // Relations
-  category    Category  @relation(fields: [categoryId], references: [id], onDelete: Cascade)
-  brand       Brand     @relation(fields: [brandId], references: [id], onDelete: Cascade)
-  cartItems   CartItem[]
-  quoteItems  QuoteItem[]
+model admin_roles {
+  id                           Int                            @id @default(autoincrement())
+  document_id                  String?                        @db.VarChar(255)
+  name                         String?                        @db.VarChar(255)
+  code                         String?                        @db.VarChar(255)
+  description                  String?                        @db.VarChar(255)
+  created_at                   DateTime?                      @db.Timestamp(6)
+  updated_at                   DateTime?                      @db.Timestamp(6)
+  published_at                 DateTime?                      @db.Timestamp(6)
+  created_by_id                Int?
+  updated_by_id                Int?
+  locale                       String?                        @db.VarChar(255)
+  admin_permissions_role_lnk   admin_permissions_role_lnk[]
+  createdBy                    admin_users?                   @relation("admin_roles_created_by", fields: [created_by_id], references: [id], onUpdate: NoAction, map: "admin_roles_created_by_id_fk")
+  updatedBy                    admin_users?                   @relation("admin_roles_updated_by", fields: [updated_by_id], references: [id], onUpdate: NoAction, map: "admin_roles_updated_by_id_fk")
+  admin_users_roles_lnk        admin_users_roles_lnk[]
 
-  @@map("products")
+  @@index([created_by_id])
+  @@index([updated_by_id])
+  @@index([document_id, locale, published_at], map: "admin_roles_documents_idx")
 }
 
-model Cart {
-  id        String     @id @default(cuid())
-  sessionId String     @unique
-  createdAt DateTime   @default(now())
-  updatedAt DateTime   @updatedAt
-  
-  // Relations
-  items     CartItem[]
+model admin_users {
+  id                                                     Int                                    @id @default(autoincrement())
+  document_id                                            String?                                @db.VarChar(255)
+  firstname                                              String?                                @db.VarChar(255)
+  lastname                                               String?                                @db.VarChar(255)
+  username                                               String?                                @db.VarChar(255)
+  email                                                  String?                                @db.VarChar(255)
+  password                                               String?                                @db.VarChar(255)
+  reset_password_token                                   String?                                @db.VarChar(255)
+  registration_token                                     String?                                @db.VarChar(255)
+  is_active                                              Boolean?
+  blocked                                                Boolean?
+  prefered_language                                      String?                                @db.VarChar(255)
+  created_at                                             DateTime?                              @db.Timestamp(6)
+  updated_at                                             DateTime?                              @db.Timestamp(6)
+  published_at                                           DateTime?                              @db.Timestamp(6)
+  created_by_id                                          Int?
+  updated_by_id                                          Int?
+  locale                                                 String?                                @db.VarChar(255)
 
-  @@map("carts")
+  // FIX 1: Corrected self-referencing relations
+  createdBy                                              admin_users?                           @relation("UserCreations", fields: [created_by_id], references: [id], onUpdate: NoAction, map: "admin_users_created_by_id_fk")
+  updatedBy                                              admin_users?                           @relation("UserUpdates", fields: [updated_by_id], references: [id], onUpdate: NoAction, map: "admin_users_updated_by_id_fk")
+  
+  // Back-relations
+  created_admin_permissions                              admin_permissions[]                    @relation("admin_permissions_created_by")
+  updated_admin_permissions                              admin_permissions[]                    @relation("admin_permissions_updated_by")
+  created_admin_roles                                    admin_roles[]                          @relation("admin_roles_created_by")
+  updated_admin_roles                                    admin_roles[]                          @relation("admin_roles_updated_by")
+  created_users                                          admin_users[]                          @relation("UserCreations")
+  updated_users                                          admin_users[]                          @relation("UserUpdates")
+  admin_users_roles_lnk                                  admin_users_roles_lnk[]
+  created_categories                                     categories[]                           @relation("categories_created_by")
+  updated_categories                                     categories[]                           @relation("categories_updated_by")
+  created_files                                          files[]                                @relation("files_created_by")
+  updated_files                                          files[]                                @relation("files_updated_by")
+  created_homepages                                      homepages[]                            @relation("homepages_created_by")
+  updated_homepages                                      homepages[]                            @relation("homepages_updated_by")
+  created_i18n_locales                                   i18n_locale[]                          @relation("i18n_locales_created_by")
+  updated_i18n_locales                                   i18n_locale[]                          @relation("i18n_locales_updated_by")
+  created_machine_makes                                  machine_makes[]                        @relation("machine_makes_created_by")
+  updated_machine_makes                                  machine_makes[]                        @relation("machine_makes_updated_by")
+  created_machine_models                                 machine_models[]                       @relation("machine_models_created_by")
+  updated_machine_models                                 machine_models[]                       @relation("machine_models_updated_by")
+  created_products                                       products[]                             @relation("products_created_by")
+  updated_products                                       products[]                             @relation("products_updated_by")
+  created_strapi_api_token_permissions                   strapi_api_token_permissions[]         @relation("strapi_api_token_permissions_created_by")
+  updated_strapi_api_token_permissions                   strapi_api_token_permissions[]         @relation("strapi_api_token_permissions_updated_by")
+  created_strapi_api_tokens                              strapi_api_tokens[]                    @relation("strapi_api_tokens_created_by")
+  updated_strapi_api_tokens                              strapi_api_tokens[]                    @relation("strapi_api_tokens_updated_by")
+  strapi_history_versions                                strapi_history_versions[]
+  created_strapi_release_actions                         strapi_release_actions[]               @relation("strapi_release_actions_created_by")
+  updated_strapi_release_actions                         strapi_release_actions[]               @relation("strapi_release_actions_updated_by")
+  created_strapi_releases                                strapi_releases[]                      @relation("strapi_releases_created_by")
+  updated_strapi_releases                                strapi_releases[]                      @relation("strapi_releases_updated_by")
+  created_strapi_transfer_token_permissions              strapi_transfer_token_permissions[]    @relation("strapi_transfer_token_permissions_created_by")
+  updated_strapi_transfer_token_permissions              strapi_transfer_token_permissions[]    @relation("strapi_transfer_token_permissions_updated_by")
+  created_strapi_transfer_tokens                         strapi_transfer_tokens[]               @relation("strapi_transfer_tokens_created_by")
+  updated_strapi_transfer_tokens                         strapi_transfer_tokens[]               @relation("strapi_transfer_tokens_updated_by")
+  created_strapi_workflows                               strapi_workflows[]                     @relation("strapi_workflows_created_by")
+  updated_strapi_workflows                               strapi_workflows[]                     @relation("strapi_workflows_updated_by")
+  created_strapi_workflows_stages                        strapi_workflows_stages[]              @relation("strapi_workflows_stages_created_by")
+  updated_strapi_workflows_stages                        strapi_workflows_stages[]              @relation("strapi_workflows_stages_updated_by")
+  created_up_permissions                                 up_permissions[]                       @relation("up_permissions_created_by")
+  updated_up_permissions                                 up_permissions[]                       @relation("up_permissions_updated_by")
+  created_up_roles                                       up_roles[]                             @relation("up_roles_created_by")
+  updated_up_roles                                       up_roles[]                             @relation("up_roles_updated_by")
+  created_up_users                                       up_users[]                             @relation("up_users_created_by")
+  updated_up_users                                       up_users[]                             @relation("up_users_updated_by")
+  created_upload_folders                                 upload_folders[]                       @relation("upload_folders_created_by")
+  updated_upload_folders                                 upload_folders[]                       @relation("upload_folders_updated_by")
+
+  @@index([created_by_id])
+  @@index([updated_by_id])
+  @@index([document_id, locale, published_at], map: "admin_users_documents_idx")
 }
 
-model CartItem {
-  id        String    @id @default(cuid())
-  cartId    String
-  productId String
-  quantity  Int       @default(1)
-  itemType  ItemType  @default(BUY_NOW) // BUY_NOW or REQUEST_QUOTE
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-  
-  // Relations
-  cart      Cart      @relation(fields: [cartId], references: [id], onDelete: Cascade)
-  product   Product   @relation(fields: [productId], references: [id], onDelete: Cascade)
+model admin_users_roles_lnk {
+  id          Int          @id @default(autoincrement())
+  user_id     Int?
+  role_id     Int?
+  role_ord    Float?
+  user_ord    Float?
+  admin_users admin_users? @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "admin_users_roles_lnk_fk")
+  admin_roles admin_roles? @relation(fields: [role_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "admin_users_roles_lnk_ifk")
 
-  @@unique([cartId, productId])
-  @@map("cart_items")
+  @@unique([user_id, role_id], map: "admin_users_roles_lnk_uq")
+  @@index([user_id])
+  @@index([role_id])
+  @@index([role_ord], map: "admin_users_roles_lnk_ofk")
+  @@index([user_ord], map: "admin_users_roles_lnk_oifk")
 }
 
-model QuoteRequest {
-  id          String      @id @default(cuid())
-  email       String
-  customerName String?
-  companyName String?
-  phoneNumber String?
-  message     String?
-  status      QuoteStatus @default(PENDING)
-  totalAmount Decimal?    @db.Decimal(10, 2)
-  
-  // Timestamps
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @updatedAt
-  
-  // Relations
-  items       QuoteItem[]
+model cart_items {
+  id         Int       @id @default(autoincrement())
+  cart_id    Int
+  product_id Int
+  quantity   Int       @default(1)
+  item_type  item_type @default(BUY_NOW)
+  created_at DateTime  @default(now()) @db.Timestamp(6)
+  updated_at DateTime  @default(now()) @db.Timestamp(6)
+  carts      carts     @relation(fields: [cart_id], references: [id], onDelete: Cascade, map: "cart_items_cart_fkey")
+  products   products  @relation(fields: [product_id], references: [id], onDelete: Cascade, map: "cart_items_product_fkey")
 
-  @@map("quote_requests")
+  @@unique([cart_id, product_id], map: "cart_items_cart_product_key")
 }
 
-model QuoteItem {
-  id            String       @id @default(cuid())
-  quoteRequestId String
-  productId     String
-  quantity      Int          @default(1)
-  unitPrice     Decimal      @db.Decimal(10, 2)
-  
-  // Relations
-  quoteRequest  QuoteRequest @relation(fields: [quoteRequestId], references: [id], onDelete: Cascade)
-  product       Product      @relation(fields: [productId], references: [id], onDelete: Cascade)
-
-  @@unique([quoteRequestId, productId])
-  @@map("quote_items")
+model carts {
+  id         Int          @id @default(autoincrement())
+  session_id String       @unique(map: "carts_session_id_idx") @db.VarChar(255)
+  created_at DateTime     @default(now()) @db.Timestamp(6)
+  updated_at DateTime     @default(now()) @db.Timestamp(6)
+  cart_items cart_items[]
 }
 
-// Enums
-enum ItemType {
+model categories {
+  id                        Int                         @id @default(autoincrement())
+  document_id               String?                     @db.VarChar(255)
+  name                      String?                     @db.VarChar(255)
+  slug                      String?                     @db.VarChar(255)
+  created_at                DateTime?                   @db.Timestamp(6)
+  updated_at                DateTime?                   @db.Timestamp(6)
+  published_at              DateTime?                   @db.Timestamp(6)
+  created_by_id             Int?
+  updated_by_id             Int?
+  locale                    String?                     @db.VarChar(255)
+  createdBy                 admin_users?                @relation("categories_created_by", fields: [created_by_id], references: [id], onUpdate: NoAction, map: "categories_created_by_id_fk")
+  updatedBy                 admin_users?                @relation("categories_updated_by", fields: [updated_by_id], references: [id], onUpdate: NoAction, map: "categories_updated_by_id_fk")
+  categories_products_lnk   categories_products_lnk[]
+
+  @@index([created_by_id])
+  @@index([updated_by_id])
+  @@index([document_id, locale, published_at], map: "categories_documents_idx")
+}
+
+model categories_products_lnk {
+  id          Int         @id @default(autoincrement())
+  category_id Int?
+  product_id  Int?
+  product_ord Float?
+  categories  categories? @relation(fields: [category_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "categories_products_lnk_fk")
+  products    products?   @relation(fields: [product_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "categories_products_lnk_ifk")
+
+  @@unique([category_id, product_id], map: "categories_products_lnk_uq")
+  @@index([category_id])
+  @@index([product_id])
+  @@index([product_ord], map: "categories_products_lnk_ofk")
+}
+
+model files {
+  id                  Int                   @id @default(autoincrement())
+  document_id         String?               @db.VarChar(255)
+  name                String?               @db.VarChar(255)
+  alternative_text    String?               @db.VarChar(255)
+  caption             String?               @db.VarChar(255)
+  width               Int?
+  height              Int?
+  formats             Json?
+  hash                String?               @db.VarChar(255)
+  ext                 String?               @db.VarChar(255)
+  mime                String?               @db.VarChar(255)
+  size                Decimal?              @db.Decimal(10, 2)
+  url                 String?               @db.VarChar(255)
+  preview_url         String?               @db.VarChar(255)
+  provider            String?               @db.VarChar(255)
+  provider_metadata   Json?
+  folder_path         String?               @db.VarChar(255)
+  created_at          DateTime?             @db.Timestamp(6)
+  updated_at          DateTime?             @db.Timestamp(6)
+  published_at        DateTime?             @db.Timestamp(6)
+  created_by_id       Int?
+  updated_by_id       Int?
+  locale              String?               @db.VarChar(255)
+  createdBy           admin_users?          @relation("files_created_by", fields: [created_by_id], references: [id], onUpdate: NoAction, map: "files_created_by_id_fk")
+  updatedBy           admin_users?          @relation("files_updated_by", fields: [updated_by_id], references: [id], onUpdate: NoAction, map: "files_updated_by_id_fk")
+  files_folder_lnk    files_folder_lnk[]
+  files_related_mph   files_related_mph[]
+
+  @@index([created_by_id])
+  @@index([updated_by_id])
+  @@index([created_at], map: "upload_files_created_at_index")
+  @@index([ext], map: "upload_files_ext_index")
+  @@index([folder_path], map: "upload_files_folder_path_index")
+  @@index([name], map: "upload_files_name_index")
+  @@index([size], map: "upload_files_size_index")
+  @@index([updated_at], map: "upload_files_updated_at_index")
+  @@index([document_id, locale, published_at], map: "files_documents_idx")
+}
+
+model files_folder_lnk {
+  id             Int             @id @default(autoincrement())
+  file_id        Int?
+  folder_id      Int?
+  file_ord       Float?
+  files          files?          @relation(fields: [file_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "files_folder_lnk_fk")
+  upload_folders upload_folders? @relation(fields: [folder_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "files_folder_lnk_ifk")
+
+  @@unique([file_id, folder_id], map: "files_folder_lnk_uq")
+  @@index([file_id])
+  @@index([folder_id])
+  @@index([file_ord], map: "files_folder_lnk_oifk")
+}
+
+model files_related_mph {
+  id           Int     @id @default(autoincrement())
+  file_id      Int?
+  related_id   Int?
+  related_type String? @db.VarChar(255)
+  field        String? @db.VarChar(255)
+  order        Float?
+  files        files?  @relation(fields: [file_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "files_related_mph_fk")
+
+  @@index([file_id])
+  @@index([related_id], map: "files_related_mph_idix")
+  @@index([order], map: "files_related_mph_oidx")
+}
+
+model homepages {
+  id             Int          @id @default(autoincrement())
+  document_id    String?      @db.VarChar(255)
+  logo           String?      @db.VarChar(255)
+  home_title     String?      @db.VarChar(255)
+  subtitle       String?      @db.VarChar(255)
+  created_at     DateTime?    @db.Timestamp(6)
+  updated_at     DateTime?    @db.Timestamp(6)
+  published_at   DateTime?    @db.Timestamp(6)
+  created_by_id  Int?
+  updated_by_id  Int?
+  locale         String?      @db.VarChar(255)
+  createdBy      admin_users? @relation("homepages_created_by", fields: [created_by_id], references: [id], onUpdate: NoAction, map: "homepages_created_by_id_fk")
+  updatedBy      admin_users? @relation("homepages_updated_by", fields: [updated_by_id], references: [id], onUpdate: NoAction, map: "homepages_updated_by_id_fk")
+
+  @@index([created_by_id])
+  @@index([updated_by_id])
+  @@index([document_id, locale, published_at], map: "homepages_documents_idx")
+}
+
+model i18n_locale {
+  id            Int          @id @default(autoincrement())
+  document_id   String?      @db.VarChar(255)
+  name          String?      @db.VarChar(255)
+  code          String?      @db.VarChar(255)
+  created_at    DateTime?    @db.Timestamp(6)
+  updated_at    DateTime?    @db.Timestamp(6)
+  published_at  DateTime?    @db.Timestamp(6)
+  created_by_id Int?
+  updated_by_id Int?
+  locale        String?      @db.VarChar(255)
+  createdBy     admin_users? @relation("i18n_locales_created_by", fields: [created_by_id], references: [id], onUpdate: NoAction, map: "i18n_locale_created_by_id_fk")
+  updatedBy     admin_users? @relation("i18n_locales_updated_by", fields: [updated_by_id], references: [id], onUpdate: NoAction, map: "i18n_locale_updated_by_id_fk")
+
+  @@index([created_by_id])
+  @@index([updated_by_id])
+  @@index([document_id, locale, published_at], map: "i18n_locale_documents_idx")
+}
+
+model machine_makes {
+  id                                 Int                                @id @default(autoincrement())
+  document_id                        String?                            @db.VarChar(255)
+  name                               String?                            @db.VarChar(255)
+  created_at                         DateTime?                          @db.Timestamp(6)
+  updated_at                         DateTime?                          @db.Timestamp(6)
+  published_at                       DateTime?                          @db.Timestamp(6)
+  created_by_id                      Int?
+  updated_by_id                      Int?
+  locale                             String?                            @db.VarChar(255)
+  createdBy                          admin_users?                       @relation("machine_makes_created_by", fields: [created_by_id], references: [id], onUpdate: NoAction, map: "machine_makes_created_by_id_fk")
+  updatedBy                          admin_users?                       @relation("machine_makes_updated_by", fields: [updated_by_id], references: [id], onUpdate: NoAction, map: "machine_makes_updated_by_id_fk")
+  machine_makes_machine_model_lnk    machine_makes_machine_model_lnk[]
+  machine_makes_machine_models_lnk   machine_makes_machine_models_lnk[]
+
+  @@index([created_by_id])
+  @@index([updated_by_id])
+  @@index([document_id, locale, published_at], map: "machine_makes_documents_idx")
+}
+
+model machine_makes_machine_model_lnk {
+  id               Int            @id @default(autoincrement())
+  machine_make_id  Int?
+  machine_model_id Int?
+  machine_makes    machine_makes? @relation(fields: [machine_make_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "machine_makes_machine_model_lnk_fk")
+  machine_models   machine_models?@relation(fields: [machine_model_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "machine_makes_machine_model_lnk_ifk")
+
+  @@unique([machine_make_id, machine_model_id], map: "machine_makes_machine_model_lnk_uq")
+  @@index([machine_make_id])
+  @@index([machine_model_id])
+}
+
+model machine_makes_machine_models_lnk {
+  id                Int            @id @default(autoincrement())
+  machine_make_id   Int?
+  machine_model_id  Int?
+  machine_model_ord Float?
+  machine_makes     machine_makes? @relation(fields: [machine_make_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "machine_makes_machine_models_lnk_fk")
+  machine_models    machine_models?@relation(fields: [machine_model_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "machine_makes_machine_models_lnk_ifk")
+
+  @@unique([machine_make_id, machine_model_id], map: "machine_makes_machine_models_lnk_uq")
+  @@index([machine_make_id])
+  @@index([machine_model_id])
+  @@index([machine_model_ord], map: "machine_makes_machine_models_lnk_ofk")
+}
+
+model machine_models {
+  id                                  Int                                   @id @default(autoincrement())
+  document_id                         String?                               @db.VarChar(255)
+  name                                String?                               @db.VarChar(255)
+  created_at                          DateTime?                             @db.Timestamp(6)
+  updated_at                          DateTime?                             @db.Timestamp(6)
+  published_at                        DateTime?                             @db.Timestamp(6)
+  created_by_id                       Int?
+  updated_by_id                       Int?
+  locale                              String?                               @db.VarChar(255)
+  machine_makes_machine_model_lnk     machine_makes_machine_model_lnk[]
+  machine_makes_machine_models_lnk    machine_makes_machine_models_lnk[]
+  createdBy                           admin_users?                          @relation("machine_models_created_by", fields: [created_by_id], references: [id], onUpdate: NoAction, map: "machine_models_created_by_id_fk")
+  updatedBy                           admin_users?                          @relation("machine_models_updated_by", fields: [updated_by_id], references: [id], onUpdate: NoAction, map: "machine_models_updated_by_id_fk")
+  machine_models_compatible_parts_lnk machine_models_compatible_parts_lnk[]
+
+  @@index([created_by_id])
+  @@index([updated_by_id])
+  @@index([document_id, locale, published_at], map: "machine_models_documents_idx")
+}
+
+model machine_models_compatible_parts_lnk {
+  id                Int             @id @default(autoincrement())
+  machine_model_id  Int?
+  product_id        Int?
+  product_ord       Float?
+  machine_model_ord Float?
+  machine_models    machine_models? @relation(fields: [machine_model_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "machine_models_compatible_parts_lnk_fk")
+  products          products?       @relation(fields: [product_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "machine_models_compatible_parts_lnk_ifk")
+
+  @@unique([machine_model_id, product_id], map: "machine_models_compatible_parts_lnk_uq")
+  @@index([machine_model_id])
+  @@index([product_id])
+  @@index([product_ord], map: "machine_models_compatible_parts_lnk_ofk")
+  @@index([machine_model_ord], map: "machine_models_compatible_parts_lnk_oifk")
+}
+
+model products {
+  id                                  Int                                   @id @default(autoincrement())
+  document_id                         String?                               @db.VarChar(255)
+  name                                String?                               @db.VarChar(255)
+  slug                                String?                               @unique @db.VarChar(255)
+  sku                                 String?                               @db.VarChar(255)
+  description                         String?                               @db.VarChar(255)
+  stock_status                        String?                               @db.VarChar(255)
+  specs                               Json?
+  created_at                          DateTime?                             @db.Timestamp(6)
+  updated_at                          DateTime?                             @db.Timestamp(6)
+  published_at                        DateTime?                             @db.Timestamp(6)
+  created_by_id                       Int?
+  updated_by_id                       Int?
+  locale                              String?                               @db.VarChar(255)
+  brand                               String?                               @db.VarChar(255)
+  price       Decimal   @db.Decimal(10, 2) @default(0)
+  cart_items                          cart_items[]
+  categories_products_lnk             categories_products_lnk[]
+  machine_models_compatible_parts_lnk machine_models_compatible_parts_lnk[]
+  createdBy                           admin_users?                          @relation("products_created_by", fields: [created_by_id], references: [id], onUpdate: NoAction, map: "products_created_by_id_fk")
+  updatedBy                           admin_users?                          @relation("products_updated_by", fields: [updated_by_id], references: [id], onUpdate: NoAction, map: "products_updated_by_id_fk")
+  quote_items                         quote_items[]
+
+  @@index([created_by_id])
+  @@index([updated_by_id])
+  @@index([document_id, locale, published_at], map: "products_documents_idx")
+}
+
+model quote_items {
+  id               Int            @id @default(autoincrement())
+  quote_request_id Int
+  product_id       Int
+  quantity         Int            @default(1)
+  unit_price       Decimal        @db.Decimal(10, 2)
+  products         products       @relation(fields: [product_id], references: [id], onDelete: Cascade, map: "quote_items_product_fkey")
+  quote_requests   quote_requests @relation(fields: [quote_request_id], references: [id], onDelete: Cascade, map: "quote_items_request_fkey")
+
+  // FIX 2: Removed redundant unique constraint
+  @@unique([quote_request_id, product_id], map: "quote_items_req_prod_key")
+}
+
+model quote_requests {
+  id            Int           @id @default(autoincrement())
+  email         String        @db.VarChar(255)
+  customer_name String?       @db.VarChar(255)
+  company_name  String?       @db.VarChar(255)
+  phone_number  String?       @db.VarChar(50)
+  message       String?
+  status        quote_status  @default(PENDING)
+  total_amount  Decimal?      @db.Decimal(10, 2)
+  created_at    DateTime      @default(now()) @db.Timestamp(6)
+  updated_at    DateTime      @default(now()) @db.Timestamp(6)
+  quote_items   quote_items[]
+}
+
+// ... other models are correct, only showing the rest for completeness ...
+
+model session {
+  sid    String   @id @db.VarChar
+  sess   Json     @db.Json
+  expire DateTime @db.Timestamp(6)
+
+  @@index([expire], map: "IDX_session_expire")
+}
+
+model strapi_api_token_permissions {
+  id                                  Int                                       @id @default(autoincrement())
+  document_id                         String?                                   @db.VarChar(255)
+  action                              String?                                   @db.VarChar(255)
+  created_at                          DateTime?                                 @db.Timestamp(6)
+  updated_at                          DateTime?                                 @db.Timestamp(6)
+  published_at                        DateTime?                                 @db.Timestamp(6)
+  created_by_id                       Int?
+  updated_by_id                       Int?
+  locale                              String?                                   @db.VarChar(255)
+  createdBy                           admin_users?                              @relation("strapi_api_token_permissions_created_by", fields: [created_by_id], references: [id], onUpdate: NoAction, map: "strapi_api_token_permissions_created_by_id_fk")
+  updatedBy                           admin_users?                              @relation("strapi_api_token_permissions_updated_by", fields: [updated_by_id], references: [id], onUpdate: NoAction, map: "strapi_api_token_permissions_updated_by_id_fk")
+  strapi_api_token_permissions_token_lnk strapi_api_token_permissions_token_lnk[]
+
+  @@index([created_by_id])
+  @@index([updated_by_id])
+  @@index([document_id, locale, published_at], map: "strapi_api_token_permissions_documents_idx")
+}
+
+model strapi_api_token_permissions_token_lnk {
+  id                         Int                             @id @default(autoincrement())
+  api_token_permission_id    Int?
+  api_token_id               Int?
+  api_token_permission_ord   Float?
+  strapi_api_token_permissions strapi_api_token_permissions? @relation(fields: [api_token_permission_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "strapi_api_token_permissions_token_lnk_fk")
+  strapi_api_tokens          strapi_api_tokens?              @relation(fields: [api_token_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "strapi_api_token_permissions_token_lnk_ifk")
+
+  @@unique([api_token_permission_id, api_token_id], map: "strapi_api_token_permissions_token_lnk_uq")
+  @@index([api_token_permission_id])
+  @@index([api_token_id])
+  @@index([api_token_permission_ord], map: "strapi_api_token_permissions_token_lnk_oifk")
+}
+
+model strapi_api_tokens {
+  id                                       Int                                       @id @default(autoincrement())
+  document_id                              String?                                   @db.VarChar(255)
+  name                                     String?                                   @db.VarChar(255)
+  description                              String?                                   @db.VarChar(255)
+  type                                     String?                                   @db.VarChar(255)
+  access_key                               String?                                   @db.VarChar(255)
+  encrypted_key                            String?
+  last_used_at                             DateTime?                                 @db.Timestamp(6)
+  expires_at                               DateTime?                                 @db.Timestamp(6)
+  lifespan                                 BigInt?
+  created_at                               DateTime?                                 @db.Timestamp(6)
+  updated_at                               DateTime?                                 @db.Timestamp(6)
+  published_at                             DateTime?                                 @db.Timestamp(6)
+  created_by_id                            Int?
+  updated_by_id                            Int?
+  locale                                   String?                                   @db.VarChar(255)
+  strapi_api_token_permissions_token_lnk   strapi_api_token_permissions_token_lnk[]
+  createdBy                                admin_users?                              @relation("strapi_api_tokens_created_by", fields: [created_by_id], references: [id], onUpdate: NoAction, map: "strapi_api_tokens_created_by_id_fk")
+  updatedBy                                admin_users?                              @relation("strapi_api_tokens_updated_by", fields: [updated_by_id], references: [id], onUpdate: NoAction, map: "strapi_api_tokens_updated_by_id_fk")
+
+  @@index([created_by_id])
+  @@index([updated_by_id])
+  @@index([document_id, locale, published_at], map: "strapi_api_tokens_documents_idx")
+}
+
+model strapi_core_store_settings {
+  id          Int     @id @default(autoincrement())
+  key         String? @db.VarChar(255)
+  value       String?
+  type        String? @db.VarChar(255)
+  environment String? @db.VarChar(255)
+  tag         String? @db.VarChar(255)
+}
+
+model strapi_database_schema {
+  id     Int       @id @default(autoincrement())
+  schema Json?     @db.Json
+  time   DateTime? @db.Timestamp(6)
+  hash   String?   @db.VarChar(255)
+}
+
+model strapi_history_versions {
+  id                    Int          @id @default(autoincrement())
+  content_type          String       @db.VarChar(255)
+  related_document_id   String?      @db.VarChar(255)
+  locale                String?      @db.VarChar(255)
+  status                String?      @db.VarChar(255)
+  data                  Json?
+  schema                Json?
+  created_at            DateTime?    @db.Timestamp(6)
+  created_by_id         Int?
+  admin_users           admin_users? @relation(fields: [created_by_id], references: [id], onUpdate: NoAction, map: "strapi_history_versions_created_by_id_fk")
+
+  @@index([created_by_id])
+}
+
+model strapi_migrations {
+  id   Int       @id @default(autoincrement())
+  name String?   @db.VarChar(255)
+  time DateTime? @db.Timestamp(6)
+}
+
+model strapi_migrations_internal {
+  id   Int       @id @default(autoincrement())
+  name String?   @db.VarChar(255)
+  time DateTime? @db.Timestamp(6)
+}
+
+model strapi_release_actions {
+  id                                 Int                                    @id @default(autoincrement())
+  document_id                        String?                                @db.VarChar(255)
+  type                               String?                                @db.VarChar(255)
+  content_type                       String?                                @db.VarChar(255)
+  entry_document_id                  String?                                @db.VarChar(255)
+  locale                             String?                                @db.VarChar(255)
+  is_entry_valid                     Boolean?
+  created_at                         DateTime?                              @db.Timestamp(6)
+  updated_at                         DateTime?                              @db.Timestamp(6)
+  published_at                       DateTime?                              @db.Timestamp(6)
+  created_by_id                      Int?
+  updated_by_id                      Int?
+  createdBy                          admin_users?                           @relation("strapi_release_actions_created_by", fields: [created_by_id], references: [id], onUpdate: NoAction, map: "strapi_release_actions_created_by_id_fk")
+  updatedBy                          admin_users?                           @relation("strapi_release_actions_updated_by", fields: [updated_by_id], references: [id], onUpdate: NoAction, map: "strapi_release_actions_updated_by_id_fk")
+  strapi_release_actions_release_lnk strapi_release_actions_release_lnk[]
+
+  @@index([created_by_id])
+  @@index([updated_by_id])
+  @@index([document_id, locale, published_at], map: "strapi_release_actions_documents_idx")
+}
+
+model strapi_release_actions_release_lnk {
+  id                   Int                     @id @default(autoincrement())
+  release_action_id    Int?
+  release_id           Int?
+  release_action_ord   Float?
+  strapi_release_actions strapi_release_actions? @relation(fields: [release_action_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "strapi_release_actions_release_lnk_fk")
+  strapi_releases      strapi_releases?        @relation(fields: [release_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "strapi_release_actions_release_lnk_ifk")
+
+  @@unique([release_action_id, release_id], map: "strapi_release_actions_release_lnk_uq")
+  @@index([release_action_id])
+  @@index([release_id])
+  @@index([release_action_ord], map: "strapi_release_actions_release_lnk_oifk")
+}
+
+model strapi_releases {
+  id                                 Int                                    @id @default(autoincrement())
+  document_id                        String?                                @db.VarChar(255)
+  name                               String?                                @db.VarChar(255)
+  released_at                        DateTime?                              @db.Timestamp(6)
+  scheduled_at                       DateTime?                              @db.Timestamp(6)
+  timezone                           String?                                @db.VarChar(255)
+  status                             String?                                @db.VarChar(255)
+  created_at                         DateTime?                              @db.Timestamp(6)
+  updated_at                         DateTime?                              @db.Timestamp(6)
+  published_at                       DateTime?                              @db.Timestamp(6)
+  created_by_id                      Int?
+  updated_by_id                      Int?
+  locale                             String?                                @db.VarChar(255)
+  strapi_release_actions_release_lnk strapi_release_actions_release_lnk[]
+  createdBy                          admin_users?                           @relation("strapi_releases_created_by", fields: [created_by_id], references: [id], onUpdate: NoAction, map: "strapi_releases_created_by_id_fk")
+  updatedBy                          admin_users?                           @relation("strapi_releases_updated_by", fields: [updated_by_id], references: [id], onUpdate: NoAction, map: "strapi_releases_updated_by_id_fk")
+
+  @@index([created_by_id])
+  @@index([updated_by_id])
+  @@index([document_id, locale, published_at], map: "strapi_releases_documents_idx")
+}
+
+model strapi_transfer_token_permissions {
+  id                                       Int                                          @id @default(autoincrement())
+  document_id                              String?                                      @db.VarChar(255)
+  action                                   String?                                      @db.VarChar(255)
+  created_at                               DateTime?                                    @db.Timestamp(6)
+  updated_at                               DateTime?                                    @db.Timestamp(6)
+  published_at                             DateTime?                                    @db.Timestamp(6)
+  created_by_id                            Int?
+  updated_by_id                            Int?
+  locale                                   String?                                      @db.VarChar(255)
+  createdBy                                admin_users?                                 @relation("strapi_transfer_token_permissions_created_by", fields: [created_by_id], references: [id], onUpdate: NoAction, map: "strapi_transfer_token_permissions_created_by_id_fk")
+  updatedBy                                admin_users?                                 @relation("strapi_transfer_token_permissions_updated_by", fields: [updated_by_id], references: [id], onUpdate: NoAction, map: "strapi_transfer_token_permissions_updated_by_id_fk")
+  strapi_transfer_token_permissions_token_lnk strapi_transfer_token_permissions_token_lnk[]
+
+  @@index([created_by_id])
+  @@index([updated_by_id])
+  @@index([document_id, locale, published_at], map: "strapi_transfer_token_permissions_documents_idx")
+}
+
+model strapi_transfer_token_permissions_token_lnk {
+  id                                Int                                @id @default(autoincrement())
+  transfer_token_permission_id      Int?
+  transfer_token_id                 Int?
+  transfer_token_permission_ord     Float?
+  strapi_transfer_token_permissions strapi_transfer_token_permissions? @relation(fields: [transfer_token_permission_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "strapi_transfer_token_permissions_token_lnk_fk")
+  strapi_transfer_tokens            strapi_transfer_tokens?            @relation(fields: [transfer_token_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "strapi_transfer_token_permissions_token_lnk_ifk")
+
+  @@unique([transfer_token_permission_id, transfer_token_id], map: "strapi_transfer_token_permissions_token_lnk_uq")
+  @@index([transfer_token_permission_ord], map: "strapi_transfer_token_permissions_token_lnk_oifk")
+}
+
+model strapi_transfer_tokens {
+  id                                          Int                                          @id @default(autoincrement())
+  document_id                                 String?                                      @db.VarChar(255)
+  name                                        String?                                      @db.VarChar(255)
+  description                                 String?                                      @db.VarChar(255)
+  access_key                                  String?                                      @db.VarChar(255)
+  last_used_at                                DateTime?                                    @db.Timestamp(6)
+  expires_at                                  DateTime?                                    @db.Timestamp(6)
+  lifespan                                    BigInt?
+  created_at                                  DateTime?                                    @db.Timestamp(6)
+  updated_at                                  DateTime?                                    @db.Timestamp(6)
+  published_at                                DateTime?                                    @db.Timestamp(6)
+  created_by_id                               Int?
+  updated_by_id                               Int?
+  locale                                      String?                                      @db.VarChar(255)
+  strapi_transfer_token_permissions_token_lnk strapi_transfer_token_permissions_token_lnk[]
+  createdBy                                   admin_users?                                 @relation("strapi_transfer_tokens_created_by", fields: [created_by_id], references: [id], onUpdate: NoAction, map: "strapi_transfer_tokens_created_by_id_fk")
+  updatedBy                                   admin_users?                                 @relation("strapi_transfer_tokens_updated_by", fields: [updated_by_id], references: [id], onUpdate: NoAction, map: "strapi_transfer_tokens_updated_by_id_fk")
+
+  @@index([created_by_id])
+  @@index([updated_by_id])
+  @@index([document_id, locale, published_at], map: "strapi_transfer_tokens_documents_idx")
+}
+
+model strapi_webhooks {
+  id      Int      @id @default(autoincrement())
+  name    String?  @db.VarChar(255)
+  url     String?
+  headers Json?
+  events  Json?
+  enabled Boolean?
+}
+
+model strapi_workflows {
+  id                                               Int                                                @id @default(autoincrement())
+  document_id                                      String?                                            @db.VarChar(255)
+  name                                             String?                                            @db.VarChar(255)
+  content_types                                    Json?
+  created_at                                       DateTime?                                          @db.Timestamp(6)
+  updated_at                                       DateTime?                                          @db.Timestamp(6)
+  published_at                                     DateTime?                                          @db.Timestamp(6)
+  created_by_id                                    Int?
+  updated_by_id                                    Int?
+  locale                                           String?                                            @db.VarChar(255)
+  createdBy                                        admin_users?                                       @relation("strapi_workflows_created_by", fields: [created_by_id], references: [id], onUpdate: NoAction, map: "strapi_workflows_created_by_id_fk")
+  updatedBy                                        admin_users?                                       @relation("strapi_workflows_updated_by", fields: [updated_by_id], references: [id], onUpdate: NoAction, map: "strapi_workflows_updated_by_id_fk")
+  strapi_workflows_stage_required_to_publish_lnk   strapi_workflows_stage_required_to_publish_lnk[]
+  strapi_workflows_stages_workflow_lnk             strapi_workflows_stages_workflow_lnk[]
+
+  @@index([created_by_id])
+  @@index([updated_by_id])
+  @@index([document_id, locale, published_at], map: "strapi_workflows_documents_idx")
+}
+
+model strapi_workflows_stage_required_to_publish_lnk {
+  id                  Int                      @id @default(autoincrement())
+  workflow_id         Int?
+  workflow_stage_id   Int?
+  strapi_workflows    strapi_workflows?        @relation(fields: [workflow_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "strapi_workflows_stage_required_to_publish_lnk_fk")
+  strapi_workflows_stages strapi_workflows_stages? @relation(fields: [workflow_stage_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "strapi_workflows_stage_required_to_publish_lnk_ifk")
+
+  @@unique([workflow_id, workflow_stage_id], map: "strapi_workflows_stage_required_to_publish_lnk_uq")
+  @@index([workflow_id])
+  @@index([workflow_stage_id])
+}
+
+model strapi_workflows_stages {
+  id                                               Int                                                @id @default(autoincrement())
+  document_id                                      String?                                            @db.VarChar(255)
+  name                                             String?                                            @db.VarChar(255)
+  color                                            String?                                            @db.VarChar(255)
+  created_at                                       DateTime?                                          @db.Timestamp(6)
+  updated_at                                       DateTime?                                          @db.Timestamp(6)
+  published_at                                     DateTime?                                          @db.Timestamp(6)
+  created_by_id                                    Int?
+  updated_by_id                                    Int?
+  locale                                           String?                                            @db.VarChar(255)
+  strapi_workflows_stage_required_to_publish_lnk   strapi_workflows_stage_required_to_publish_lnk[]
+  createdBy                                        admin_users?                                       @relation("strapi_workflows_stages_created_by", fields: [created_by_id], references: [id], onUpdate: NoAction, map: "strapi_workflows_stages_created_by_id_fk")
+  updatedBy                                        admin_users?                                       @relation("strapi_workflows_stages_updated_by", fields: [updated_by_id], references: [id], onUpdate: NoAction, map: "strapi_workflows_stages_updated_by_id_fk")
+  strapi_workflows_stages_permissions_lnk          strapi_workflows_stages_permissions_lnk[]
+  strapi_workflows_stages_workflow_lnk             strapi_workflows_stages_workflow_lnk[]
+
+  @@index([created_by_id])
+  @@index([updated_by_id])
+  @@index([document_id, locale, published_at], map: "strapi_workflows_stages_documents_idx")
+}
+
+model strapi_workflows_stages_permissions_lnk {
+  id                      Int                      @id @default(autoincrement())
+  workflow_stage_id       Int?
+  permission_id           Int?
+  permission_ord          Float?
+  strapi_workflows_stages strapi_workflows_stages? @relation(fields: [workflow_stage_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "strapi_workflows_stages_permissions_lnk_fk")
+  admin_permissions       admin_permissions?       @relation(fields: [permission_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "strapi_workflows_stages_permissions_lnk_ifk")
+
+  @@unique([workflow_stage_id, permission_id], map: "strapi_workflows_stages_permissions_lnk_uq")
+  @@index([workflow_stage_id])
+  @@index([permission_id])
+  @@index([permission_ord], map: "strapi_workflows_stages_permissions_lnk_ofk")
+}
+
+model strapi_workflows_stages_workflow_lnk {
+  id                   Int                      @id @default(autoincrement())
+  workflow_stage_id    Int?
+  workflow_id          Int?
+  workflow_stage_ord   Float?
+  strapi_workflows_stages strapi_workflows_stages? @relation(fields: [workflow_stage_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "strapi_workflows_stages_workflow_lnk_fk")
+  strapi_workflows     strapi_workflows?        @relation(fields: [workflow_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "strapi_workflows_stages_workflow_lnk_ifk")
+
+  @@unique([workflow_stage_id, workflow_id], map: "strapi_workflows_stages_workflow_lnk_uq")
+  @@index([workflow_stage_id])
+  @@index([workflow_id])
+  @@index([workflow_stage_ord], map: "strapi_workflows_stages_workflow_lnk_oifk")
+}
+
+model up_permissions {
+  id                        Int                         @id @default(autoincrement())
+  document_id               String?                     @db.VarChar(255)
+  action                    String?                     @db.VarChar(255)
+  created_at                DateTime?                   @db.Timestamp(6)
+  updated_at                DateTime?                   @db.Timestamp(6)
+  published_at              DateTime?                   @db.Timestamp(6)
+  created_by_id             Int?
+  updated_by_id             Int?
+  locale                    String?                     @db.VarChar(255)
+  createdBy                 admin_users?                @relation("up_permissions_created_by", fields: [created_by_id], references: [id], onUpdate: NoAction, map: "up_permissions_created_by_id_fk")
+  updatedBy                 admin_users?                @relation("up_permissions_updated_by", fields: [updated_by_id], references: [id], onUpdate: NoAction, map: "up_permissions_updated_by_id_fk")
+  up_permissions_role_lnk   up_permissions_role_lnk[]
+
+  @@index([created_by_id])
+  @@index([updated_by_id])
+  @@index([document_id, locale, published_at], map: "up_permissions_documents_idx")
+}
+
+model up_permissions_role_lnk {
+  id             Int             @id @default(autoincrement())
+  permission_id  Int?
+  role_id        Int?
+  permission_ord Float?
+  up_permissions up_permissions? @relation(fields: [permission_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "up_permissions_role_lnk_fk")
+  up_roles       up_roles?       @relation(fields: [role_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "up_permissions_role_lnk_ifk")
+
+  @@unique([permission_id, role_id], map: "up_permissions_role_lnk_uq")
+  @@index([permission_id])
+  @@index([role_id])
+  @@index([permission_ord], map: "up_permissions_role_lnk_oifk")
+}
+
+model up_roles {
+  id                      Int                       @id @default(autoincrement())
+  document_id             String?                   @db.VarChar(255)
+  name                    String?                   @db.VarChar(255)
+  description             String?                   @db.VarChar(255)
+  type                    String?                   @db.VarChar(255)
+  created_at              DateTime?                 @db.Timestamp(6)
+  updated_at              DateTime?                 @db.Timestamp(6)
+  published_at            DateTime?                 @db.Timestamp(6)
+  created_by_id           Int?
+  updated_by_id           Int?
+  locale                  String?                   @db.VarChar(255)
+  up_permissions_role_lnk up_permissions_role_lnk[]
+  createdBy               admin_users?              @relation("up_roles_created_by", fields: [created_by_id], references: [id], onUpdate: NoAction, map: "up_roles_created_by_id_fk")
+  updatedBy               admin_users?              @relation("up_roles_updated_by", fields: [updated_by_id], references: [id], onUpdate: NoAction, map: "up_roles_updated_by_id_fk")
+  up_users_role_lnk       up_users_role_lnk[]
+
+  @@index([created_by_id])
+  @@index([updated_by_id])
+  @@index([document_id, locale, published_at], map: "up_roles_documents_idx")
+}
+
+model up_users {
+  id                   Int                 @id @default(autoincrement())
+  document_id          String?             @db.VarChar(255)
+  username             String?             @db.VarChar(255)
+  email                String?             @db.VarChar(255)
+  provider             String?             @db.VarChar(255)
+  password             String?             @db.VarChar(255)
+  reset_password_token String?             @db.VarChar(255)
+  confirmation_token   String?             @db.VarChar(255)
+  confirmed            Boolean?
+  blocked              Boolean?
+  created_at           DateTime?           @db.Timestamp(6)
+  updated_at           DateTime?           @db.Timestamp(6)
+  published_at         DateTime?           @db.Timestamp(6)
+  created_by_id        Int?
+  updated_by_id        Int?
+  locale               String?             @db.VarChar(255)
+  createdBy            admin_users?        @relation("up_users_created_by", fields: [created_by_id], references: [id], onUpdate: NoAction, map: "up_users_created_by_id_fk")
+  updatedBy            admin_users?        @relation("up_users_updated_by", fields: [updated_by_id], references: [id], onUpdate: NoAction, map: "up_users_updated_by_id_fk")
+  up_users_role_lnk    up_users_role_lnk[]
+
+  @@index([created_by_id])
+  @@index([updated_by_id])
+  @@index([document_id, locale, published_at], map: "up_users_documents_idx")
+}
+
+model up_users_role_lnk {
+  id       Int       @id @default(autoincrement())
+  user_id  Int?
+  role_id  Int?
+  user_ord Float?
+  up_users up_users? @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "up_users_role_lnk_fk")
+  up_roles up_roles? @relation(fields: [role_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "up_users_role_lnk_ifk")
+
+  @@unique([user_id, role_id], map: "up_users_role_lnk_uq")
+  @@index([user_id])
+  @@index([role_id])
+  @@index([user_ord], map: "up_users_role_lnk_oifk")
+}
+
+model upload_folders {
+  id                                                                       Int                         @id @default(autoincrement())
+  document_id                                                              String?                     @db.VarChar(255)
+  name                                                                     String?                     @db.VarChar(255)
+  path_id                                                                  Int?                        @unique(map: "upload_folders_path_id_index")
+  path                                                                     String?                     @unique(map: "upload_folders_path_index") @db.VarChar(255)
+  created_at                                                               DateTime?                   @db.Timestamp(6)
+  updated_at                                                               DateTime?                   @db.Timestamp(6)
+  published_at                                                             DateTime?                   @db.Timestamp(6)
+  created_by_id                                                            Int?
+  updated_by_id                                                            Int?
+  locale                                                                   String?                     @db.VarChar(255)
+  files_folder_lnk                                                         files_folder_lnk[]
+  createdBy                                                                admin_users?                @relation("upload_folders_created_by", fields: [created_by_id], references: [id], onUpdate: NoAction, map: "upload_folders_created_by_id_fk")
+  updatedBy                                                                admin_users?                @relation("upload_folders_updated_by", fields: [updated_by_id], references: [id], onUpdate: NoAction, map: "upload_folders_updated_by_id_fk")
+  upload_folders_parent_lnk_upload_folders_parent_lnk_folder_idToupload_folders     upload_folders_parent_lnk[] @relation("upload_folders_parent_lnk_folder_idToupload_folders")
+  upload_folders_parent_lnk_upload_folders_parent_lnk_inv_folder_idToupload_folders upload_folders_parent_lnk[] @relation("upload_folders_parent_lnk_inv_folder_idToupload_folders")
+
+  @@index([created_by_id])
+  @@index([updated_by_id])
+  @@index([document_id, locale, published_at], map: "upload_folders_documents_idx")
+}
+
+model upload_folders_parent_lnk {
+  id                                                                     Int             @id @default(autoincrement())
+  folder_id                                                              Int?
+  inv_folder_id                                                          Int?
+  folder_ord                                                             Float?
+  upload_folders_upload_folders_parent_lnk_folder_idToupload_folders     upload_folders? @relation("upload_folders_parent_lnk_folder_idToupload_folders", fields: [folder_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "upload_folders_parent_lnk_fk")
+  upload_folders_upload_folders_parent_lnk_inv_folder_idToupload_folders upload_folders? @relation("upload_folders_parent_lnk_inv_folder_idToupload_folders", fields: [inv_folder_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "upload_folders_parent_lnk_ifk")
+
+  @@unique([folder_id, inv_folder_id], map: "upload_folders_parent_lnk_uq")
+  @@index([folder_id])
+  @@index([inv_folder_id])
+  @@index([folder_ord], map: "upload_folders_parent_lnk_oifk")
+}
+
+enum item_type {
   BUY_NOW
   REQUEST_QUOTE
 }
 
-enum QuoteStatus {
+enum quote_status {
   PENDING
   APPROVED
   REJECTED

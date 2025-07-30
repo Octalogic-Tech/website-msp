@@ -14,7 +14,6 @@ export default function AboutUsPage() {
           <p className={styles.heroSubtitle}>Building the future of construction equipment supply since 2005</p>
         </div>
       </div>
-
       <section className={styles.section}>
         <div className={styles.sectionContent}>
           <h2 className={styles.sectionTitle}>Our Story</h2>

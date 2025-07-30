@@ -44,6 +44,8 @@ const ProductCard: React.FC<ProductCardProps> = ({
   const { addItem: addToQuote, isLoading: isQuoteLoading } = useQuote();
   const { showToast } = useToast();
 
+  const STRAPI_BASE_URL = "http://localhost:1337";
+
   const handleAddToCart = async (e: React.MouseEvent) => {
     e.stopPropagation();
     try {
@@ -88,7 +90,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
 
   const handleDocumentClick = (e: React.MouseEvent, url: string) => {
     e.stopPropagation();
-    window.open(url.startsWith('http') ? url : `http://localhost:5000${url}`, '_blank');
+    window.open(url.startsWith('http') ? url : `${STRAPI_BASE_URL}${url}`, '_blank');
   };
 
   const handleClick = () => {
@@ -113,7 +115,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
       <div className="product-image">
         {product.images && product.images.length > 0 ? (
           <Image
-            src={product.images[0].startsWith('http') ? product.images[0] : `http://localhost:5000${product.images[0]}`}
+            src={product.images[0].startsWith('http') ? product.images[0] : `${STRAPI_BASE_URL}${product.images[0]}`}
             alt={product.name}
             fill
             sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"

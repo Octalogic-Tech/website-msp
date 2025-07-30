@@ -9,7 +9,8 @@ import EnhancedSearch from "../components/shop/EnhancedSearch";
 import { useCart } from "../components/shop/CartContext";
 import "./shop.css";
 
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:5000/api";
+// Strapi REST API (v4) – we’ll fetch all products once and filter client-side
+const API_BASE = "http://localhost:1337/api";
 
 type Filters = {
   category?: string;
@@ -34,6 +35,7 @@ type Product = {
   condition?: string;
   stockQty?: number;
   specs?: Record<string, string | number | string[]>;
+  documents?: { name: string; url: string }[];
 };
 
 const getUnique = (products: Product[], key: 'category' | 'brand') => {
@@ -70,6 +72,25 @@ const availabilities = [
   { value: 'out-of-stock', label: 'Out of Stock' },
 ];
 
+// Convert Strapi product shape → UI Product model
+function mapStrapiProduct(item: any): Product {
+  return {
+    id: String(item.id),
+    name: item.name,
+    slug: item.slug,
+    price: String(item.price),
+    images: item.productImage ? [item.productImage.url] : [],
+    documents: item.pdf ? [{ name: item.pdf.name, url: item.pdf.url }] : [],
+    description: item.description,
+    brand: item.brand ? { name: item.brand, slug: item.brand.toLowerCase() } : undefined,
+    condition: item.condition,
+    specs: item.specs,
+    stockQty: item.stock_status === "In Stock" ? 10 : 0,
+    // Strapi doesn’t embed category in this model; adjust if needed
+    category: item.category ? { name: item.category.name, slug: item.category.slug } : undefined,
+  };
+}
+
 export default function ShopPage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
@@ -84,52 +105,112 @@ export default function ShopPage() {
   const router = useRouter();
   const { addItem: addToCart } = useCart();
 
+  /* ------------------------------------------------------------------
+   * Fetch all products from Strapi once on mount
+   * ------------------------------------------------------------------ */
   useEffect(() => {
     const fetchProducts = async () => {
       setLoading(true);
       setError(null);
       try {
-        let minPrice = undefined;
-        let maxPrice = undefined;
-        if (filters.priceRange) {
-          switch (filters.priceRange) {
-            case 'under-25k': maxPrice = '25000'; break;
-            case '25k-50k': minPrice = '25000'; maxPrice = '50000'; break;
-            case '50k-100k': minPrice = '50000'; maxPrice = '100000'; break;
-            case '100k-250k': minPrice = '100000'; maxPrice = '250000'; break;
-            case 'over-250k': minPrice = '250000'; break;
-            default: break;
-          }
-        }
-        const params = new URLSearchParams({
-          ...filters,
-          ...(minPrice && { minPrice }),
-          ...(maxPrice && { maxPrice }),
-          sortBy,
-          page: "1",
-          limit: "24", // Show more products on the main page
+        const res = await fetch(`${API_BASE}/products?populate=*&pagination[pageSize]=200`, {
+          cache: "no-store",
         });
-        params.delete('priceRange');
-
-        const res = await fetch(`${API_BASE}/products?${params.toString()}`, { credentials: "include" });
-        const data = await res.json();
-
-        if (data.success) {
-          setProducts(data.data);
+        const json = await res.json();
+        if (json.data) {
+          const mapped = json.data.map((p: any) => mapStrapiProduct(p));
+          setProducts(mapped);
         } else {
-          setError(data.error || "Failed to fetch products.");
+          setError("Failed to fetch products.");
         }
       } catch {
         setError("Network error. Please try again later.");
       }
       setLoading(false);
     };
-    fetchProducts();
-  }, [filters, sortBy]);
 
-  const categories = getUnique(products, 'category');
-  const brands = getUnique(products, 'brand');
-  const conditions = getUniqueConditions(products);
+    fetchProducts();
+  }, []);
+
+  /* ------------------------------------------------------------------
+   * Derive filtered + sorted list whenever products / filters / sortBy change
+   * ------------------------------------------------------------------ */
+  const [displayProducts, setDisplayProducts] = useState<Product[]>([]);
+
+  useEffect(() => {
+    let list = [...products];
+    console.log('🔍 Filtering products:', { 
+      totalProducts: products.length, 
+      filters, 
+      sampleProduct: products[0] 
+    });
+
+    // Apply category / brand / condition / availability
+    if (filters.category) {
+      console.log('Filtering by category:', filters.category);
+      list = list.filter(p => p.category?.slug === filters.category);
+      console.log('After category filter:', list.length);
+    }
+    
+    if (filters.brand) {
+      console.log('Filtering by brand:', filters.brand);
+      list = list.filter(p => p.brand?.slug === filters.brand);
+      console.log('After brand filter:', list.length);
+    }
+    
+    if (filters.condition) {
+      console.log('Filtering by condition:', filters.condition);
+      list = list.filter(p => (p.condition?.toLowerCase() ?? '') === filters.condition);
+      console.log('After condition filter:', list.length);
+    }
+
+    if (filters.availability) {
+      console.log('Filtering by availability:', filters.availability);
+      switch (filters.availability) {
+        case 'in-stock':      list = list.filter(p => (p.stockQty ?? 0) > 5); break;
+        case 'low-stock':     list = list.filter(p => (p.stockQty ?? 0) > 0 && (p.stockQty ?? 0) <= 5); break;
+        case 'out-of-stock':  list = list.filter(p => (p.stockQty ?? 0) === 0); break;
+      }
+      console.log('After availability filter:', list.length);
+    }
+
+    // Price range
+    const priceNum = (priceStr: string) => parseFloat(priceStr);
+    if (filters.priceRange) {
+      console.log('Filtering by price range:', filters.priceRange);
+      list = list.filter(p => {
+        const price = priceNum(p.price);
+        console.log('Product price:', p.name, price);
+        switch (filters.priceRange) {
+          case 'under-25k':   return price < 25000;
+          case '25k-50k':     return price >= 25000 && price <= 50000;
+          case '50k-100k':    return price >= 50000 && price <= 100000;
+          case '100k-250k':   return price >= 100000 && price <= 250000;
+          case 'over-250k':   return price > 250000;
+          default:            return true;
+        }
+      });
+      console.log('After price filter:', list.length);
+    }
+
+    // Sorting
+    list.sort((a, b) => {
+      switch (sortBy) {
+        case 'price_asc':  return parseFloat(a.price) - parseFloat(b.price);
+        case 'price_desc': return parseFloat(b.price) - parseFloat(a.price);
+        case 'name':       return a.name.localeCompare(b.name);
+        case 'newest':
+        default:           return 0; // Strapi data lacks createdAt here; adjust if needed
+      }
+    });
+
+    console.log('Final filtered list:', list.length);
+    setDisplayProducts(list);
+  }, [products, filters, sortBy]);
+
+  const categories  = getUnique(products, 'category');
+  const brands      = getUnique(products, 'brand');
+  const conditions  = getUniqueConditions(products);
 
   const toggleFilters = () => {
     setIsFilterOpen(!isFilterOpen);
@@ -169,6 +250,7 @@ export default function ShopPage() {
             <button className="filters-close" onClick={toggleFilters}>×</button>
           )}
           <FilterSidebar
+            filters={filters}
             setFilters={setFilters}
             categories={categories}
             brands={brands}
@@ -180,7 +262,7 @@ export default function ShopPage() {
         <main>
           <div className="products-header">
             <div className="products-count">
-              <span>{products.length}</span> products found
+              <span>{displayProducts.length}</span> products found
             </div>
             <div className="products-controls">
               <div className="view-toggle">
@@ -218,7 +300,7 @@ export default function ShopPage() {
           {error && <div className="text-red-600">{error}</div>}
           {!loading && !error && (
             <ProductList
-              products={products}
+              products={displayProducts}
               viewMode={viewMode}
               compareList={compareList}
               onAddToCompare={addToCompare}
