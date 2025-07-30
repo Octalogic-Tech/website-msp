@@ -2,24 +2,42 @@
 
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { useCart } from '../../components/shop/CartContext';
+import { useRouter, useSearchParams } from 'next/navigation';
 import styles from './success.module.css';
 
 export default function CheckoutSuccessPage() {
   const router = useRouter();
-  const { clearCart } = useCart();
+  const searchParams = useSearchParams();
   const [orderNumber, setOrderNumber] = useState<string>('');
+  const [orderId, setOrderId] = useState<string>('');
 
-  // Generate order number on client side only
+  // Get order details from URL parameters
   useEffect(() => {
-    // Generate a random order number
-    const randomOrderNum = Math.floor(Math.random() * 10000).toString().padStart(5, '0');
-    setOrderNumber(randomOrderNum);
-    
-    // Clear cart on successful checkout
-    clearCart();
-  }, [clearCart]);
+    const orderNumFromUrl = searchParams.get('orderNumber');
+    const orderIdFromUrl = searchParams.get('orderId');
+
+    if (orderNumFromUrl) {
+      setOrderNumber(orderNumFromUrl);
+    } else {
+      // Fallback: redirect to cart if no order number
+      router.push('/cart');
+      return;
+    }
+
+    if (orderIdFromUrl) {
+      setOrderId(orderIdFromUrl);
+    }
+  }, [searchParams, router]);
+
+  if (!orderNumber) {
+    return (
+      <div className={styles.successContainer}>
+        <div className={styles.successCard}>
+          <p>Loading order details...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className={styles.successContainer}>
@@ -27,24 +45,24 @@ export default function CheckoutSuccessPage() {
         <div className={styles.checkmarkCircle}>
           <div className={styles.checkmark}></div>
         </div>
-        
+
         <h1>Order Placed Successfully!</h1>
-        
+
         <p className={styles.message}>
           Thank you for your order. We have received your purchase and will process it shortly.
           A confirmation email has been sent to your email address.
         </p>
-        
+
         <div className={styles.orderInfo}>
           <p>Your order number: <strong>#{orderNumber}</strong></p>
           <p>Estimated delivery: <strong>3-5 business days</strong></p>
         </div>
-        
+
         <div className={styles.actions}>
           <Link href="/shop" className={styles.continueShoppingBtn}>
             Continue Shopping
           </Link>
-          <button 
+          <button
             onClick={() => router.push('/account/orders')}
             className={styles.viewOrderBtn}
           >

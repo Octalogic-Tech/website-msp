@@ -62,10 +62,12 @@ model Product {
   updatedAt   DateTime  @updatedAt
   
   // Relations
-  category    Category  @relation(fields: [categoryId], references: [id], onDelete: Cascade)
-  brand       Brand     @relation(fields: [brandId], references: [id], onDelete: Cascade)
-  cartItems   CartItem[]
-  quoteItems  QuoteItem[]
+  category      Category       @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  brand         Brand          @relation(fields: [brandId], references: [id], onDelete: Cascade)
+  cartItems     CartItem[]
+  quoteItems    QuoteItem[]
+  orderItems    OrderItem[]
+  savedProducts SavedProduct[]
 
   @@map("products")
 }
@@ -99,25 +101,7 @@ model CartItem {
   @@map("cart_items")
 }
 
-model QuoteRequest {
-  id          String      @id @default(cuid())
-  email       String
-  customerName String?
-  companyName String?
-  phoneNumber String?
-  message     String?
-  status      QuoteStatus @default(PENDING)
-  totalAmount Decimal?    @db.Decimal(10, 2)
-  
-  // Timestamps
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @updatedAt
-  
-  // Relations
-  items       QuoteItem[]
 
-  @@map("quote_requests")
-}
 
 model QuoteItem {
   id            String       @id @default(cuid())
@@ -134,6 +118,139 @@ model QuoteItem {
   @@map("quote_items")
 }
 
+model User {
+  id          String    @id @default(cuid())
+  email       String    @unique
+  password    String    // Hashed password
+  firstName   String
+  lastName    String
+  company     String?
+  phone       String?
+  jobTitle    String?
+  
+  // Address information
+  address     String?
+  city        String?
+  state       String?
+  zipCode     String?
+  country     String?
+  website     String?
+  taxId       String?
+  
+  // Preferences
+  preferredContact String? @default("email") // email or phone
+  marketingEmails  Boolean @default(true)
+  orderUpdates     Boolean @default(true)
+  quoteNotifications Boolean @default(true)
+  
+  // Account status
+  isActive    Boolean   @default(true)
+  isVerified  Boolean   @default(false)
+  
+  // Timestamps
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  lastLoginAt DateTime?
+  
+  // Relations
+  orders      Order[]
+  quotes      QuoteRequest[]
+  savedProducts SavedProduct[]
+  sessions    UserSession[]
+
+  @@map("users")
+}
+
+model UserSession {
+  id        String   @id @default(cuid())
+  userId    String
+  sessionId String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  
+  // Relations
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("user_sessions")
+}
+
+model Order {
+  id          String      @id @default(cuid())
+  userId      String
+  orderNumber String      @unique
+  status      OrderStatus @default(PENDING)
+  totalAmount Decimal     @db.Decimal(10, 2)
+  
+  // Shipping information
+  shippingAddress Json?
+  trackingNumber  String?
+  
+  // Timestamps
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  shippedAt   DateTime?
+  deliveredAt DateTime?
+  
+  // Relations
+  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  items       OrderItem[]
+
+  @@map("orders")
+}
+
+model OrderItem {
+  id        String  @id @default(cuid())
+  orderId   String
+  productId String
+  quantity  Int     @default(1)
+  unitPrice Decimal @db.Decimal(10, 2)
+  
+  // Relations
+  order     Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([orderId, productId])
+  @@map("order_items")
+}
+
+model SavedProduct {
+  id        String   @id @default(cuid())
+  userId    String
+  productId String
+  createdAt DateTime @default(now())
+  
+  // Relations
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, productId])
+  @@map("saved_products")
+}
+
+// Updated QuoteRequest to link with User
+model QuoteRequest {
+  id          String      @id @default(cuid())
+  userId      String?     // Optional for guest quotes
+  email       String
+  customerName String?
+  companyName String?
+  phoneNumber String?
+  message     String?
+  status      QuoteStatus @default(PENDING)
+  totalAmount Decimal?    @db.Decimal(10, 2)
+  validUntil  DateTime?
+  
+  // Timestamps
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  
+  // Relations
+  user        User?       @relation(fields: [userId], references: [id], onDelete: SetNull)
+  items       QuoteItem[]
+
+  @@map("quote_requests")
+}
+
 // Enums
 enum ItemType {
   BUY_NOW
@@ -142,7 +259,17 @@ enum ItemType {
 
 enum QuoteStatus {
   PENDING
-  APPROVED
-  REJECTED
+  REVIEWED
+  QUOTED
+  ACCEPTED
+  DECLINED
   EXPIRED
+}
+
+enum OrderStatus {
+  PENDING
+  PROCESSING
+  SHIPPED
+  DELIVERED
+  CANCELLED
 }

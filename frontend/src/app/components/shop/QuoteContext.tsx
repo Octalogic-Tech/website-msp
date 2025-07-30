@@ -1,6 +1,7 @@
 'use client';
 
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import { useAuth } from '../../contexts/AuthContext';
 
 type QuoteItem = {
   id: string;
@@ -14,7 +15,29 @@ type QuoteItem = {
   specifications?: Record<string, string>;
 };
 
+// Backend quote structure (for submitted quotes)
+type BackendQuote = {
+  id: string;
+  status: 'PENDING' | 'REVIEWED' | 'QUOTED' | 'ACCEPTED' | 'DECLINED' | 'EXPIRED';
+  totalAmount?: number;
+  validUntil?: string;
+  message?: string;
+  createdAt: string;
+  updatedAt: string;
+  items: Array<{
+    id: string;
+    quantity: number;
+    unitPrice: number;
+    product: {
+      id: string;
+      name: string;
+      price: number;
+    };
+  }>;
+};
+
 type QuoteContextType = {
+  // Local quote items (before submission)
   items: QuoteItem[];
   addItem: (item: QuoteItem) => Promise<boolean>;
   removeItem: (itemId: string) => Promise<boolean>;
@@ -22,7 +45,14 @@ type QuoteContextType = {
   clearQuote: () => Promise<boolean>;
   itemCount: number;
   submitQuote: (customerInfo: CustomerInfo) => Promise<boolean>;
+
+  // Submitted quotes (from backend)
+  submittedQuotes: BackendQuote[];
+  refreshQuotes: () => Promise<void>;
+
+  // Loading states
   isLoading: boolean;
+  isLoadingQuotes: boolean;
   error: string | null;
 };
 
@@ -34,33 +64,127 @@ type CustomerInfo = {
   message?: string;
 };
 
-const API_BASE = "http://localhost:5000/api";
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
+
+// Helper function to get auth headers
+const getAuthHeaders = () => {
+  const token = localStorage.getItem('auth_token');
+  return {
+    'Content-Type': 'application/json',
+    ...(token && { 'Authorization': `Bearer ${token}` })
+  };
+};
 
 const QuoteContext = createContext<QuoteContextType | undefined>(undefined);
 
 export function QuoteProvider({ children }: { children: React.ReactNode }) {
+  // Local quote items (before submission)
   const [items, setItems] = useState<QuoteItem[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Load quote from localStorage on mount
+  // Submitted quotes (from backend)
+  const [submittedQuotes, setSubmittedQuotes] = useState<BackendQuote[]>([]);
+  const [isLoadingQuotes, setIsLoadingQuotes] = useState(false);
+
+  const { user, isLoading: authLoading } = useAuth();
+
+  // Clear quotes when user logs out
   useEffect(() => {
-    const savedQuote = localStorage.getItem('quote');
-    if (savedQuote) {
-      try {
-        setItems(JSON.parse(savedQuote));
-      } catch (e) {
-        console.error("Failed to parse quote from localStorage:", e);
+    if (!authLoading && !user) {
+      console.log('💼 User logged out, clearing quotes');
+      setItems([]);
+      setSubmittedQuotes([]);
+      localStorage.removeItem('quote');
+    }
+  }, [user, authLoading]);
+
+  // Load quote from localStorage on mount (only if user is authenticated)
+  useEffect(() => {
+    if (authLoading) return;
+
+    if (user) {
+      const savedQuote = localStorage.getItem('quote');
+      if (savedQuote) {
+        try {
+          setItems(JSON.parse(savedQuote));
+        } catch (e) {
+          console.error("Failed to parse quote from localStorage:", e);
+        }
       }
+    } else {
+      // If no user, ensure quotes are empty and localStorage is cleared
+      setItems([]);
+      localStorage.removeItem('quote');
+    }
+  }, [user, authLoading]);
+
+  // Save quote to localStorage whenever it changes (only if user is authenticated)
+  useEffect(() => {
+    if (user && items.length > 0) {
+      localStorage.setItem('quote', JSON.stringify(items));
+    } else if (!user) {
+      localStorage.removeItem('quote');
+    }
+  }, [items, user]);
+
+  const refreshQuotes = useCallback(async () => {
+    const token = localStorage.getItem('auth_token');
+    if (!token) {
+      // User not logged in, can't fetch quotes
+      return;
+    }
+
+    setIsLoadingQuotes(true);
+    try {
+      const response = await fetch(`${API_BASE}/quote/user/quotes`, {
+        headers: getAuthHeaders(),
+        credentials: 'include',
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        if (data.success) {
+          setSubmittedQuotes(data.data || []);
+        }
+      }
+    } catch (error) {
+      console.error('Failed to fetch submitted quotes:', error);
+    } finally {
+      setIsLoadingQuotes(false);
     }
   }, []);
 
-  // Save quote to localStorage whenever it changes
+  // Load submitted quotes when token is available
   useEffect(() => {
-    localStorage.setItem('quote', JSON.stringify(items));
-  }, [items]);
+    const token = localStorage.getItem('auth_token');
+    if (token) {
+      refreshQuotes();
+    }
+  }, []); // Only run on mount
+
+  // Also refresh quotes when auth token changes
+  useEffect(() => {
+    const handleStorageChange = () => {
+      const token = localStorage.getItem('auth_token');
+      if (token) {
+        refreshQuotes();
+      } else {
+        setSubmittedQuotes([]); // Clear quotes when user logs out
+      }
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
+  }, [refreshQuotes]);
 
   const addItem = async (newItem: QuoteItem): Promise<boolean> => {
+    // Prevent adding items if user is not authenticated
+    if (!user) {
+      setError('Please log in to add items to quote');
+      return false;
+    }
+
     setIsLoading(true);
     setError(null);
     try {
@@ -77,7 +201,7 @@ export function QuoteProvider({ children }: { children: React.ReactNode }) {
         }
         return [...currentItems, { ...newItem, quantity: newItem.quantity || 1 }];
       });
-      
+
       // Show success feedback (could be a toast notification in a real app)
       console.log('Item added to quote successfully');
       return true;
@@ -113,7 +237,7 @@ export function QuoteProvider({ children }: { children: React.ReactNode }) {
       if (quantity < 1) {
         return removeItem(itemId);
       }
-      
+
       setItems(currentItems =>
         currentItems.map(item =>
           item.id === itemId ? { ...item, quantity } : item
@@ -153,7 +277,7 @@ export function QuoteProvider({ children }: { children: React.ReactNode }) {
       setError('Cannot submit an empty quote');
       return false;
     }
-    
+
     setIsLoading(true);
     setError(null);
     try {
@@ -171,14 +295,12 @@ export function QuoteProvider({ children }: { children: React.ReactNode }) {
         })),
         notes: customerInfo.message?.trim() || '',
       };
-      
+
       console.log('Submitting quote data:', quoteData);
-      
+
       const response = await fetch(`${API_BASE}/quote`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: getAuthHeaders(),
         credentials: 'include',
         body: JSON.stringify(quoteData),
       });
@@ -194,11 +316,15 @@ export function QuoteProvider({ children }: { children: React.ReactNode }) {
         console.error('API returned success: false', data);
         throw new Error(data.error || 'Failed to submit quote');
       }
-      
+
       console.log('Quote submitted successfully:', data.message || 'Success');
-      
-      // Clear quote on successful submission
+
+      // Clear local quote items on successful submission
       await clearQuote();
+
+      // Refresh submitted quotes to show the new quote immediately
+      await refreshQuotes();
+
       return true;
     } catch (error) {
       console.error('Error submitting quote:', error);
@@ -210,6 +336,7 @@ export function QuoteProvider({ children }: { children: React.ReactNode }) {
   };
 
   const value = {
+    // Local quote items
     items,
     addItem,
     removeItem,
@@ -217,7 +344,14 @@ export function QuoteProvider({ children }: { children: React.ReactNode }) {
     clearQuote,
     itemCount,
     submitQuote,
+
+    // Submitted quotes
+    submittedQuotes,
+    refreshQuotes,
+
+    // Loading states
     isLoading,
+    isLoadingQuotes,
     error,
   };
 

@@ -700,10 +700,254 @@ async function main() {
   }
 
   console.log('✅ Products created');
+
+  // Create test users
+  const testUsers = [
+    {
+      email: 'demo@constructpro.com',
+      password: '$2b$12$CPOqhv7KOH/tjM9sDfs.P.uLHSI5./NUJylmtEUgESEQJH4yYi1D2', // demo123
+      firstName: 'Demo',
+      lastName: 'User',
+      company: 'ConstructPro Demo',
+      phone: '+1 (555) 123-4567',
+      jobTitle: 'Procurement Manager',
+      address: '123 Construction Ave',
+      city: 'Builder City',
+      state: 'CA',
+      zipCode: '90210',
+      country: 'United States',
+      website: 'www.constructpro.com',
+      taxId: 'TAX123456789',
+      preferredContact: 'email',
+      marketingEmails: true,
+      orderUpdates: true,
+      quoteNotifications: true,
+      isActive: true,
+      isVerified: true,
+    },
+    {
+      email: 'john.smith@industrial.com',
+      password: '$2b$12$CPOqhv7KOH/tjM9sDfs.P.uLHSI5./NUJylmtEUgESEQJH4yYi1D2', // demo123
+      firstName: 'John',
+      lastName: 'Smith',
+      company: 'Industrial Solutions Inc.',
+      phone: '+1 (555) 987-6543',
+      jobTitle: 'Equipment Manager',
+      address: '456 Industrial Blvd',
+      city: 'Manufacturing City',
+      state: 'TX',
+      zipCode: '75201',
+      country: 'United States',
+      website: 'www.industrialsolutions.com',
+      taxId: 'TAX987654321',
+      preferredContact: 'phone',
+      marketingEmails: false,
+      orderUpdates: true,
+      quoteNotifications: true,
+      isActive: true,
+      isVerified: true,
+    }
+  ];
+
+  const createdUsers = [];
+  for (const userData of testUsers) {
+    const user = await prisma.user.upsert({
+      where: { email: userData.email },
+      update: {},
+      create: userData,
+    });
+    createdUsers.push(user);
+  }
+
+  console.log('✅ Test users created');
+
+  // Get some products for creating orders and quotes
+  const allProducts = await prisma.product.findMany({
+    take: 15,
+    include: { category: true, brand: true }
+  });
+
+  if (allProducts.length < 15) {
+    console.log('⚠️ Not enough products found, skipping test data creation');
+    return;
+  }
+
+  // Create test orders for the first user
+  const testOrders = [
+    {
+      userId: createdUsers[0].id,
+      orderNumber: 'MSP-2024-001',
+      status: 'DELIVERED' as const,
+      totalAmount: 285000,
+      trackingNumber: 'TRK123456789',
+      shippedAt: new Date('2024-01-10'),
+      deliveredAt: new Date('2024-01-15'),
+      items: [
+        {
+          productId: allProducts[0].id,
+          quantity: 1,
+          unitPrice: 285000,
+        }
+      ]
+    },
+    {
+      userId: createdUsers[0].id,
+      orderNumber: 'MSP-2024-002',
+      status: 'SHIPPED' as const,
+      totalAmount: 320000,
+      trackingNumber: 'TRK987654321',
+      shippedAt: new Date('2024-01-20'),
+      items: [
+        {
+          productId: allProducts[3].id,
+          quantity: 1,
+          unitPrice: 320000,
+        }
+      ]
+    },
+    {
+      userId: createdUsers[0].id,
+      orderNumber: 'MSP-2024-003',
+      status: 'PROCESSING' as const,
+      totalAmount: 8785,
+      items: [
+        {
+          productId: allProducts[13].id,
+          quantity: 1,
+          unitPrice: 8500,
+        },
+        {
+          productId: allProducts[14].id,
+          quantity: 1,
+          unitPrice: 285,
+        }
+      ]
+    }
+  ];
+
+  for (const orderData of testOrders) {
+    const { items, ...orderInfo } = orderData;
+    await prisma.order.upsert({
+      where: { orderNumber: orderData.orderNumber },
+      update: {},
+      create: {
+        ...orderInfo,
+        items: {
+          create: items
+        }
+      }
+    });
+  }
+
+  console.log('✅ Test orders created');
+
+  // Create test quote requests
+  const testQuotes = [
+    {
+      userId: createdUsers[0].id,
+      email: createdUsers[0].email,
+      customerName: `${createdUsers[0].firstName} ${createdUsers[0].lastName}`,
+      companyName: createdUsers[0].company,
+      phoneNumber: createdUsers[0].phone,
+      message: 'Need pricing for bulk purchase of excavators',
+      status: 'QUOTED' as const,
+      totalAmount: 570000,
+      validUntil: new Date('2024-03-01'),
+      items: [
+        {
+          productId: allProducts[0].id,
+          quantity: 2,
+          unitPrice: 285000,
+        }
+      ]
+    },
+    {
+      userId: createdUsers[0].id,
+      email: createdUsers[0].email,
+      customerName: `${createdUsers[0].firstName} ${createdUsers[0].lastName}`,
+      companyName: createdUsers[0].company,
+      phoneNumber: createdUsers[0].phone,
+      message: 'Interested in loader for construction project',
+      status: 'PENDING' as const,
+      items: [
+        {
+          productId: allProducts[3].id,
+          quantity: 1,
+          unitPrice: 320000,
+        }
+      ]
+    },
+    {
+      userId: createdUsers[0].id,
+      email: createdUsers[0].email,
+      customerName: `${createdUsers[0].firstName} ${createdUsers[0].lastName}`,
+      companyName: createdUsers[0].company,
+      phoneNumber: createdUsers[0].phone,
+      message: 'Need spare parts for maintenance',
+      status: 'ACCEPTED' as const,
+      totalAmount: 8785,
+      validUntil: new Date('2024-02-15'),
+      items: [
+        {
+          productId: allProducts[13].id,
+          quantity: 1,
+          unitPrice: 8500,
+        },
+        {
+          productId: allProducts[14].id,
+          quantity: 1,
+          unitPrice: 285,
+        }
+      ]
+    }
+  ];
+
+  for (const quoteData of testQuotes) {
+    const { items, ...quoteInfo } = quoteData;
+    await prisma.quoteRequest.create({
+      data: {
+        ...quoteInfo,
+        items: {
+          create: items
+        }
+      }
+    });
+  }
+
+  console.log('✅ Test quotes created');
+
+  // Create saved products for the first user
+  const savedProductsData = [
+    { userId: createdUsers[0].id, productId: allProducts[1].id },
+    { userId: createdUsers[0].id, productId: allProducts[2].id },
+    { userId: createdUsers[0].id, productId: allProducts[4].id },
+    { userId: createdUsers[0].id, productId: allProducts[5].id },
+    { userId: createdUsers[0].id, productId: allProducts[6].id },
+  ];
+
+  for (const savedData of savedProductsData) {
+    await prisma.savedProduct.upsert({
+      where: {
+        userId_productId: {
+          userId: savedData.userId,
+          productId: savedData.productId
+        }
+      },
+      update: {},
+      create: savedData
+    });
+  }
+
+  console.log('✅ Saved products created');
+
   console.log(`📊 Database seeded with:`);
   console.log(`   - ${categories.length} categories`);
   console.log(`   - ${brands.length} brands`);
   console.log(`   - ${products.length} products`);
+  console.log(`   - ${createdUsers.length} test users`);
+  console.log(`   - ${testOrders.length} test orders`);
+  console.log(`   - ${testQuotes.length} test quotes`);
+  console.log(`   - ${savedProductsData.length} saved products`);
 }
 
 main()

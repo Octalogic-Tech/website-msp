@@ -1,7 +1,7 @@
 'use client';
 
-import ShopCategoryPage from '../../components/shop/ShopCategoryPage';
+import ShopCategoryPageEnhanced from '../../components/shop/ShopCategoryPageEnhanced';
 
 export default function SparePartsPage() {
-  return <ShopCategoryPage categorySlug="spare-parts" categoryTitle="Spare Parts" />;
+  return <ShopCategoryPageEnhanced categorySlug="spare-parts" categoryTitle="Spare Parts" />;
 }

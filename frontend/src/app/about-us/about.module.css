@@ -246,26 +246,445 @@
   transform: translateX(5px);
 }
 
+/* Content wrapper for pages */
+.content {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem;
+}
+
+.intro {
+  font-size: 1.125rem;
+  line-height: 1.8;
+  color: #6b7280;
+  text-align: center;
+  margin-bottom: 3rem;
+  max-width: 800px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Testimonials Styles */
+.testimonialsGrid {
+  display: grid;
+  grid-template-columns: repeat(1, 1fr);
+  gap: 2rem;
+  margin-bottom: 4rem;
+}
+
+@media (min-width: 768px) {
+  .testimonialsGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.testimonialCard {
+  background-color: white;
+  border-radius: 12px;
+  padding: 2rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+  border: 1px solid #e5e7eb;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.testimonialCard:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+}
+
+.testimonialHeader {
+  display: flex;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.testimonialImage {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-right: 1rem;
+  border: 3px solid #f9a825;
+}
+
+.testimonialInfo h3 {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #212121;
+  margin-bottom: 0.25rem;
+}
+
+.company {
+  font-weight: 600;
+  color: #f9a825;
+  font-size: 0.95rem;
+  margin-bottom: 0.25rem;
+}
+
+.role {
+  color: #6b7280;
+  font-size: 0.875rem;
+}
+
+.rating {
+  margin-bottom: 1rem;
+}
+
+.starFilled {
+  color: #fbbf24;
+  font-size: 1.25rem;
+}
+
+.starEmpty {
+  color: #d1d5db;
+  font-size: 1.25rem;
+}
+
+.testimonialContent {
+  font-style: italic;
+  color: #4b5563;
+  line-height: 1.6;
+  margin: 0;
+  font-size: 1rem;
+}
+
+.statsSection {
+  background-color: #f9f9f9;
+  padding: 3rem 2rem;
+  border-radius: 12px;
+  text-align: center;
+}
+
+.statsSection h2 {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 2rem;
+  font-weight: 600;
+  color: #212121;
+  margin-bottom: 2rem;
+}
+
+.statsGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 2rem;
+}
+
+@media (min-width: 768px) {
+  .statsGrid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+.statItem h3 {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #f9a825;
+  margin-bottom: 0.5rem;
+}
+
+.statItem p {
+  color: #6b7280;
+  font-weight: 500;
+  font-size: 1rem;
+}
+
+/* Partners Styles */
+.partnersGrid {
+  display: grid;
+  grid-template-columns: repeat(1, 1fr);
+  gap: 2rem;
+  margin-bottom: 4rem;
+}
+
+@media (min-width: 768px) {
+  .partnersGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .partnersGrid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.partnerCard {
+  background-color: white;
+  border-radius: 12px;
+  padding: 2rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+  border: 1px solid #e5e7eb;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.partnerCard:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+}
+
+.partnerLogo {
+  height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1.5rem;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  padding: 1rem;
+}
+
+.partnerLogo img {
+  max-height: 60px;
+  max-width: 100%;
+  object-fit: contain;
+}
+
+.partnerInfo {
+  flex: 1;
+}
+
+.partnerInfo h3 {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #212121;
+  margin-bottom: 0.5rem;
+}
+
+.category {
+  display: inline-block;
+  background-color: #f9a825;
+  color: white;
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  margin-bottom: 1rem;
+}
+
+.description {
+  color: #6b7280;
+  line-height: 1.6;
+  margin-bottom: 1rem;
+  font-size: 0.95rem;
+}
+
+.partnership {
+  color: #059669;
+  font-size: 0.875rem;
+  margin-bottom: 1rem;
+}
+
+.partnerLink {
+  color: #f9a825;
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 0.95rem;
+  transition: color 0.2s ease;
+}
+
+.partnerLink:hover {
+  color: #f57c00;
+}
+
+.partnershipBenefits {
+  background-color: #f9f9f9;
+  padding: 3rem 2rem;
+  border-radius: 12px;
+}
+
+.partnershipBenefits h2 {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 2rem;
+  font-weight: 600;
+  color: #212121;
+  margin-bottom: 2rem;
+  text-align: center;
+}
+
+.benefitsGrid {
+  display: grid;
+  grid-template-columns: repeat(1, 1fr);
+  gap: 2rem;
+}
+
+@media (min-width: 768px) {
+  .benefitsGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.benefitItem {
+  text-align: center;
+}
+
+.benefitItem h3 {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #212121;
+  margin-bottom: 0.75rem;
+}
+
+.benefitItem p {
+  color: #6b7280;
+  line-height: 1.6;
+  font-size: 0.95rem;
+}
+
+/* Certifications Styles */
+.certificationsGrid {
+  display: grid;
+  grid-template-columns: repeat(1, 1fr);
+  gap: 2rem;
+  margin-bottom: 4rem;
+}
+
+@media (min-width: 768px) {
+  .certificationsGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .certificationsGrid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.certificationCard {
+  background-color: white;
+  border-radius: 12px;
+  padding: 2rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+  border: 1px solid #e5e7eb;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  text-align: center;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.certificationCard:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+}
+
+.certLogo {
+  height: 100px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1.5rem;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  padding: 1rem;
+}
+
+.certLogo img {
+  max-height: 80px;
+  max-width: 100%;
+  object-fit: contain;
+}
+
+.certificationCard h3 {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #212121;
+  margin-bottom: 1rem;
+}
+
+.certificationCard p {
+  color: #6b7280;
+  line-height: 1.6;
+  margin-bottom: 1.5rem;
+  font-size: 0.95rem;
+  flex: 1;
+}
+
+.validity {
+  background-color: #ecfdf5;
+  color: #065f46;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  border: 1px solid #a7f3d0;
+}
+
+.certificationBenefits {
+  background-color: #f9f9f9;
+  padding: 3rem 2rem;
+  border-radius: 12px;
+}
+
+.certificationBenefits h2 {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 2rem;
+  font-weight: 600;
+  color: #212121;
+  margin-bottom: 2rem;
+  text-align: center;
+}
+
+.certificationBenefits ul {
+  list-style: none;
+  padding: 0;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.certificationBenefits li {
+  padding: 0.75rem 0;
+  color: #4b5563;
+  font-size: 1.125rem;
+  line-height: 1.6;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.certificationBenefits li:last-child {
+  border-bottom: none;
+}
+
 /* Responsive Adjustments */
 @media (max-width: 768px) {
   .heroTitle {
     font-size: 2.5rem;
   }
-  
+
   .heroSubtitle {
     font-size: 1.125rem;
   }
-  
+
   .section {
     padding: 3rem 1.5rem;
   }
-  
+
   .sectionTitle {
     font-size: 2rem;
   }
-  
+
   .paragraph {
     font-size: 1rem;
+  }
+
+  .content {
+    padding: 1.5rem 1rem;
+  }
+
+  .statsGrid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
+  }
+
+  .statItem h3 {
+    font-size: 2rem;
   }
 }
 
@@ -273,20 +692,191 @@
   .heroTitle {
     font-size: 2rem;
   }
-  
+
   .heroSubtitle {
     font-size: 1rem;
   }
-  
+
   .section {
     padding: 2rem 1rem;
   }
-  
+
   .sectionTitle {
     font-size: 1.75rem;
   }
-  
+
   .valueCard {
     padding: 1.5rem;
+  }
+
+  .content {
+    padding: 1rem;
+  }
+
+  .testimonialCard,
+  .partnerCard,
+  .certificationCard {
+    padding: 1.5rem;
+  }
+
+  .statsGrid {
+    grid-template-columns: repeat(1, 1fr);
+  }
+}
+
+/* Add
+itional Professional Styling */
+.content h1 {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 3rem;
+  font-weight: 700;
+  color: #212121;
+  text-align: center;
+  margin-bottom: 1rem;
+  background: linear-gradient(135deg, #f9a825, #f57c00);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Enhanced hover effects */
+.testimonialCard:hover,
+.partnerCard:hover,
+.certificationCard:hover {
+  border-color: #f9a825;
+}
+
+/* Professional spacing */
+.content>*+* {
+  margin-top: 2rem;
+}
+
+/* Enhanced button styling */
+.chatButton,
+.contactButton {
+  position: relative;
+  overflow: hidden;
+}
+
+.chatButton::before,
+.contactButton::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.5s;
+}
+
+.chatButton:hover::before,
+.contactButton:hover::before {
+  left: 100%;
+}
+
+/* Professional shadows */
+.testimonialCard,
+.partnerCard,
+.certificationCard,
+.supportCard,
+.policyCard,
+.warrantyCard {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  border: 1px solid rgba(249, 168, 37, 0.1);
+}
+
+.testimonialCard:hover,
+.partnerCard:hover,
+.certificationCard:hover,
+.supportCard:hover,
+.policyCard:hover,
+.warrantyCard:hover {
+  box-shadow: 0 8px 25px rgba(249, 168, 37, 0.15);
+  border-color: rgba(249, 168, 37, 0.3);
+}
+
+/* Loading states */
+.submitButton:disabled {
+  position: relative;
+  color: transparent;
+}
+
+.submitButton:disabled::after {
+  content: '';
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  top: 50%;
+  left: 50%;
+  margin-left: -10px;
+  margin-top: -10px;
+  border: 2px solid #ffffff;
+  border-radius: 50%;
+  border-top-color: transparent;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Enhanced form styling */
+.formGroup input:focus,
+.formGroup select:focus,
+.formGroup textarea:focus {
+  border-color: #f9a825;
+  box-shadow: 0 0 0 3px rgba(249, 168, 37, 0.1);
+  transform: translateY(-1px);
+}
+
+/* Professional typography */
+.content p,
+.content li {
+  font-size: 1rem;
+  line-height: 1.7;
+  color: #4b5563;
+}
+
+.content h2,
+.content h3 {
+  font-family: 'Montserrat', sans-serif;
+  color: #212121;
+  font-weight: 600;
+}
+
+/* Enhanced mobile responsiveness */
+@media (max-width: 640px) {
+  .content h1 {
+    font-size: 2.25rem;
+    line-height: 1.2;
+  }
+
+  .intro {
+    font-size: 1rem;
+    margin-bottom: 2rem;
+  }
+
+  .testimonialsGrid,
+  .partnersGrid,
+  .certificationsGrid {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+
+  .statsGrid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+  }
+
+  .statItem h3 {
+    font-size: 1.75rem;
+  }
+
+  .benefitsGrid {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
   }
 }

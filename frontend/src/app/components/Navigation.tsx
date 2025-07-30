@@ -3,17 +3,21 @@
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useState, useCallback } from 'react'
-import { FaSearch, FaShoppingCart, FaQuoteLeft, FaPhone, FaBars, FaTimes } from 'react-icons/fa'
+import { FaSearch, FaShoppingCart, FaQuoteLeft, FaPhone, FaBars, FaTimes, FaUser, FaSignInAlt, FaHeart } from 'react-icons/fa'
+import { useAuth } from '../contexts/AuthContext'
 import { useCart } from './shop/CartContext'
 import { useQuote } from './shop/QuoteContext'
+import { useSavedProducts } from '../contexts/SavedProductsContext'
 import styles from './Navigation.module.css'
 
 export default function Navigation() {
   const router = useRouter()
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
+  const { user, logout } = useAuth()
   const { itemCount: cartItemCount } = useCart()
   const { itemCount: quoteItemCount } = useQuote()
+  const { savedProducts } = useSavedProducts()
 
   const handleSearch = useCallback((e: React.FormEvent) => {
     e.preventDefault()
@@ -76,6 +80,20 @@ export default function Navigation() {
 
         {/* Desktop Action Buttons */}
         <div className={styles.actionButtons}>
+          {user ? (
+            <div className={styles.userMenu}>
+              <Link href="/account" className={styles.actionButton} aria-label="My Account">
+                <FaUser aria-hidden="true" />
+                <span className={styles.accountText}>Account</span>
+              </Link>
+            </div>
+          ) : (
+            <Link href="/auth" className={styles.actionButton} aria-label="Login or Register">
+              <FaSignInAlt aria-hidden="true" />
+              <span className={styles.accountText}>Login</span>
+            </Link>
+          )}
+
           <Link href="/cart" className={styles.actionButton} aria-label={`Shopping cart with ${cartItemCount} items`}>
             <FaShoppingCart aria-hidden="true" />
             {cartItemCount > 0 && (
@@ -85,11 +103,20 @@ export default function Navigation() {
             )}
           </Link>
 
-          <Link href="/quote" className={styles.actionButton} aria-label={`Quote requests with ${quoteItemCount} items`}>
+          <Link href="/quote-cart" className={styles.actionButton} aria-label={`Quote requests with ${quoteItemCount} items`}>
             <FaQuoteLeft aria-hidden="true" />
             {quoteItemCount > 0 && (
               <span className={styles.badge} aria-label={`${quoteItemCount} items in quote`}>
                 {quoteItemCount}
+              </span>
+            )}
+          </Link>
+
+          <Link href="/account/saved" className={styles.actionButton} aria-label={`Saved products with ${savedProducts.length} items`}>
+            <FaHeart aria-hidden="true" />
+            {savedProducts.length > 0 && (
+              <span className={styles.badge} aria-label={`${savedProducts.length} saved products`}>
+                {savedProducts.length}
               </span>
             )}
           </Link>
@@ -149,10 +176,20 @@ export default function Navigation() {
               <Link href="/parts-finder" className={styles.mobileNavLink} onClick={closeMenu}>Parts Finder</Link>
               <Link href="/about-us" className={styles.mobileNavLink} onClick={closeMenu}>About</Link>
               <Link href="/contact-us" className={styles.mobileNavLink} onClick={closeMenu}>Contact</Link>
+              {user && (
+                <Link href="/account" className={styles.mobileNavLink} onClick={closeMenu}>My Account</Link>
+              )}
             </div>
 
             {/* Mobile Action Buttons */}
             <div className={styles.mobileActions}>
+              {!user && (
+                <Link href="/auth" className={styles.mobileActionButton} onClick={closeMenu}>
+                  <FaSignInAlt aria-hidden="true" />
+                  <span>Login</span>
+                </Link>
+              )}
+
               <Link href="/cart" className={styles.mobileActionButton} onClick={closeMenu}>
                 <FaShoppingCart aria-hidden="true" />
                 <span>Cart</span>
@@ -161,11 +198,19 @@ export default function Navigation() {
                 )}
               </Link>
 
-              <Link href="/quote" className={styles.mobileActionButton} onClick={closeMenu}>
+              <Link href="/quote-cart" className={styles.mobileActionButton} onClick={closeMenu}>
                 <FaQuoteLeft aria-hidden="true" />
                 <span>Quote</span>
                 {quoteItemCount > 0 && (
                   <span className={styles.mobileBadge}>{quoteItemCount}</span>
+                )}
+              </Link>
+
+              <Link href="/account/saved" className={styles.mobileActionButton} onClick={closeMenu}>
+                <FaHeart aria-hidden="true" />
+                <span>Saved</span>
+                {savedProducts.length > 0 && (
+                  <span className={styles.mobileBadge}>{savedProducts.length}</span>
                 )}
               </Link>
 

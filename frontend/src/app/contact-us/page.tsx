@@ -34,7 +34,7 @@ export default function ContactUsPage() {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
-    
+
     // Clear error when field is edited
     if (errors[name as keyof FormData]) {
       setErrors(prev => ({ ...prev, [name]: undefined }));
@@ -43,48 +43,48 @@ export default function ContactUsPage() {
 
   const validateForm = (): boolean => {
     const newErrors: FormErrors = {};
-    
+
     if (!formData.name.trim()) {
       newErrors.name = 'Name is required';
     }
-    
+
     if (!formData.email.trim()) {
       newErrors.email = 'Email is required';
     } else if (!/^\S+@\S+\.\S+$/.test(formData.email)) {
       newErrors.email = 'Please enter a valid email address';
     }
-    
+
     if (!formData.phone.trim()) {
       newErrors.phone = 'Phone number is required';
     }
-    
+
     if (!formData.subject.trim()) {
       newErrors.subject = 'Subject is required';
     }
-    
+
     if (!formData.message.trim()) {
       newErrors.message = 'Message is required';
     }
-    
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!validateForm()) return;
-    
+
     setIsSubmitting(true);
     setSubmitStatus(null);
-    
+
     try {
       // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 1500));
-      
+
       // In a real app, you would send the form data to your backend here
       console.log('Form submitted:', formData);
-      
+
       setSubmitStatus('success');
       setFormData({
         name: '',
@@ -172,7 +172,7 @@ export default function ContactUsPage() {
           <div className={styles.formContainer}>
             <h2>Send Us a Message</h2>
             <p>Fill out the form below and we'll get back to you as soon as possible.</p>
-            
+
             {submitStatus === 'success' && (
               <div className={styles.successMessage}>
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -182,7 +182,7 @@ export default function ContactUsPage() {
                 <p>Your message has been sent successfully! We'll be in touch soon.</p>
               </div>
             )}
-            
+
             {submitStatus === 'error' && (
               <div className={styles.errorMessage}>
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -193,7 +193,7 @@ export default function ContactUsPage() {
                 <p>There was an error sending your message. Please try again or contact us directly.</p>
               </div>
             )}
-            
+
             <form onSubmit={handleSubmit} className={submitStatus === 'success' ? styles.formHidden : ''}>
               <div className={styles.formRow}>
                 <div className={styles.formGroup}>
@@ -208,7 +208,7 @@ export default function ContactUsPage() {
                   />
                   {errors.name && <span className={styles.errorText}>{errors.name}</span>}
                 </div>
-                
+
                 <div className={styles.formGroup}>
                   <label htmlFor="email">Email Address *</label>
                   <input
@@ -222,7 +222,7 @@ export default function ContactUsPage() {
                   {errors.email && <span className={styles.errorText}>{errors.email}</span>}
                 </div>
               </div>
-              
+
               <div className={styles.formRow}>
                 <div className={styles.formGroup}>
                   <label htmlFor="phone">Phone Number *</label>
@@ -236,7 +236,7 @@ export default function ContactUsPage() {
                   />
                   {errors.phone && <span className={styles.errorText}>{errors.phone}</span>}
                 </div>
-                
+
                 <div className={styles.formGroup}>
                   <label htmlFor="company">Company Name</label>
                   <input
@@ -248,7 +248,7 @@ export default function ContactUsPage() {
                   />
                 </div>
               </div>
-              
+
               <div className={styles.formGroup}>
                 <label htmlFor="subject">Subject *</label>
                 <select
@@ -267,7 +267,7 @@ export default function ContactUsPage() {
                 </select>
                 {errors.subject && <span className={styles.errorText}>{errors.subject}</span>}
               </div>
-              
+
               <div className={styles.formGroup}>
                 <label htmlFor="message">Message *</label>
                 <textarea
@@ -280,7 +280,7 @@ export default function ContactUsPage() {
                 ></textarea>
                 {errors.message && <span className={styles.errorText}>{errors.message}</span>}
               </div>
-              
+
               <div className={styles.formActions}>
                 <button
                   type="submit"
@@ -309,7 +309,7 @@ export default function ContactUsPage() {
       <section className={styles.linkSection}>
         <h2>Additional Resources</h2>
         <div className={styles.linkGrid}>
-          <Link href="/technical-support" className={styles.linkCard}>
+          <Link href="/contact-us/technical-support" className={styles.linkCard}>
             <h3>Technical Support</h3>
             <p>Get help with technical issues and equipment troubleshooting</p>
             <span className={styles.linkArrow}>→</span>
@@ -319,7 +319,7 @@ export default function ContactUsPage() {
             <p>Find answers to commonly asked questions</p>
             <span className={styles.linkArrow}>→</span>
           </Link>
-          <Link href="/returns-warranty" className={styles.linkCard}>
+          <Link href="/contact-us/returns-warranty" className={styles.linkCard}>
             <h3>Returns & Warranty</h3>
             <p>Information about our return policy and warranty coverage</p>
             <span className={styles.linkArrow}>→</span>

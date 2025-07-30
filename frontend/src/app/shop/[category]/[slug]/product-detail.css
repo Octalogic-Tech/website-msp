@@ -545,6 +545,55 @@
     gap: 2rem;
 }
 
+/* Save to Wishlist Section */
+.save-to-wishlist-section {
+    background-color: var(--white);
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow);
+    padding: 1.5rem;
+    border: 1px solid #e5e7eb;
+}
+
+.save-button-container {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.save-button-detail {
+    flex-shrink: 0;
+}
+
+.save-button-text {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.save-text-primary {
+    font-weight: 600;
+    color: var(--dark-gray);
+    font-size: 1rem;
+}
+
+.save-text-secondary {
+    font-size: 0.875rem;
+    color: #6b7280;
+    line-height: 1.4;
+}
+
+@media (max-width: 768px) {
+    .save-button-container {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.75rem;
+    }
+
+    .save-button-text {
+        text-align: left;
+    }
+}
+
 /* Section Cards */
 .section-card {
     background-color: var(--white);

@@ -24,7 +24,7 @@ type Product = {
   stockQty?: number;
 };
 
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:5000/api";
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
 
 export default function PartsFinderPage() {
   const [makes, setMakes] = useState<string[]>([]);

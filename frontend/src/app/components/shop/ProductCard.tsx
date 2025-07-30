@@ -3,6 +3,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import Button from '../ui/Button';
 import Badge from '../ui/Badge';
+import SaveButton from './SaveButton';
 
 interface ProductCardProps {
   product: {
@@ -105,6 +106,14 @@ const ProductCard: React.FC<ProductCardProps> = ({
             Low Stock: {stockQty} left
           </Badge>
         )}
+
+        <div className="save-button-overlay-left">
+          <SaveButton
+            productId={id}
+            size="sm"
+            className="save-button--overlay"
+          />
+        </div>
       </div>
 
       <div className="product-info">

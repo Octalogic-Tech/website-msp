@@ -112,7 +112,8 @@
   color: #212121;
 }
 
-.infoCard p, .infoCard address {
+.infoCard p,
+.infoCard address {
   color: #4b5563;
   font-size: 0.95rem;
   line-height: 1.6;
@@ -152,7 +153,7 @@
   color: #212121;
 }
 
-.formContainer > p {
+.formContainer>p {
   color: #6b7280;
   margin-bottom: 2rem;
 }
@@ -406,31 +407,395 @@
   transform: translateX(5px);
 }
 
+/* Content wrapper for pages */
+.content {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem;
+}
+
+.intro {
+  font-size: 1.125rem;
+  line-height: 1.8;
+  color: #6b7280;
+  text-align: center;
+  margin-bottom: 3rem;
+  max-width: 800px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Tab Navigation */
+.tabNavigation {
+  display: flex;
+  border-bottom: 2px solid #e5e7eb;
+  margin-bottom: 2rem;
+  gap: 0;
+}
+
+.tabButton {
+  flex: 1;
+  padding: 1rem 2rem;
+  border: none;
+  background-color: transparent;
+  color: #6b7280;
+  font-weight: 500;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border-bottom: 3px solid transparent;
+}
+
+.tabButton:hover {
+  color: #f9a825;
+  background-color: #fef3c7;
+}
+
+.tabButton.active {
+  color: #f9a825;
+  border-bottom-color: #f9a825;
+  background-color: #fef3c7;
+}
+
+.tabContent {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Support Options */
+.supportOptions {
+  display: grid;
+  grid-template-columns: repeat(1, 1fr);
+  gap: 2rem;
+  margin-bottom: 3rem;
+}
+
+@media (min-width: 768px) {
+  .supportOptions {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.supportCard {
+  background-color: white;
+  border-radius: 12px;
+  padding: 2rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+  border: 1px solid #e5e7eb;
+  text-align: center;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.supportCard:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+}
+
+.supportCard h3 {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #212121;
+  margin-bottom: 1rem;
+}
+
+.supportCard p {
+  color: #6b7280;
+  line-height: 1.6;
+  margin-bottom: 1.5rem;
+  font-size: 0.95rem;
+}
+
+.supportCard strong {
+  color: #f9a825;
+  font-weight: 600;
+}
+
+.chatButton {
+  background-color: #f9a825;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 0.75rem 1.5rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.chatButton:hover {
+  background-color: #f57c00;
+  transform: translateY(-2px);
+}
+
+/* Forms */
+.supportForm,
+.returnForm,
+.warrantyForm {
+  background-color: white;
+  border-radius: 12px;
+  padding: 2rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+  border: 1px solid #e5e7eb;
+  margin-bottom: 2rem;
+}
+
+.supportForm h2,
+.returnForm h3,
+.warrantyForm h3 {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #212121;
+  margin-bottom: 1.5rem;
+}
+
+/* Policy Sections */
+.policySection {
+  margin-bottom: 3rem;
+}
+
+.policySection h2 {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 2rem;
+  font-weight: 600;
+  color: #212121;
+  margin-bottom: 2rem;
+  text-align: center;
+}
+
+.policyGrid {
+  display: grid;
+  grid-template-columns: repeat(1, 1fr);
+  gap: 2rem;
+}
+
+@media (min-width: 768px) {
+  .policyGrid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.policyCard {
+  background-color: white;
+  border-radius: 12px;
+  padding: 2rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+  border: 1px solid #e5e7eb;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.policyCard:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+}
+
+.policyCard h3 {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #212121;
+  margin-bottom: 1rem;
+}
+
+.policyCard ul {
+  list-style: none;
+  padding: 0;
+}
+
+.policyCard li {
+  padding: 0.5rem 0;
+  color: #6b7280;
+  font-size: 0.95rem;
+  line-height: 1.6;
+  border-bottom: 1px solid #f3f4f6;
+  position: relative;
+  padding-left: 1.5rem;
+}
+
+.policyCard li:before {
+  content: "•";
+  color: #f9a825;
+  font-weight: bold;
+  position: absolute;
+  left: 0;
+}
+
+.policyCard li:last-child {
+  border-bottom: none;
+}
+
+/* Warranty Info */
+.warrantyInfo {
+  margin-bottom: 3rem;
+}
+
+.warrantyInfo h2 {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 2rem;
+  font-weight: 600;
+  color: #212121;
+  margin-bottom: 2rem;
+  text-align: center;
+}
+
+.warrantyGrid {
+  display: grid;
+  grid-template-columns: repeat(1, 1fr);
+  gap: 2rem;
+}
+
+@media (min-width: 768px) {
+  .warrantyGrid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.warrantyCard {
+  background-color: white;
+  border-radius: 12px;
+  padding: 2rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+  border: 1px solid #e5e7eb;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.warrantyCard:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+}
+
+.warrantyCard h3 {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #212121;
+  margin-bottom: 1rem;
+}
+
+.warrantyCard ul {
+  list-style: none;
+  padding: 0;
+}
+
+.warrantyCard li {
+  padding: 0.5rem 0;
+  color: #6b7280;
+  font-size: 0.95rem;
+  line-height: 1.6;
+  border-bottom: 1px solid #f3f4f6;
+  position: relative;
+  padding-left: 1.5rem;
+}
+
+.warrantyCard li:before {
+  content: "✓";
+  color: #10b981;
+  font-weight: bold;
+  position: absolute;
+  left: 0;
+}
+
+.warrantyCard li:last-child {
+  border-bottom: none;
+}
+
+/* Contact Info */
+.contactInfo {
+  background-color: #f9f9f9;
+  padding: 3rem 2rem;
+  border-radius: 12px;
+  text-align: center;
+}
+
+.contactInfo h2 {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 1.75rem;
+  font-weight: 600;
+  color: #212121;
+  margin-bottom: 1rem;
+}
+
+.contactInfo p {
+  color: #6b7280;
+  margin-bottom: 2rem;
+  font-size: 1.125rem;
+}
+
+.contactDetails {
+  display: grid;
+  grid-template-columns: repeat(1, 1fr);
+  gap: 1rem;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+@media (min-width: 768px) {
+  .contactDetails {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.contactDetails div {
+  color: #4b5563;
+  font-size: 1rem;
+  line-height: 1.6;
+}
+
+.contactDetails strong {
+  color: #212121;
+}
+
 /* Responsive Adjustments */
 @media (max-width: 768px) {
   .heroTitle {
     font-size: 2.5rem;
   }
-  
+
   .heroSubtitle {
     font-size: 1.125rem;
   }
-  
+
   .formContainer {
     padding: 1.5rem;
   }
-  
+
   .formContainer h2 {
     font-size: 1.5rem;
   }
-  
+
   .mapPlaceholder {
     height: 300px;
   }
-  
+
   .mapSection h2,
   .linkSection h2 {
     font-size: 1.75rem;
+  }
+
+  .content {
+    padding: 1.5rem 1rem;
+  }
+
+  .tabButton {
+    padding: 0.75rem 1rem;
+    font-size: 0.95rem;
+  }
+
+  .supportForm,
+  .returnForm,
+  .warrantyForm {
+    padding: 1.5rem;
   }
 }
 
@@ -438,24 +803,227 @@
   .heroTitle {
     font-size: 2rem;
   }
-  
+
   .heroSubtitle {
     font-size: 1rem;
   }
-  
+
   .formContainer {
     padding: 1.25rem;
   }
-  
+
   .formContainer h2 {
     font-size: 1.25rem;
   }
-  
+
   .submitButton {
     width: 100%;
   }
-  
+
   .mapPlaceholder {
     height: 250px;
+  }
+
+  .content {
+    padding: 1rem;
+  }
+
+  .tabNavigation {
+    flex-direction: column;
+  }
+
+  .tabButton {
+    border-bottom: 1px solid #e5e7eb;
+    border-radius: 0;
+  }
+
+  .tabButton.active {
+    border-bottom-color: #f9a825;
+  }
+
+  .supportOptions {
+    grid-template-columns: 1fr;
+  }
+
+  .contactDetails {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+}
+
+/* Addi
+tional Professional Styling for Contact Pages */
+.content h1 {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 3rem;
+  font-weight: 700;
+  color: #212121;
+  text-align: center;
+  margin-bottom: 1rem;
+  background: linear-gradient(135deg, #f9a825, #f57c00);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Enhanced form validation */
+.formGroup input.error,
+.formGroup select.error,
+.formGroup textarea.error {
+  border-color: #ef4444;
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+}
+
+.formGroup .errorMessage {
+  color: #ef4444;
+  font-size: 0.875rem;
+  margin-top: 0.5rem;
+  display: flex;
+  align-items: center;
+}
+
+.formGroup .errorMessage::before {
+  content: '⚠';
+  margin-right: 0.5rem;
+}
+
+/* Success states */
+.successMessage {
+  background: linear-gradient(135deg, #ecfdf5, #d1fae5);
+  border: 1px solid #10b981;
+  color: #065f46;
+  padding: 1rem 1.5rem;
+  border-radius: 8px;
+  margin: 1rem 0;
+  display: flex;
+  align-items: center;
+}
+
+.successMessage::before {
+  content: '✅';
+  margin-right: 1rem;
+  font-size: 1.25rem;
+}
+
+.errorMessage {
+  background: linear-gradient(135deg, #fef2f2, #fecaca);
+  border: 1px solid #ef4444;
+  color: #991b1b;
+  padding: 1rem 1.5rem;
+  border-radius: 8px;
+  margin: 1rem 0;
+  display: flex;
+  align-items: center;
+}
+
+.errorMessage::before {
+  content: '❌';
+  margin-right: 1rem;
+  font-size: 1.25rem;
+}
+
+/* Enhanced file upload styling */
+.formGroup input[type="file"] {
+  padding: 0.75rem;
+  border: 2px dashed #d1d5db;
+  border-radius: 8px;
+  background-color: #f9fafb;
+  transition: all 0.3s ease;
+}
+
+.formGroup input[type="file"]:hover {
+  border-color: #f9a825;
+  background-color: #fef3c7;
+}
+
+.formGroup input[type="file"]:focus {
+  border-color: #f9a825;
+  box-shadow: 0 0 0 3px rgba(249, 168, 37, 0.1);
+}
+
+.formGroup small {
+  color: #6b7280;
+  font-size: 0.875rem;
+  margin-top: 0.5rem;
+  display: block;
+}
+
+/* Professional spacing and layout */
+.content>*+* {
+  margin-top: 2rem;
+}
+
+/* Enhanced mobile experience */
+@media (max-width: 640px) {
+  .content h1 {
+    font-size: 2.25rem;
+    line-height: 1.2;
+  }
+
+  .supportOptions,
+  .policyGrid,
+  .warrantyGrid {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+
+  .tabNavigation {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .tabButton {
+    white-space: nowrap;
+    min-width: 120px;
+  }
+
+  .supportForm,
+  .returnForm,
+  .warrantyForm {
+    padding: 1.5rem;
+  }
+
+  .formRow {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+}
+
+/* Accessibility improvements */
+.tabButton:focus,
+.submitButton:focus,
+.chatButton:focus,
+.contactButton:focus {
+  outline: 2px solid #f9a825;
+  outline-offset: 2px;
+}
+
+.formGroup input:focus,
+.formGroup select:focus,
+.formGroup textarea:focus {
+  outline: none;
+}
+
+/* Print styles */
+@media print {
+
+  .tabNavigation,
+  .submitButton,
+  .chatButton,
+  .contactButton {
+    display: none;
+  }
+
+  .content {
+    max-width: none;
+    padding: 0;
+  }
+
+  .supportCard,
+  .policyCard,
+  .warrantyCard {
+    break-inside: avoid;
+    box-shadow: none;
+    border: 1px solid #ccc;
   }
 }

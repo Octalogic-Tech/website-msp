@@ -20,7 +20,7 @@ interface EnhancedSearchProps {
     className?: string;
 }
 
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:5000/api";
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
 
 const EnhancedSearch: React.FC<EnhancedSearchProps> = ({ onClose, className = '' }) => {
     const [query, setQuery] = useState('');

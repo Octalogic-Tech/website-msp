@@ -9,7 +9,7 @@ import Image from 'next/image';
 import styles from './cart.module.css';
 
 export default function CartPage() {
-  const { items, removeItem, updateQuantity, clearCart, total, isLoading, error } = useCart();
+  const { items, removeItem, updateQuantity, checkout, total, isLoading, error } = useCart();
   const { showToast } = useToast();
   const router = useRouter();
   const [isCheckingOut, setIsCheckingOut] = useState(false);
@@ -44,10 +44,10 @@ export default function CartPage() {
   const handleCheckout = async () => {
     setIsCheckingOut(true);
     try {
-      // Clear cart first
-      const success = await clearCart();
-      if (success) {
-        router.push('/cart/success');
+      const result = await checkout();
+      if (result.success && result.orderNumber) {
+        // Redirect to success page with order number
+        router.push(`/cart/success?orderNumber=${result.orderNumber}&orderId=${result.orderId}`);
       } else {
         showToast('Failed to process checkout', 'error');
         setIsCheckingOut(false);
@@ -79,7 +79,7 @@ export default function CartPage() {
       </div>
     );
   }
-  
+
   if (items.length === 0) {
     return (
       <div className={styles.emptyCartContainer}>
@@ -95,7 +95,7 @@ export default function CartPage() {
   return (
     <div className={styles.cartPageContainer}>
       <h1 className={styles.cartTitle}>Shopping Cart</h1>
-      
+
       <div className={styles.cartContent}>
         <div className={styles.cartItems}>
           <div className={styles.cartHeader}>
@@ -105,15 +105,15 @@ export default function CartPage() {
             <div className={styles.subtotalCol}>Subtotal</div>
             <div className={styles.actionCol}></div>
           </div>
-          
+
           {items.map((item) => (
             <div key={item.id} className={styles.cartItem}>
               <div className={styles.productCol}>
                 <div className={styles.productInfo}>
                   {item.image ? (
                     <div className={styles.productImage}>
-                      <Image 
-                        src={item.image.startsWith('http') ? item.image : `http://localhost:5000${item.image}`} 
+                      <Image
+                        src={item.image.startsWith('http') ? item.image : `http://localhost:5000${item.image}`}
                         alt={item.name}
                         width={80}
                         height={80}
@@ -126,17 +126,17 @@ export default function CartPage() {
                   <div className={styles.productName}>{item.name}</div>
                 </div>
               </div>
-              
+
               <div className={styles.priceCol}>
                 {new Intl.NumberFormat('en-US', {
                   style: 'currency',
                   currency: 'USD'
                 }).format(parseInt(item.price))}
               </div>
-              
+
               <div className={styles.quantityCol}>
                 <div className={styles.quantityControl}>
-                  <button 
+                  <button
                     className={styles.quantityBtn}
                     onClick={() => handleQuantityChange(item.id, item.quantity - 1)}
                     disabled={item.quantity <= 1}
@@ -144,7 +144,7 @@ export default function CartPage() {
                     -
                   </button>
                   <span className={styles.quantityValue}>{item.quantity}</span>
-                  <button 
+                  <button
                     className={styles.quantityBtn}
                     onClick={() => handleQuantityChange(item.id, item.quantity + 1)}
                   >
@@ -152,16 +152,16 @@ export default function CartPage() {
                   </button>
                 </div>
               </div>
-              
+
               <div className={styles.subtotalCol}>
                 {new Intl.NumberFormat('en-US', {
                   style: 'currency',
                   currency: 'USD'
                 }).format(parseInt(item.price) * item.quantity)}
               </div>
-              
+
               <div className={styles.actionCol}>
-                <button 
+                <button
                   className={styles.removeBtn}
                   onClick={() => handleRemoveItem(item.id)}
                   aria-label="Remove item"
@@ -175,10 +175,10 @@ export default function CartPage() {
             </div>
           ))}
         </div>
-        
+
         <div className={styles.cartSummary}>
           <h2>Order Summary</h2>
-          
+
           <div className={styles.summaryRow}>
             <span>Subtotal</span>
             <span>
@@ -188,12 +188,12 @@ export default function CartPage() {
               }).format(total)}
             </span>
           </div>
-          
+
           <div className={styles.summaryRow}>
             <span>Shipping</span>
             <span>Calculated at checkout</span>
           </div>
-          
+
           <div className={`${styles.summaryRow} ${styles.summaryTotal}`}>
             <span>Estimated Total</span>
             <span>
@@ -203,21 +203,21 @@ export default function CartPage() {
               }).format(total)}
             </span>
           </div>
-          
+
           <div className={styles.cartActions}>
-            <button 
+            <button
               className={styles.checkoutBtn}
               onClick={handleCheckout}
               disabled={isCheckingOut}
             >
               {isCheckingOut ? 'Processing...' : 'Proceed to Checkout'}
             </button>
-            
+
             <Link href="/shop" className={styles.continueShoppingLink}>
               Continue Shopping
             </Link>
           </div>
-          
+
           <div className={styles.cartNote}>
             <p>Need help with your order? <a href="/contact">Contact our team</a></p>
             <p>Shipping and taxes will be calculated at checkout</p>

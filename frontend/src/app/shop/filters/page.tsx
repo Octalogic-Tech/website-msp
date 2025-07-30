@@ -1,7 +1,7 @@
 'use client';
 
-import ShopCategoryPage from '../../components/shop/ShopCategoryPage';
+import ShopCategoryPageEnhanced from '../../components/shop/ShopCategoryPageEnhanced';
 
 export default function FiltersPage() {
-  return <ShopCategoryPage categorySlug="filters" categoryTitle="Filters" />;
+  return <ShopCategoryPageEnhanced categorySlug="filters" categoryTitle="Filters" />;
 }

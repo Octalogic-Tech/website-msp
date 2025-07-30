@@ -2,11 +2,15 @@
 
 import { Montserrat, Open_Sans } from "next/font/google";
 import "./globals.css";
+import "./account/account.css";
+import "./account/account.css";
 import Navigation from "./components/Navigation";
 import Footer from "./components/Footer";
+import { AuthProvider } from "./contexts/AuthContext";
 import { CartProvider } from "./components/shop/CartContext";
 import { QuoteProvider } from "./components/shop/QuoteContext";
 import { ToastProvider } from "./components/shop/ToastContext";
+import { SavedProductsProvider } from "./contexts/SavedProductsContext";
 import MobileCTA from "./components/shop/MobileCTA";
 
 const montserrat = Montserrat({
@@ -38,18 +42,22 @@ export default function RootLayout({
         className={`${montserrat.variable} ${openSans.variable} antialiased`}
         suppressHydrationWarning={true}
       >
-        <CartProvider>
-          <QuoteProvider>
-            <ToastProvider>
-              <Navigation />
-              <main id="main-content">
-                {children}
-              </main>
-              <Footer />
-              <MobileCTA />
-            </ToastProvider>
-          </QuoteProvider>
-        </CartProvider>
+        <AuthProvider>
+          <CartProvider>
+            <QuoteProvider>
+              <ToastProvider>
+                <SavedProductsProvider>
+                  <Navigation />
+                  <main id="main-content">
+                    {children}
+                  </main>
+                  <Footer />
+                  <MobileCTA />
+                </SavedProductsProvider>
+              </ToastProvider>
+            </QuoteProvider>
+          </CartProvider>
+        </AuthProvider>
       </body>
     </html>
   );

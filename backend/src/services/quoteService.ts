@@ -2,14 +2,14 @@ import { prisma } from '../config/database';
 import { QuoteRequestInput } from '../models/validation';
 
 export class QuoteService {
-  static async createQuoteRequest(input: QuoteRequestInput) {
+  static async createQuoteRequest(input: QuoteRequestInput, userId?: string | null) {
     const { customerInfo, items, notes } = input;
     const { email, name: customerName, company: companyName, phone: phoneNumber } = customerInfo;
 
     // Validate all products exist
     const productIds = items.map(item => item.productId);
     const products = await prisma.product.findMany({
-      where: { 
+      where: {
         id: { in: productIds },
         isActive: true,
       },
@@ -25,10 +25,10 @@ export class QuoteService {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const product = products.find((p: any) => p.id === item.productId);
       if (!product) throw new Error(`Product ${item.productId} not found`);
-      
+
       const itemTotal = Number(product.price) * item.quantity;
       totalAmount += itemTotal;
-      
+
       return {
         productId: item.productId,
         quantity: item.quantity,
@@ -39,6 +39,7 @@ export class QuoteService {
     // Create quote request with items
     const quoteRequest = await prisma.quoteRequest.create({
       data: {
+        userId,
         email,
         customerName,
         companyName,
@@ -109,7 +110,7 @@ export class QuoteService {
     });
   }
 
-  static async updateQuoteStatus(id: string, status: 'PENDING' | 'APPROVED' | 'REJECTED' | 'EXPIRED') {
+  static async updateQuoteStatus(id: string, status: 'PENDING' | 'REVIEWED' | 'QUOTED' | 'ACCEPTED' | 'DECLINED' | 'EXPIRED') {
     const quoteRequest = await prisma.quoteRequest.findUnique({
       where: { id },
     });
@@ -121,6 +122,46 @@ export class QuoteService {
     return await prisma.quoteRequest.update({
       where: { id },
       data: { status },
+      include: {
+        items: {
+          include: {
+            product: {
+              include: {
+                category: true,
+                brand: true,
+              },
+            },
+          },
+        },
+      },
+    });
+  }
+
+  static async getUserQuoteRequests(userId: string) {
+    return await prisma.quoteRequest.findMany({
+      where: { userId },
+      include: {
+        items: {
+          include: {
+            product: {
+              include: {
+                category: true,
+                brand: true,
+              },
+            },
+          },
+        },
+      },
+      orderBy: { createdAt: 'desc' },
+    });
+  }
+
+  static async getUserQuoteById(id: string, userId: string) {
+    return await prisma.quoteRequest.findFirst({
+      where: {
+        id,
+        userId
+      },
       include: {
         items: {
           include: {

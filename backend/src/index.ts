@@ -8,9 +8,12 @@ import { prisma } from './config/database';
 import { errorHandler } from './middleware/errorHandler';
 
 // Routes
+import authRoutes from './routes/auth';
 import productRoutes from './routes/products';
 import cartRoutes from './routes/cart';
 import quoteRoutes from './routes/quote';
+import orderRoutes from './routes/orders';
+import savedProductRoutes from './routes/savedProducts';
 
 // Load environment variables
 dotenv.config();
@@ -27,8 +30,10 @@ app.use(cors({
   origin: [
     'http://localhost:3000',
     'http://localhost:3001',
+    'http://localhost:3002',
     'http://127.0.0.1:3000',
-    'http://127.0.0.1:3001'
+    'http://127.0.0.1:3001',
+    'http://127.0.0.1:3002'
   ],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
@@ -69,9 +74,12 @@ app.get('/health', (req, res) => {
 });
 
 // API routes
+app.use('/api/auth', authRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/cart', cartRoutes);
 app.use('/api/quote', quoteRoutes);
+app.use('/api/orders', orderRoutes);
+app.use('/api/saved-products', savedProductRoutes);
 
 // Parts finder route (alternative path)
 app.use('/api/parts-finder', productRoutes);
@@ -83,9 +91,12 @@ app.get('/api', (req, res) => {
     version: '1.0.0',
     endpoints: {
       health: '/health',
+      auth: '/api/auth',
       products: '/api/products',
       cart: '/api/cart',
       quote: '/api/quote',
+      orders: '/api/orders',
+      savedProducts: '/api/saved-products',
       partsFinder: '/api/parts-finder',
     }
   });

@@ -7,6 +7,7 @@ import { Button, Badge, Card, Alert } from '../ui';
 import { useCart } from './CartContext';
 import { useQuote } from './QuoteContext';
 import { useToast } from './ToastContext';
+import SaveButton from './SaveButton';
 
 interface Document {
     name: string;
@@ -391,6 +392,23 @@ const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
 
                 {/* Below Fold Content */}
                 <div className="below-fold-content">
+                    {/* Save to Wishlist Section */}
+                    <div className="save-to-wishlist-section">
+                        <div className="save-button-container">
+                            <SaveButton
+                                productId={product.id}
+                                size="lg"
+                                variant="button"
+                                showText={true}
+                                className="save-button-detail"
+                            />
+                            <div className="save-button-text">
+                                <span className="save-text-primary">Save this product</span>
+                                <span className="save-text-secondary">Add to your wishlist for easy access later</span>
+                            </div>
+                        </div>
+                    </div>
+
                     {/* Full Specifications */}
                     {product.specs && Object.keys(product.specs).length > 0 && (
                         <Card variant="default" className="section-card">

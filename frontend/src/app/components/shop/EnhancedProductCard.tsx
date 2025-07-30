@@ -6,8 +6,9 @@ import { useCart } from './CartContext';
 import { useQuote } from './QuoteContext';
 import { useToast } from './ToastContext';
 import Image from 'next/image';
-import { FaShoppingCart, FaQuoteLeft, FaEye, FaHeart, FaCompressArrowsAlt } from 'react-icons/fa';
+import { FaShoppingCart, FaQuoteLeft, FaEye, FaCompressArrowsAlt } from 'react-icons/fa';
 import { HiOutlineDocumentText } from 'react-icons/hi';
+import SaveButton from './SaveButton';
 
 interface Product {
   id: string;
@@ -108,7 +109,7 @@ const EnhancedProductCard: React.FC<EnhancedProductCardProps> = ({
   const getAvailabilityBadge = () => {
     const availability = product.availability || 'Unknown';
     const stockQty = product.stockQty || 0;
-    
+
     if (availability === 'In Stock' && stockQty > 0) {
       return <span className="badge badge-success">In Stock</span>;
     } else if (availability === 'Low Stock' || stockQty <= 5) {
@@ -139,7 +140,7 @@ const EnhancedProductCard: React.FC<EnhancedProductCardProps> = ({
             className="object-cover"
           />
         </div>
-        
+
         <div className="product-card-list-content">
           <div className="product-card-list-header">
             <h3 className="product-card-title">{product.name}</h3>
@@ -148,11 +149,11 @@ const EnhancedProductCard: React.FC<EnhancedProductCardProps> = ({
               {getAvailabilityBadge()}
             </div>
           </div>
-          
+
           <p className="product-card-description">
             {product.description || 'High-quality construction machinery part'}
           </p>
-          
+
           <div className="product-card-meta">
             {product.brand && (
               <span className="text-steel">Brand: {product.brand.name}</span>
@@ -161,7 +162,7 @@ const EnhancedProductCard: React.FC<EnhancedProductCardProps> = ({
               <span className="text-steel">Category: {product.category.name}</span>
             )}
           </div>
-          
+
           <div className="product-card-price-section">
             <span className="product-card-price">${product.price}</span>
             <div className="product-card-actions-list">
@@ -174,7 +175,7 @@ const EnhancedProductCard: React.FC<EnhancedProductCardProps> = ({
                 <FaShoppingCart />
                 {isCartLoading ? 'Adding...' : 'Add to Cart'}
               </button>
-              
+
               <button
                 onClick={handleAddToQuote}
                 disabled={isQuoteLoading}
@@ -184,7 +185,14 @@ const EnhancedProductCard: React.FC<EnhancedProductCardProps> = ({
                 <FaQuoteLeft />
                 Quote
               </button>
-              
+
+              <SaveButton
+                productId={product.id}
+                size="sm"
+                variant="button"
+                showText={false}
+              />
+
               {showCompareButton && (
                 <button
                   onClick={handleCompareToggle}
@@ -213,54 +221,66 @@ const EnhancedProductCard: React.FC<EnhancedProductCardProps> = ({
           height={200}
           className="object-cover"
         />
-        
+
         {/* Overlay Actions */}
         <div className="product-card-overlay">
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              handleViewDetails();
-            }}
-            className="btn btn-primary btn-sm"
-            title="View Details"
-          >
-            <FaEye />
-          </button>
-          
-          {showCompareButton && (
+          {/* Left side - Save Button */}
+          <div className="overlay-left-actions">
+            <SaveButton
+              productId={product.id}
+              size="sm"
+              className="save-button--overlay"
+            />
+          </div>
+
+          {/* Right side - Other Actions */}
+          <div className="overlay-right-actions">
             <button
-              onClick={handleCompareToggle}
-              className={`btn btn-ghost btn-sm ${isInCompare ? 'active' : ''}`}
-              title={isInCompare ? 'Remove from Compare' : 'Add to Compare'}
+              onClick={(e) => {
+                e.stopPropagation();
+                handleViewDetails();
+              }}
+              className="btn btn-primary btn-sm"
+              title="View Details"
             >
-              <FaCompressArrowsAlt />
+              <FaEye />
             </button>
-          )}
+
+            {showCompareButton && (
+              <button
+                onClick={handleCompareToggle}
+                className={`btn btn-ghost btn-sm ${isInCompare ? 'active' : ''}`}
+                title={isInCompare ? 'Remove from Compare' : 'Add to Compare'}
+              >
+                <FaCompressArrowsAlt />
+              </button>
+            )}
+          </div>
         </div>
-        
+
         {/* Status Badges */}
         <div className="product-card-badges">
           {getConditionBadge()}
           {getAvailabilityBadge()}
         </div>
       </div>
-      
+
       {/* Product Content */}
       <div className="product-card-content">
         <h3 className="product-card-title">{product.name}</h3>
-        
+
         {product.brand && (
           <p className="text-steel text-sm mb-2">by {product.brand.name}</p>
         )}
-        
+
         <div className="product-card-price">${product.price}</div>
-        
+
         {product.description && (
           <p className="text-steel text-sm line-clamp-2 mb-3">
             {product.description}
           </p>
         )}
-        
+
         {/* Key Specs */}
         {product.specs && Object.keys(product.specs).length > 0 && (
           <div className="product-specs-preview">
@@ -272,7 +292,7 @@ const EnhancedProductCard: React.FC<EnhancedProductCardProps> = ({
             ))}
           </div>
         )}
-        
+
         {/* Documents */}
         {product.documents && product.documents.length > 0 && (
           <div className="product-documents">
@@ -280,7 +300,7 @@ const EnhancedProductCard: React.FC<EnhancedProductCardProps> = ({
             <span className="text-sm text-steel">{product.documents.length} document(s)</span>
           </div>
         )}
-        
+
         {/* Action Buttons */}
         <div className="product-card-actions">
           <button
@@ -291,7 +311,7 @@ const EnhancedProductCard: React.FC<EnhancedProductCardProps> = ({
             <FaShoppingCart />
             {isCartLoading ? 'Adding...' : 'Add to Cart'}
           </button>
-          
+
           <button
             onClick={handleAddToQuote}
             disabled={isQuoteLoading}

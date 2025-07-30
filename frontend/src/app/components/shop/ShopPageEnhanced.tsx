@@ -5,9 +5,10 @@ import FilterSidebarEnhanced from "./FilterSidebarEnhanced";
 import SortSelectEnhanced from "./SortSelectEnhanced";
 import EnhancedSearch from "./EnhancedSearch";
 import { useCart } from "./CartContext";
+import { useStickyFilter } from "../../hooks/useStickyFilter";
 import '../../shop/shop.css';
 
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:5000/api";
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
 
 type Filters = {
     category?: string;
@@ -80,6 +81,7 @@ export default function ShopPageEnhanced() {
 
     const router = useRouter();
     const { addItem: addToCart } = useCart();
+    const { isSticky, filterRef } = useStickyFilter();
 
     useEffect(() => {
         const fetchProducts = async () => {
@@ -108,15 +110,24 @@ export default function ShopPageEnhanced() {
                 });
                 params.delete('priceRange');
 
-                const res = await fetch(`${API_BASE}/products?${params.toString()}`, { credentials: "include" });
+                const url = `${API_BASE}/products?${params.toString()}`;
+                console.log('🔍 Fetching products from:', url);
+
+                const res = await fetch(url, { credentials: "include" });
+                console.log('📡 Response status:', res.status);
+
                 const data = await res.json();
+                console.log('📦 Response data:', data);
 
                 if (data.success) {
+                    console.log('✅ Products loaded:', data.data.length);
                     setProducts(data.data);
                 } else {
+                    console.error('❌ API Error:', data.error);
                     setError(data.error || "Failed to fetch products.");
                 }
-            } catch {
+            } catch (error) {
+                console.error('🚨 Network error:', error);
                 setError("Network error. Please try again later.");
             }
             setLoading(false);
@@ -210,15 +221,11 @@ export default function ShopPageEnhanced() {
                 </div>
             </div>
 
-            <button className="filters-toggle" onClick={toggleFilters}>
-                {isFilterOpen ? 'Close Filters' : 'Show Filters'}
-            </button>
-
             <div className="shop-content-enhanced">
-                <aside className={`filters-section ${isFilterOpen ? 'active' : ''}`}>
-                    {isFilterOpen && (
-                        <button className="filters-close" onClick={toggleFilters}>×</button>
-                    )}
+                <aside
+                    ref={filterRef}
+                    className={`filters-section ${isSticky ? 'sticky-active' : ''}`}
+                >
                     <FilterSidebarEnhanced
                         setFilters={setFilters}
                         categories={categories}
@@ -228,7 +235,7 @@ export default function ShopPageEnhanced() {
                     />
                 </aside>
 
-                <main>
+                <main className="products-section">
                     {loading && <div className="loading">Loading products...</div>}
                     {error && <div className="text-red-600">{error}</div>}
                     {!loading && !error && (

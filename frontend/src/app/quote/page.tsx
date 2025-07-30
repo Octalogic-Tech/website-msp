@@ -34,7 +34,7 @@ export default function QuotePage() {
       ...prev,
       [name]: value,
     }));
-    
+
     // Clear error when field is edited
     if (errors[name as keyof CustomerInfo]) {
       setErrors((prev) => ({
@@ -46,37 +46,37 @@ export default function QuotePage() {
 
   const validateForm = (): boolean => {
     const newErrors: Partial<CustomerInfo> = {};
-    
+
     if (!customerInfo.name.trim()) {
       newErrors.name = 'Name is required';
     }
-    
+
     if (!customerInfo.email.trim()) {
       newErrors.email = 'Email is required';
     } else if (!/^\S+@\S+\.\S+$/.test(customerInfo.email)) {
       newErrors.email = 'Please enter a valid email address';
     }
-    
+
     if (!customerInfo.phone.trim()) {
       newErrors.phone = 'Phone number is required';
     }
-    
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!validateForm()) return;
-    
+
     setIsSubmitting(true);
-    
+
     try {
       await submitQuote(customerInfo);
       setSubmitted(true);
       clearQuote();
-      
+
       // Redirect after a short delay
       setTimeout(() => {
         router.push('/quote/success');
@@ -105,7 +105,7 @@ export default function QuotePage() {
       </div>
     );
   }
-  
+
   if (items.length === 0) {
     return (
       <div className={styles.emptyQuoteContainer}>
@@ -134,32 +134,43 @@ export default function QuotePage() {
 
   return (
     <div className={styles.quotePageContainer}>
-      <h1 className={styles.quoteTitle}>Request a Quote</h1>
-      
+      {/* Hero Section */}
+      <div className={styles.heroSection}>
+        <div className={styles.heroContent}>
+          <h1 className={styles.quoteTitle}>Request a Quote</h1>
+          <p className={styles.quoteSubtitle}>
+            Get competitive pricing on professional construction equipment. Our team will provide you with a detailed quote within 24-48 hours.
+          </p>
+        </div>
+      </div>
+
       <div className={styles.quoteContent}>
         <div className={styles.quoteItems}>
-          <h2>Items in Your Quote Request</h2>
-          
+          <div className={styles.sectionHeader}>
+            <h2>Items in Your Quote Request</h2>
+            <span className={styles.itemCount}>{itemCount} {itemCount === 1 ? 'item' : 'items'}</span>
+          </div>
+
           {items.map((item) => (
             <div key={item.id} className={styles.quoteItem}>
               <div className={styles.itemInfo}>
                 {item.image ? (
                   <div className={styles.itemImage}>
-                    <img 
-                      src={item.image.startsWith('http') ? item.image : `http://localhost:5000${item.image}`} 
+                    <img
+                      src={item.image.startsWith('http') ? item.image : `http://localhost:5000${item.image}`}
                       alt={item.name}
                     />
                   </div>
                 ) : (
                   <div className={styles.itemImagePlaceholder} />
                 )}
-                
+
                 <div className={styles.itemDetails}>
                   <h3 className={styles.itemName}>{item.name}</h3>
                   <div className={styles.quantityContainer}>
                     <span>Quantity:</span>
                     <div className={styles.quantityControls}>
-                      <button 
+                      <button
                         className={styles.quantityBtn}
                         onClick={() => handleQuantityChange(item.id, item.quantity - 1)}
                         disabled={item.quantity <= 1}
@@ -167,7 +178,7 @@ export default function QuotePage() {
                         -
                       </button>
                       <span className={styles.quantity}>{item.quantity}</span>
-                      <button 
+                      <button
                         className={styles.quantityBtn}
                         onClick={() => handleQuantityChange(item.id, item.quantity + 1)}
                       >
@@ -177,9 +188,9 @@ export default function QuotePage() {
                   </div>
                 </div>
               </div>
-              
+
               <div className={styles.itemActions}>
-                <button 
+                <button
                   className={styles.removeBtn}
                   onClick={() => handleRemoveItem(item.id)}
                   aria-label="Remove item"
@@ -194,9 +205,12 @@ export default function QuotePage() {
             </div>
           ))}
         </div>
-        
+
         <div className={styles.quoteForm}>
-          <h2>Your Information</h2>
+          <div className={styles.sectionHeader}>
+            <h2>Your Information</h2>
+            <span className={styles.secureIcon}>🔒 Secure & Confidential</span>
+          </div>
           <form onSubmit={handleSubmit}>
             <div className={styles.formGroup}>
               <label htmlFor="name">Full Name *</label>
@@ -211,7 +225,7 @@ export default function QuotePage() {
               />
               {errors.name && <span className={styles.errorMessage}>{errors.name}</span>}
             </div>
-            
+
             <div className={styles.formGroup}>
               <label htmlFor="email">Email Address *</label>
               <input
@@ -225,7 +239,7 @@ export default function QuotePage() {
               />
               {errors.email && <span className={styles.errorMessage}>{errors.email}</span>}
             </div>
-            
+
             <div className={styles.formGroup}>
               <label htmlFor="phone">Phone Number *</label>
               <input
@@ -239,7 +253,7 @@ export default function QuotePage() {
               />
               {errors.phone && <span className={styles.errorMessage}>{errors.phone}</span>}
             </div>
-            
+
             <div className={styles.formGroup}>
               <label htmlFor="company">Company Name</label>
               <input
@@ -251,7 +265,7 @@ export default function QuotePage() {
                 placeholder="Enter your company name (optional)"
               />
             </div>
-            
+
             <div className={styles.formGroup}>
               <label htmlFor="message">Additional Information</label>
               <textarea
@@ -263,7 +277,7 @@ export default function QuotePage() {
                 placeholder="Include any specific requirements or questions"
               ></textarea>
             </div>
-            
+
             <div className={styles.formFooter}>
               <p className={styles.requiredFields}>* Required fields</p>
               <div className={styles.formActions}>
@@ -282,15 +296,54 @@ export default function QuotePage() {
           </form>
         </div>
       </div>
-      
-      <div className={styles.quoteInfo}>
-        <h3>What happens next?</h3>
-        <ol>
-          <li>Our team will review your quote request</li>
-          <li>We'll prepare a detailed quote based on your requirements</li>
-          <li>You'll receive the quote via email within 24-48 business hours</li>
-          <li>A sales representative may contact you to discuss specific needs</li>
-        </ol>
+
+      <div className={styles.processSection}>
+        <h3 className={styles.processTitle}>What happens next?</h3>
+        <div className={styles.processSteps}>
+          <div className={styles.processStep}>
+            <div className={styles.stepNumber}>1</div>
+            <div className={styles.stepContent}>
+              <h4>Review</h4>
+              <p>Our team will review your quote request and specifications</p>
+            </div>
+          </div>
+          <div className={styles.processStep}>
+            <div className={styles.stepNumber}>2</div>
+            <div className={styles.stepContent}>
+              <h4>Prepare Quote</h4>
+              <p>We'll prepare a detailed quote with competitive pricing</p>
+            </div>
+          </div>
+          <div className={styles.processStep}>
+            <div className={styles.stepNumber}>3</div>
+            <div className={styles.stepContent}>
+              <h4>Delivery</h4>
+              <p>You'll receive the quote via email within 24-48 business hours</p>
+            </div>
+          </div>
+          <div className={styles.processStep}>
+            <div className={styles.stepNumber}>4</div>
+            <div className={styles.stepContent}>
+              <h4>Follow-up</h4>
+              <p>A sales representative may contact you to discuss specific needs</p>
+            </div>
+          </div>
+        </div>
+
+        <div className={styles.guaranteeSection}>
+          <div className={styles.guaranteeItem}>
+            <span className={styles.guaranteeIcon}>⚡</span>
+            <span>Fast Response</span>
+          </div>
+          <div className={styles.guaranteeItem}>
+            <span className={styles.guaranteeIcon}>💰</span>
+            <span>Competitive Pricing</span>
+          </div>
+          <div className={styles.guaranteeItem}>
+            <span className={styles.guaranteeIcon}>🛡️</span>
+            <span>No Obligation</span>
+          </div>
+        </div>
       </div>
     </div>
   );

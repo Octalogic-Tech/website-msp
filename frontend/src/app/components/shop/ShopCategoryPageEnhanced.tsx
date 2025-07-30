@@ -5,9 +5,10 @@ import FilterSidebarEnhanced from "./FilterSidebarEnhanced";
 import SortSelectEnhanced from "./SortSelectEnhanced";
 import EnhancedSearch from "./EnhancedSearch";
 import { useCart } from "./CartContext";
+import { useStickyFilter } from "../../hooks/useStickyFilter";
 import '../../shop/shop.css';
 
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:5000/api";
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
 
 type Filters = {
     category?: string;
@@ -86,6 +87,7 @@ const ShopCategoryPageEnhanced: React.FC<ShopCategoryPageEnhancedProps> = ({ cat
 
     const router = useRouter();
     const { addItem: addToCart } = useCart();
+    const { isSticky, filterRef } = useStickyFilter();
 
     useEffect(() => {
         const fetchProducts = async () => {
@@ -218,15 +220,13 @@ const ShopCategoryPageEnhanced: React.FC<ShopCategoryPageEnhancedProps> = ({ cat
                 </div>
             </div>
 
-            <button className="filters-toggle" onClick={toggleFilters}>
-                {isFilterOpen ? 'Close Filters' : 'Show Filters'}
-            </button>
+
 
             <div className="shop-content-enhanced">
-                <aside className={`filters-section ${isFilterOpen ? 'active' : ''}`}>
-                    {isFilterOpen && (
-                        <button className="filters-close" onClick={toggleFilters}>×</button>
-                    )}
+                <aside
+                    ref={filterRef}
+                    className={`filters-section ${isSticky ? 'sticky-active' : ''}`}
+                >
                     <FilterSidebarEnhanced
                         setFilters={setFilters}
                         categories={categories}
@@ -236,7 +236,7 @@ const ShopCategoryPageEnhanced: React.FC<ShopCategoryPageEnhancedProps> = ({ cat
                     />
                 </aside>
 
-                <main>
+                <main className="products-section">
                     {loading && <div className="loading">Loading products...</div>}
                     {error && <div className="text-red-600">{error}</div>}
                     {!loading && !error && (
