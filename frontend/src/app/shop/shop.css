@@ -630,7 +630,7 @@
 }
 
 .product-card:hover {
-  transform: translateY(-4px);
+  /*transform: translateY(-4px);*/
   box-shadow: var(--shadow-xl);
   border-color: var(--primary-color);
 }
@@ -848,7 +848,7 @@
 
 .add-to-cart-btn:hover:not(.disabled) {
   background: linear-gradient(135deg, var(--accent-color) 0%, #e65100 100%);
-  transform: translateY(-2px);
+  /*transform: translateY(-2px);*/
   box-shadow: var(--shadow-lg);
 }
 
@@ -870,7 +870,7 @@
   background-color: var(--steel-gray-dark);
   color: var(--white-color);
   border-color: var(--steel-gray-dark);
-  transform: translateY(-2px);
+/*  transform: translateY(-2px);*/
   box-shadow: var(--shadow-md);
 }
 
@@ -6079,4 +6079,11 @@ Container Positioning */
     min-width: auto;
     max-width: none;
   }
+}
+
+/* === FIX: stop buttons/cards from shifting up on hover === */
+.product-card:hover,
+.add-to-cart-btn:hover:not(.disabled),
+.add-to-quote-btn:hover {
+  transform: none !important;   /* force no vertical movement */
 }
